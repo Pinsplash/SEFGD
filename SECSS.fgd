@@ -8,7 +8,7 @@
 //6. Open Counter-Strike Source/cstrike/gameinfo.txt and add these two lines (without the comment syntax)
 //	GameData "SECSS.fgd"
 //	InstancePath "maps/instances/"
-//Submit queries here: https://discord.gg/ZW59whj
+//Submit queries here: https://discord.gg/ZW59whj Even if you just have a question, it may help me improve this FGD.
 //Wanna help me out? Search "TODO:" in this file.
 //Derivatives are allowed to be made and distributed.
 @mapsize(-16384, 16384)
@@ -68,6 +68,8 @@
 		"func_breakable"
 		"func_breakable_surf"
 		"func_button"
+		"func_door"
+		"func_door_rotating"
 		"func_fish_pool"
 		"func_guntarget"
 		"func_rot_button"
@@ -100,7 +102,6 @@
 		"filter_activator_class"
 		"filter_activator_mass_greater"
 		"filter_activator_name"
-		"filter_base"
 		"filter_damage_type"
 		"filter_multi"
 		"game_ui"
@@ -134,12 +135,14 @@
 		"env_entity_igniter"
 		"func_brush"
 		"func_instance"
+		"func_instance_parms"
 		"func_traincontrols"
 		"hammer_updateignorelist"
 		"info_null"
 		"info_target"
 		"player_speedmod"
 		"point_devshot_camera"
+		"point_enable_motion_fixup"
 		"point_gamestats_counter"
 		"point_playermoveconstraint"
 		"point_teleport"
@@ -176,7 +179,6 @@
 		"func_detail"
 		"func_occluder"
 		"func_viscluster"
-		"water_lod_control"
 	]
 	"Physics"// color(255 0 255)
 	[
@@ -435,16 +437,15 @@
 @BaseClass base(RenderFields) = VisibleBrush 
 [
 	_minlight(float) : "Minimum Light" : 0 : "Minimum amount of light to hit this brush. 0 is none, 1 is 'fullbright'. Useful because the lightmaps will not update as the entity moves."
-	shadowcastdist(integer) : "Shadow Cast Distance" : 0 : "Sets how far the entity casts _rt_shadows shadows. 0 means default distance from the shadow_control entity."
-	vrad_brush_cast_shadows(choices) : "Shadows (lightmap)" : 1 : "Determines if this entity will cast lightmap shadows." =
-	[
-		0 : "No shadows"
-		1 : "Cast shadows"
-	]
 	disablereceiveshadows(choices) : "Disable Receiving Shadows" : 0 : "Adds EF_NORECEIVESHADOW to this entity. (_rt_shadows shadows don't cast onto entity)" =
 	[
 		0 : "No"
 		1 : "Yes"
+	]
+	vrad_brush_cast_shadows(choices) : "Shadows (lightmap)" : 0 : "Determines if this entity will cast lightmap shadows." =
+	[
+		0 : "No shadows"
+		1 : "Cast shadows"
 	]
 ]
 @BaseClass = Toggle 
@@ -484,7 +485,7 @@
 	input SetParentAttachment(string) : "Teleports this entity to a specific attachment point on its Parent and moves identically to that attachment point."
 	input SetParentAttachmentMaintainOffset(string) : "Same as SetParentAttachment, but the entity is not teleported and instead keeps its current position and angles, until the attachment moves."
 	input ClearParent(void) : "Sets the Parent keyvalue to be blank, removing this entity from any hierarchy."
-	input AddOutput(string) : "Evaluates a keyvalue or IO event on this entity. Not all keyvalues will work with this input as they require special handling.\n" +
+	input AddOutput(string) : "Changes a keyvalue or adds an I/O connection on this entity. Not all keyvalues will work with this input as they require special handling.\n" +
 	"Keyvalue format: <key> <value>\n" +
 	"IO format: <output name> <targetname>:<input name>:<parameter>:<delay>:<fire once>\n" +
 	"The parameter can be left blank, but do not omit either ':' surrounding it or the game will think the delay is the parameter! <fire once> is whether the IO event can be fired again. Put 0 to allow infinite refires, put 1 to make it only fire once ever."
@@ -506,12 +507,7 @@
 	cycle(float) : "Cycle" :  : "How far along the model is through playing its current animation, as a range from 0-1. This can be changed with AddOutput."
 	LightingOrigin(target_destination) : "Lighting Origin" :  : "An entity from which to sample lighting instead of the entity's origin. It cannot be any internal entity, including info_lighting."
 	fadescale(float) : "Fade Scale" : 1 : "If specified in the worldspawn, or if the game is running below DirectX 8, entities will fade out even if the Start/End Fade Distance keyvalues aren't specified. This value gives more control over when this happens: numbers smaller than 1 cause the entity to fade out farther away, and greater than 1 cause it to fade out at closer distances. Using 0 turns off the forced fade altogether. See also $noforcedfade."
-	disableshadows(choices) : "Disable Shadows" : 0 : "Prevent this prop from casting lightmap shadows." =
-	[
-		0 : "No"
-		1 : "Yes"
-	]
-	disablereceiveshadows(choices) : "Disable Receiving Shadows" : 0 : "Adds EF_NORECEIVESHADOW to this entity. (_rt_shadows shadows don't cast onto entity)" =
+	disableshadows(choices) : "Disable Shadows" : 0 : "Adds EF_NOSHADOW to this entity. (No _rt_shadows shadow cast.)" =
 	[
 		0 : "No"
 		1 : "Yes"
@@ -523,19 +519,18 @@
 	input IgniteLifetime(float) : "Makes the entity catch on fire for a given amount of time."
 	input BecomeRagdoll(void) : "Kills the entity and creates a client-side ragdoll from the model. The model must have $collisionjoints, otherwise it may cause bugs. See also: phys_convert."
 	input SetLightingOrigin(target_destination) : "Sets Lighting Origin."
-	input SetLightingOriginHack(target_destination) : "Sets Lighting Origin Offset."
 	input SetModelScale(string) : "Sets Model Scale. Does not alter the physics collisions in most cases, however. Negative values are accepted. Takes two values separated by a space. A second number can be added to make the model grow/shrink smoothly over a certain number of seconds."
 	input EnableDamageForces(void) : "Allows the entity to be pushed by damage done to it (usually force amount correlates with the damage done)."
 	input DisableDamageForces(void) : "Prevents the entity from being pushed by damage done to it."
-	input EnableShadow(void) : "Sets Disable Shadows to false."
-	input DisableShadow(void) : "Sets Disable Shadows to true."
+	input EnableShadow(void) : "Adds _rt_shadows shadows to the entity."
+	input DisableShadow(void) : "Removes _rt_shadows shadows from the entity."
 	output OnIgnite(void) : "Fired when the entity catches fire, such as from an env_entity_igniter or the Ignite inputs."
 ]
 @BaseClass base(CBaseAnimating) = CBaseCombatWeapon 
 [
 	spawnflags(flags) =
 	[
-		1 : "Start constrained - Makes the weapon not move. TODO: Can the physics be re-enabled somehow?" : 0
+		1 : "Start constrained - Makes the weapon not move." : 0
 		2 : "Deny player pickup" : 0
 	]
 	input HideWeapon(void) : "If the weapon is being held by someone, makes it invisible. The weapon will reappear if they switch weapons."
@@ -553,7 +548,7 @@
 	output OnPass(void) : "Fires when TestActivator is sent and the !activator is allowed by the criteria."
 	output OnFail(void) : "Fires when TestActivator is sent and the !activator is not allowed by the criteria."
 ]
-@BaseClass base(CBaseEntity,VisibleBrush,DamageFilter) = CBaseButton 
+@BaseClass base(CBaseEntity,VisibleBrush,DamageFilter,Origin) = CBaseButton 
 [
 	spawnflags(flags) =
 	[
@@ -565,7 +560,7 @@
 		2048 : "Starts locked" : 0
 	]
 	speed(integer) : "Speed" :  : "The speed that the button moves, in units per second or degrees per second if rotating."
-	wait(integer) : "Delay Before Reset (-1 stay)" :  : "Amount of time in seconds after the button has moved to the pressed position before it returns to the starting position. Once it has returned, it can be used again. If the value is set to -1, the button never returns."
+	wait(integer) : "Delay Before Reset (-1 stay)" : 1 : "Amount of time in seconds after the button has moved to the pressed position before it returns to the starting position. Once it has returned, it can be used again. If the value is set to -1, the button never returns."
 	sounds(choices) : "Press Sound 1" : 0 : "Sound to play when pressed and unlocked." =
 	[
 		0 : "None"
@@ -597,6 +592,10 @@
 		22 : "Moving parts 3"
 		23 : "Moving parts 4"
 		24 : "Moving parts 5"
+		25 : "Moving parts 6"
+		26 : "Moving parts 7"
+		27 : "Moving parts 8"
+		28 : "Moving parts 9"
 	]
 	unlocked_sound(choices) : "Press Sound 2" : 0 : "Sound played when the button is pressed while unlocked. If set, the sound that plays alternates between this and Press Sound 1, even if the first one is set to None." =
 	[
@@ -629,6 +628,10 @@
 		22 : "Moving parts 3"
 		23 : "Moving parts 4"
 		24 : "Moving parts 5"
+		25 : "Moving parts 6"
+		26 : "Moving parts 7"
+		27 : "Moving parts 8"
+		28 : "Moving parts 9"
 	]
 	locked_sound(choices) : "Locked Sound" : 2 : "Sound played when the player tries to use the button, and fails because it's locked." =
 	[
@@ -661,6 +664,10 @@
 		22 : "Moving parts 3"
 		23 : "Moving parts 4"
 		24 : "Moving parts 5"
+		25 : "Moving parts 6"
+		26 : "Moving parts 7"
+		27 : "Moving parts 8"
+		28 : "Moving parts 9"
 	]
 	input Lock(void) : "Locks the button, preventing it from functioning."
 	input Unlock(void) : "Unlocks the button, allowing it to function."
@@ -678,7 +685,7 @@
 	physdamagescale(float) : "Physics Impact Damage Scale" :  : "Multiplier for damage amount when this entity is hit by a physics object. With a value of 0 the entity will take no damage from physics."
 	input PhysDamageScale(float) : "Sets Physics Impact Damage Scale."
 ]
-@BaseClass base(CBaseEntity,VisibleBrush) = CBaseDoor 
+@BaseClass base(CBaseEntity,VisibleBrush,Origin) = CBaseDoor 
 [
 	spawnflags(flags) =
 	[
@@ -692,8 +699,9 @@
 		65536 : "If closing, allow Use to reopen." : 0
 	]
 	speed(integer) : "Speed" : 200 : "The speed that the door moves, in units per second or degrees per second if rotating."
-	noise1(sound) : "Start Sound" :  : "Sound to play when the door starts moving (regardless of opening or closing)."
-	noise2(sound) : "Stop Sound" :  : "Sound to play when the door stops moving (regardless of opening or closing)."
+	wait(integer) : "Delay Before Reset (-1 stay)" : 1 : "Amount of time in seconds after the door has moved to the open position before it returns to the closed position. Once it has returned, it can be used again. If the value is set to -1, the door never returns."
+	noise1(sound) : "Start Sound" :  : "Sound to play when the door starts moving. If Start Close Sound is specified, this sound only plays when the door starts opening."
+	noise2(sound) : "Stop Sound" :  : "Sound to play when the door stops moving. If Stop Close Sound is specified, this sound only plays when the door starts closing."
 	startclosesound(sound) : "Start Close Sound" :  : "Sound to play when the door starts closing."
 	closesound(sound) : "Stop Close Sound" :  : "Sound to play when the door stops closing."
 	locked_sound(sound) : "Locked Sound" :  : "Sound played when the player tries to open the door, and fails because it's locked."
@@ -738,12 +746,18 @@
 	output OnLockedUse(void) : "Fires when the player tries to open the door but fails because it is locked."
 ]
 //Out of alphabetical order here because the FGD parser is big dummy
-@BaseClass base(Model,CBaseAnimating) = CBreakableProp 
+@BaseClass base(Model,CBaseAnimating,DamageFilter) = CBreakableProp 
 [
 	spawnflags(flags) =
 	[
 		16 : "Break on Touch" : 0
 		32 : "Break on Pressure (breaks whenever put under any pressure e.g. being stood on)" : 0
+	]
+	solid(choices) : "Collisions" : 6 : "Method of collision for this entity." =
+	[
+		0 : "None"
+		2 : "Bounding Box"
+		6 : "VPhysics"
 	]
 	ExplodeDamage(float) : "Explosion Damage" : 0 : "If non-zero, when this entity breaks it will create an explosion that causes the specified amount of damage. See also Explosion Radius."
 	ExplodeRadius(float) : "Explosion Radius" : 0 : "If non-zero, when this entity breaks it will create an explosion with a radius of the specified amount. See also Explosion Damage."
@@ -794,7 +808,6 @@
 	[
 		2048 : "Starts locked - Cannot be opened or closed until Unlocked." : 0
 		4096 : "Door silent - Door does not play sounds. All sounds can be controlled with keyvalues." : 0
-		8192 : "Use closes" : 1
 		32768 : "Ignore player +use" : 0
 	]
 	speed(float) : "Speed" : 300 : "How fast the door moves, in world units per second (or degrees per second, if the door rotates)."
@@ -834,7 +847,7 @@
 	output OnUnblockedClosing(void) : "Fires when the door is no longer being blocked while closing."
 	output OnLockedUse(void) : "Fires when the player attempts to open or close the door, but fails because it's locked."
 ]
-@BaseClass base(CBaseEntity,EnableDisable,Toggle) = CBaseTrigger 
+@BaseClass base(CBaseEntity,EnableDisable,Toggle,Origin) = CBaseTrigger 
 [
 	spawnflags(flags) =
 	[
@@ -904,7 +917,6 @@
 		4 : "Break on Pressure (when something is on top of this entity)" : 0
 		512 : "Break immediately on Physics (any physics damage will break the brush)" : 0
 		1024 : "Don't take physics damage" : 0
-		2048 : "Don't allow bullet penetration" : 0
 	]
 	propdata(choices) : "Prop Data" : 0 : "Set to the best approximation of the size and material of this entity's brushes. If set, this will override Strength and Material Type and the damage amounts taken from various weapons. Some settings can make the brush unbreakable." =
 	[
@@ -986,7 +998,7 @@
 	input ToggleEnabled(void) : "Toggle the soundscape on/off. When off, the soundscape will never play from this entity."
 	output OnPlay(void) : "Fired when this soundscape becomes the active one."
 ]
-@BaseClass base(CBaseEntity,VisibleBrush) = CFuncBrush 
+@BaseClass base(CBaseEntity,VisibleBrush,Origin) = CFuncBrush 
 [
 	Solidity(choices) : "Solidity" : 0 : "Used to control the solidity/collision of these brushes." =
 	[
@@ -1008,7 +1020,7 @@
 	input Disable(void) : "Makes the entity invisible. If Solidity is Toggle, the brush will become non-solid."
 	input Toggle(void) : "If enabled, disables the entity. If disabled, enables the entity."
 ]
-@BaseClass base(CBaseEntity) = CFuncMoveLinear 
+@BaseClass base(CBaseEntity,VisibleBrush,Origin) = CFuncMoveLinear 
 [
 	spawnflags(flags) =
 	[
@@ -1090,7 +1102,7 @@
 	input TurnOff(void) : "Turns the light off."
 	input SetPattern(string) : "Sets a Custom Appearance."
 ]
-@BaseClass base(CBreakable) = CPhysBox 
+@BaseClass base(CBreakable,Origin) = CPhysBox 
 [
 	spawnflags(flags) =
 	[
@@ -1197,12 +1209,13 @@
 	spawnflags(flags) =
 	[
 		1 : "Starts Open - Door rotates to open position on spawn. Overrides Spawn Position." : 0
+		8192 : "Use closes" : 1
 	]
 	spawnpos(choices) : "Spawn Position" : 0 : "The door will rotate to this position when spawned (appearance not updated in Hammer)." =
 	[
 		0 : "Closed"
-		1 : "Open forward (same as Starts Open)"
-		2 : "Open back"
+		1 : "Direction 1 (same as Starts Open)"
+		2 : "Direction 2"
 		3 : "Ajar (see Ajar Angles)"
 	]
 	ajarangles(angle) : "Ajar Angles (Pitch Yaw Roll)" : 30 : "If Spawn Position is Ajar, the door will spawn with these angles."
@@ -1210,8 +1223,8 @@
 	opendir(choices) : "Open Direction" : 0 : "How the door can open." =
 	[
 		0 : "Open Both Directions (normal behavior)"
-		1 : "Open Forward/Clockwise Only"
-		2 : "Open Backward/Counter-Clockwise Only"
+		1 : "Open Forward Only"
+		2 : "Open Backward Only"
 	]
 	input SetRotationDistance(float) : "Sets Rotation Distance."
 	input SetSpeed(float) : "Sets Speed."
@@ -1253,7 +1266,7 @@
 		1 : "Yes"
 	]
 	input SetForce(vector) : "Instantly applies force to the rope. Format is three positive and/or negative numbers representing movement on the X, Y and Z axes."
-	input Break(void) : "Tells the rope to break (ignoring the Breakable keyvalue)."
+	input Break(void) : "Tells the rope to break."
 ]
 @BaseClass base(CBaseButton) = CRotButton 
 [
@@ -1301,8 +1314,15 @@
 	damagetype(choices) : "Damage Type" : 0 : "What kind of damage to do." =
 	[
 		0 : "Generic"
+		1 : "Crush (physics)"
+		5 : "Sharp physics object (Crush+Slash)"
+		8 : "Burn"
 		32 : "Fall"
-		64 : "Blast"
+		64 : "Blast (C4, HE)"
+		128 : "CS projectile collision (Club)"
+		256 : "Shock"
+		4098 : "CS bullets, knife (Bullet+Nevergib)"
+		16384 : "Drown"
 	]
 	input SetDamage(float) : "Sets Damage."
 	output OnHurt(void) : "Fires when the trigger hurts something that is NOT a player."
@@ -1514,7 +1534,7 @@
 	endsize(float) : "End size" : 55 : "Side of the dust sprites when they get close to de-spawning."
 	spawnradius(float) : "Spawn Radius" : 2 : "How far away from the entity the dust sprites can spawn at."
 ]
-@PointClass base(CBaseAnimating) color(255 203 11) = env_effectscript : "Creates env_sprites and env_spritetrails parented to attachment points on an animated model to create complex effects. Arguably obsolete to the current particle system (info_particle_system)."
+@PointClass base(CBaseAnimating) color(255 203 11) sphere(fademindist) sphere(fademaxdist) = env_effectscript : "Creates env_sprites and env_spritetrails parented to attachment points on an animated model to create complex effects. Arguably obsolete to the current particle system (info_particle_system)."
 [
 	model(studio) : "Script Model" : "models/Effects/teleporttrail.mdl" : "Model to use for animation sequence."
 	scriptfile(string) : "Script File" : "scripts/effects/testeffect.txt" : "File with info about the visual effects to spawn. See scripts/effects/testeffect.txt from Half-Life 2."
@@ -1577,7 +1597,7 @@
 	output OnEntitySpawned(void) : "Fires when an instance of the entity template has been spawned."
 	output OnEntityFailedSpawn(void) : "Fires when the template failed to spawn via ForceSpawn due to it not being able to fit properly or due to the player looking at the entity."
 ]
-@PointClass base(CBaseEntity) iconsprite("editor/env_explosion") color(255 203 11) = env_explosion : "It creates an explosion at its origin."
+@PointClass base(CBaseEntity) iconsprite("editor/env_explosion") color(255 203 11) sphere(iRadiusOverride) = env_explosion : "It creates an explosion at its origin."
 [
 	spawnflags(flags) =
 	[
@@ -1739,7 +1759,7 @@
 	input Toggle(void) : "Switches state of the global between ON and OFF."
 	input Remove(void) : "Set state of global to DEAD."
 ]
-@PointClass base(CBaseEntity) line(255 255 255, targetname, target) color(255 203 11) = env_gunfire : "Purely cosmetic gunfire effect."
+@PointClass base(CBaseEntity, EnableDisable) line(255 255 255, targetname, target) size(16 16 16) color(255 203 11) = env_gunfire : "Purely cosmetic gunfire effect."
 [
 	target(target_destination) : "Target" :  : "Entity will shoot at this target. Required."
 	minburstsize(integer) : "Min Burst Size" : 30 : "Minimum number of shots in a burst of shots."
@@ -1802,7 +1822,7 @@
 		8 : "Hears bullet impacts" : 1
 		16 : "Swallows sounds routed through speakers - Original sound is erased" : 1
 		32 : "Hears explosions" : 1
-		64 : "Ignores non-attenuated sounds" : 0
+		64 : "Ignores non-attenuated sounds - Ignores sounds set to play everywhere in the map" : 0
 	]
 	SpeakerName(target_destination) : "Speaker target" :  : "Name of an entity at which to play any sounds heard by this microphone. If specified, the microphone will consider itself in 'Speaker mode'."
 	target(target_destination) : "Measure target" :  : "If the speaker is not in 'Speaker mode', this is the name of the entity where the sound level is to be measured. If not specified, the env_microphone uses itself as the target."
@@ -1877,7 +1897,7 @@
 	directionentityname(target_destination) : "Point to Entity" :  : "If set, the direction of the force will always point from the env_physimpact to the specified entity."
 	input Impact(void) : "Triggers the impact."
 ]
-@PointClass base(CBaseEntity,Angles) size(-2 -2 -2, 2 2 2) frustum(lightfov,nearz,farz,lightcolor,-1) color(160 240 37) = env_projectedtexture : "It projects a texture onto the environment, simulating a realistic spotlight. Only one of these should be be active in the PVS at a time to avoid issues. Does not move correctly when parented. Shadows are broken on some Intel GPUs."
+@PointClass base(CBaseEntity,Angles) size(-2 -2 -2, 2 2 2) frustum(lightfov,nearz,farz,lightcolor,-1) color(160 240 37) = env_projectedtexture : "It projects a texture onto the environment, simulating a realistic spotlight. Only one of these should be be active in the PVS at a time to avoid issues. Does not move correctly when parented."
 [
 	spawnflags(flags) =
 	[
@@ -1908,7 +1928,7 @@
 		0 : "No"
 		1 : "Yes"
 	]
-	lightcolor(color255) : "Light Color" : "255 255 255" : "RGB light color."
+	lightcolor(color255) : "Light Color" : "255 255 255 200" : "RGB light color. Fourth number is the brightness."
 	cameraspace(choices) : "Camera Space" : 0 : "If the entity has a Target, makes the projected texture rotate relative to the player's camera. If used, set Pitch Yaw Roll to 0 0 0." =
 	[
 		0 : "No"
@@ -1928,23 +1948,23 @@
 @PointClass base(CBaseEntity) color(255 203 11) = env_screenoverlay : "It can display and control a set of screen overlays, to be displayed over the player's view. Textures which aren't set up to be used with this entity will appear black. See effects/combine_binocoverlay for a working example. The effect will show to all players at once."
 [
 	OverlayName1(material) : "Overlay Name 1" :  : "Overlay to display. When this overlay's associated duration is over, the next overlay will display."
-	OverlayTime1(float) : "Overlay Duration 1" :  : "Amounts of time that the overlay should be displayed for. Once over, the next overlay will be shown. The last overlay on the list will always display indefinitely."
+	OverlayTime1(float) : "Overlay Duration 1" :  : "Amount of time that the overlay should be displayed for. Once over, the next overlay will be shown. The last overlay on the list will always display indefinitely."
 	OverlayName2(material) : "Overlay Name 2" :  : "Overlay to display. When this overlay's associated duration is over, the next overlay will display."
-	OverlayTime2(float) : "Overlay Duration 2" :  : "Amounts of time that the overlay should be displayed for. Once over, the next overlay will be shown. The last overlay on the list will always display indefinitely."
+	OverlayTime2(float) : "Overlay Duration 2" :  : "Amount of time that the overlay should be displayed for. Once over, the next overlay will be shown. The last overlay on the list will always display indefinitely."
 	OverlayName3(material) : "Overlay Name 3" :  : "Overlay to display. When this overlay's associated duration is over, the next overlay will display."
-	OverlayTime3(float) : "Overlay Duration 3" :  : "Amounts of time that the overlay should be displayed for. Once over, the next overlay will be shown. The last overlay on the list will always display indefinitely."
+	OverlayTime3(float) : "Overlay Duration 3" :  : "Amount of time that the overlay should be displayed for. Once over, the next overlay will be shown. The last overlay on the list will always display indefinitely."
 	OverlayName4(material) : "Overlay Name 4" :  : "Overlay to display. When this overlay's associated duration is over, the next overlay will display."
-	OverlayTime4(float) : "Overlay Duration 4" :  : "Amounts of time that the overlay should be displayed for. Once over, the next overlay will be shown. The last overlay on the list will always display indefinitely."
+	OverlayTime4(float) : "Overlay Duration 4" :  : "Amount of time that the overlay should be displayed for. Once over, the next overlay will be shown. The last overlay on the list will always display indefinitely."
 	OverlayName5(material) : "Overlay Name 5" :  : "Overlay to display. When this overlay's associated duration is over, the next overlay will display."
-	OverlayTime5(float) : "Overlay Duration 5" :  : "Amounts of time that the overlay should be displayed for. Once over, the next overlay will be shown. The last overlay on the list will always display indefinitely."
+	OverlayTime5(float) : "Overlay Duration 5" :  : "Amount of time that the overlay should be displayed for. Once over, the next overlay will be shown. The last overlay on the list will always display indefinitely."
 	OverlayName6(material) : "Overlay Name 6" :  : "Overlay to display. When this overlay's associated duration is over, the next overlay will display."
-	OverlayTime6(float) : "Overlay Duration 6" :  : "Amounts of time that the overlay should be displayed for. Once over, the next overlay will be shown. The last overlay on the list will always display indefinitely."
+	OverlayTime6(float) : "Overlay Duration 6" :  : "Amount of time that the overlay should be displayed for. Once over, the next overlay will be shown. The last overlay on the list will always display indefinitely."
 	OverlayName7(material) : "Overlay Name 7" :  : "Overlay to display. When this overlay's associated duration is over, the next overlay will display."
-	OverlayTime7(float) : "Overlay Duration 7" :  : "Amounts of time that the overlay should be displayed for. Once over, the next overlay will be shown. The last overlay on the list will always display indefinitely."
+	OverlayTime7(float) : "Overlay Duration 7" :  : "Amount of time that the overlay should be displayed for. Once over, the next overlay will be shown. The last overlay on the list will always display indefinitely."
 	OverlayName8(material) : "Overlay Name 8" :  : "Overlay to display. When this overlay's associated duration is over, the next overlay will display."
-	OverlayTime8(float) : "Overlay Duration 8" :  : "Amounts of time that the overlay should be displayed for. Once over, the next overlay will be shown. The last overlay on the list will always display indefinitely."
+	OverlayTime8(float) : "Overlay Duration 8" :  : "Amount of time that the overlay should be displayed for. Once over, the next overlay will be shown. The last overlay on the list will always display indefinitely."
 	OverlayName9(material) : "Overlay Name 9" :  : "Overlay to display. When this overlay's associated duration is over, the next overlay will display."
-	OverlayTime9(float) : "Overlay Duration 9" :  : "Amounts of time that the overlay should be displayed for. Once over, the next overlay will be shown. The last overlay on the list will always display indefinitely."
+	OverlayTime9(float) : "Overlay Duration 9" :  : "Amount of time that the overlay should be displayed for. Once over, the next overlay will be shown. The last overlay on the list will always display indefinitely."
 	OverlayName10(material) : "Overlay Name 10" :  : "Overlay to display. This overlay will always display indefinitely."
 	input StartOverlays(void) : "Starts displaying the first overlay."
 	input StopOverlays(void) : "Stops displaying overlays."
@@ -2111,10 +2131,10 @@
 [
 	spawnrate(float) : "Spawn Rate (as percentage)" : 100 : "How dense the spore effect is. This percentage is not bound to 100; even values in the thousands are acceptable."
 ]
-@PointClass base(CSprite) size(-2 -2 -2, 2 2 2) sprite() radius(GlowProxySize) color(255 203 11) = env_sprite : "Texture which turns to face the viewer. Good for dust and lighting effects."
+@PointClass base(CSprite) size(-2 -2 -2, 2 2 2) sprite() sphere(GlowProxySize) color(255 203 11) = env_sprite : "Texture which turns to face the viewer. Good for dust and lighting effects."
 [
 ]
-@PointClass base(CSprite) size(-2 -2 -2, 2 2 2) sprite() radius(GlowProxySize) color(255 203 11) = env_sprite_oriented : "A sprite forced to stay in one direction. Texture must use a $spriteorientation."
+@PointClass base(CSprite) size(-2 -2 -2, 2 2 2) sprite() sphere(GlowProxySize) color(255 203 11) = env_sprite_oriented : "A sprite forced to stay in one direction. Texture must use a $spriteorientation."
 [
 ]
 @PointClass base(CSprite) size(-2 -2 -2, 2 2 2) sprite() color(255 203 11) = env_spritetrail : "Leaves a fading trail behind it. (Parent it to something.)"
@@ -2175,7 +2195,7 @@
 		1 : "Pitch Yaw Roll"
 	]
 	target(target_destination) : "Viewer Entity" :  : "Name of an entity (sky_camera is a good choice) used to determine where the sun is in the skybox. The resulting sun sprite will be positioned based on a line starting from the Viewer entity towards the env_sun."
-	pitch(float) : "Pitch" : "-60 45 0" : "This value sets the pitch position of the sun. It overrides the Pitch in Pitch Yaw Roll, even if left at 0, so it needs to be specified. This Pitch is reverse of the normal, so 90 is straight up, while -90 is straight down (directly overhead). BUG: Breaks when pointed straight down."
+	pitch(float) : "Pitch" : "-60" : "This value sets the pitch position of the sun. It overrides the Pitch in Pitch Yaw Roll, even if left at 0, so it needs to be specified. This Pitch is reverse of the normal, so 90 is straight up, while -90 is straight down (directly overhead). BUG: Breaks when pointed straight down."
 	input TurnOn(void) : "Enable sun rendering."
 	input TurnOff(void) : "Disable sun rendering."
 	input SetColor(color255) : "Sets Sun Color."
@@ -2231,9 +2251,6 @@
 [
 	filtername(target_destination) : "Filter Name" :  : "The name to filter by. TIP: Entities without any targetname can be filtered by leaving this keyvalue blank."
 ]
-@FilterClass base(CBaseFilter) color(248 155 0) = filter_base : "A filter that checks nothing. Either allows or disallows everything."
-[
-]
 @FilterClass base(CBaseFilter) iconsprite("editor/filter_multi") color(248 155 0) = filter_damage_type : "Filter that checks the type of damage inflicted."
 [
 	damagetype(choices) : "Damage type" : 0 : "The damage type to filter by." =
@@ -2250,7 +2267,7 @@
 		16384 : "Drown"
 	]
 ]
-@FilterClass base(CBaseFilter) color(248 155 0) = filter_multi : "A filter that combines other filters."
+@FilterClass base(CBaseFilter) iconsprite("editor/filter_multi") color(248 155 0) = filter_multi : "A filter that combines other filters."
 [
 	FilterType(choices) : "Logic Type" : 0 : "Boolean logic applied when testing the filters." =
 	[
@@ -2271,7 +2288,7 @@
 @SolidClass base(CBaseEntity) color(0 248 219) = func_areaportal : "It creates an areaportal. (https://developer.valvesoftware.com/wiki/Areaportal) When the portal is open, it de-renders objects in the area across from the viewer which aren't visible through the opening. When the portal is closed it cannot be seen through at all. The entity's brush must be textured with tools/toolsareaportal for it to function. Areaportals should completely cover the entrance they're meant to work on. Areaportals must not be able to draw a line through visleaves from one side of themselves to another. If there are multiple openings to an area, there needs to be an areaportal over each one, otherwise the engine cannot define the boundaries between areas. If an areaportal can draw a line to itself, it's considered a leak and generates a pointfile just like a normal one."
 [
 	target(target_destination) : "Name of Linked Door" :  : "Optional. A prop_door_rotating or func_door whose open/closed state controls the on/off state of the portal."
-	StartOpen(choices) : "Initial State" : 0 : "Initial state of the portal." =
+	StartOpen(choices) : "Initial State" : 1 : "Initial state of the portal." =
 	[
 		0 : "Closed"
 		1 : "Open"
@@ -2281,7 +2298,7 @@
 	input Close(void) : "Sets the portal to the closed state."
 	input Toggle(void) : "Opens the portal if closed. Closes the portal if open."
 ]
-@SolidClass base(CBaseEntity) color(0 248 219) = func_areaportalwindow : "An areaportal which closes automatically when far away from the viewing player."
+@SolidClass base(CBaseEntity) color(0 248 219) sphere(FadeStartDist) sphere(FadeDist) = func_areaportalwindow : "An areaportal which closes automatically when far away from the viewing player."
 [
 	target(target_destination) : "Rendered Window" :  : "The brush entity that fills the gap left by the portal when closed. This entity's textures should not have transparency in its textures."
 	FadeStartDist(integer) : "Fade Start Distance" : 128 : "Distance that the fade into the Rendered Window brush entity begins. The further back the player views, the more visible the brush entity will be."
@@ -2299,7 +2316,7 @@
 	output BombExplode(void) : "Fires when the bomb explodes."
 	output BombPlanted(void) : "Fires when the bomb is planted."
 ]
-@SolidClass base(CBreakable) color(0 255 0) = func_breakable : "A brush that can take damage and break."
+@SolidClass base(CBreakable,Origin) color(0 255 0) = func_breakable : "A brush that can take damage and break."
 [
 ]
 @SolidClass quadbounds() base(CBreakable) color(127 255 255) = func_breakable_surf : "A surface that can be broken bit by bit. All faces except one should use the nodraw texture. The face that will be broken must be textured with glass/glasswindowbreak070a and be rectangular."
@@ -2308,12 +2325,7 @@
 	[
 		1 : "Physics damage decals - If a physics object weakly damages the entity, it will leave an impact mark." : 0
 	]
-	fragility(integer) : "Fragility" : 100 : "If the Surface Type is set to Glass, this value sets how fragile the glass pieces are after the surface has been broken."
-	surfacetype(choices) : "Surface Type" : 1 : "Surface material type." =
-	[
-		0 : "Glass"
-		1 : "Tile"
-	]
+	fragility(integer) : "Fragility" : 100 : "How fragile the glass pieces are after the surface has been broken."
 	input Shatter(string) : "Shatters the window. Takes 3 numbers. The first two are the X and Y coords of the impact (as values from 0 to 1). The third is the radius of the shatter, in hammer units."
 ]
 @SolidClass base(CFuncBrush) = func_brush : "A general-purpose utility brush which can do many things."
@@ -2361,7 +2373,7 @@
 		1 : "BSP (QPhysics)"
 	]
 ]
-@SolidClass base(CFunc_Dust) color(255 203 11) = func_dustcloud : "Spawns randomly-sized dust particles within its volume. Unlike func_dustmotes, the size of sprites created by this entity will scale realistically depending on how far away the viewer is."
+@SolidClass base(CFunc_Dust) color(255 203 11) = func_dustcloud : "Spawns randomly-sized dust particles within its volume. Unlike func_dustmotes, the size of sprites created by this entity will appear to scale realistically depending on how far away the viewer is."
 [
 ]
 @SolidClass base(CFunc_Dust) color(255 203 11) = func_dustmotes : "Spawns randomly-sized dust particles within its volume. Unlike func_dustcloud, the size of sprites created by this entity will always take up the same amount of screen space, no matter how far away the viewer is."
@@ -2373,7 +2385,7 @@
 	fish_count(integer) : "Fish Count" : 4 : "Number of fish in the pool."
 	max_range(float) : "Max Range" : 255 : "How far away fish can travel from the entity. Maximum is 255 units."
 ]
-@SolidClass base(CBaseTrigger)  color(0 0 255) = func_footstep_control : "It changes the footstep sounds used on ladders from metal to whatever is wanted. (Ladders usually don't make sounds except when strafing on them.)"
+@SolidClass base(CBaseTrigger) color(0 0 255) = func_footstep_control : "It changes the footstep sounds used on ladders from metal to whatever is wanted. (Ladders usually don't make sounds except when strafing on them.)"
 [
 	source(string) readonly : "Surfaceprop to change" : "ladder" : "The surfaceprop of the ladder to change (this will always be 'ladder', obviously)."
 	destination(string) : "New surfaceprop" :  : "How to make the ladders within this trigger sound. See here for options: https://developer.valvesoftware.com/wiki/Material_surface_properties"
@@ -2414,6 +2426,19 @@
 	replace09(instance_variable) : "Replace" :  : "If the entities inside this instance have the text in Variable put anywhere inside them, such as an input parameter or keyvalue, that text will be replaced with whatever is in Value."
 	replace10(instance_variable) : "Replace" :  : "If the entities inside this instance have the text in Variable put anywhere inside them, such as an input parameter or keyvalue, that text will be replaced with whatever is in Value."
 ]
+@PointClass iconsprite("editor/func_instance_parms") = func_instance_parms : "Gives a default value for instance parameters. Does not do anything else, confirmed by testing. Instance parameters work perfectly fine without this entity."
+[
+	parm1(instance_parm) : "Parm" :  : "An instance parameter. The order they are defined in will have no effect. Put the $variable name in Variable. The Value is whatever type of value the parameter is. The Default is simply a default value for the variable if you don't define it in the func_instance."
+	parm2(instance_parm) : "Parm" :  : "An instance parameter. The order they are defined in will have no effect. Put the $variable name in Variable. The Value is whatever type of value the parameter is. The Default is simply a default value for the variable if you don't define it in the func_instance."
+	parm3(instance_parm) : "Parm" :  : "An instance parameter. The order they are defined in will have no effect. Put the $variable name in Variable. The Value is whatever type of value the parameter is. The Default is simply a default value for the variable if you don't define it in the func_instance."
+	parm4(instance_parm) : "Parm" :  : "An instance parameter. The order they are defined in will have no effect. Put the $variable name in Variable. The Value is whatever type of value the parameter is. The Default is simply a default value for the variable if you don't define it in the func_instance."
+	parm5(instance_parm) : "Parm" :  : "An instance parameter. The order they are defined in will have no effect. Put the $variable name in Variable. The Value is whatever type of value the parameter is. The Default is simply a default value for the variable if you don't define it in the func_instance."
+	parm6(instance_parm) : "Parm" :  : "An instance parameter. The order they are defined in will have no effect. Put the $variable name in Variable. The Value is whatever type of value the parameter is. The Default is simply a default value for the variable if you don't define it in the func_instance."
+	parm7(instance_parm) : "Parm" :  : "An instance parameter. The order they are defined in will have no effect. Put the $variable name in Variable. The Value is whatever type of value the parameter is. The Default is simply a default value for the variable if you don't define it in the func_instance."
+	parm8(instance_parm) : "Parm" :  : "An instance parameter. The order they are defined in will have no effect. Put the $variable name in Variable. The Value is whatever type of value the parameter is. The Default is simply a default value for the variable if you don't define it in the func_instance."
+	parm9(instance_parm) : "Parm" :  : "An instance parameter. The order they are defined in will have no effect. Put the $variable name in Variable. The Value is whatever type of value the parameter is. The Default is simply a default value for the variable if you don't define it in the func_instance."
+	parm10(instance_parm) : "Parm" :  : "An instance parameter. The order they are defined in will have no effect. Put the $variable name in Variable. The Value is whatever type of value the parameter is. The Default is simply a default value for the variable if you don't define it in the func_instance."
+]
 @SolidClass color(248 75 0) = func_ladder : "A Half-Life style ladder which can be climbed on vertically or horizontally."
 [
 ]
@@ -2425,7 +2450,7 @@
 @SolidClass base(CFuncMoveLinear) = func_movelinear : "Can be told to move an arbitrary distance in a set direction. There are bugs that may arise when parenting this entity to another func_movelinear or func_water_analog. A func_door can be used as a workaround."
 [
 ]
-@SolidClass base(CBaseEntity) color(0 255 255) = func_nav_blocker : "A brush entity that can block navmesh areas touching it so that bots will not attempt to go somewhere."
+@SolidClass base(CBaseEntity,Origin) color(0 255 255) = func_nav_blocker : "A brush entity that can block navmesh areas touching it so that bots will not attempt to go somewhere."
 [
 	input BlockNav(void) : "Starts blocking nav areas."
 	input UnblockNav(void) : "Stops blocking nav areas."
@@ -2440,16 +2465,17 @@
 	input Activate(void) : "Makes the occluder active. (De-render models obscured by it.)"
 	input Deactivate(void) : "Makes the occluder inactive."
 ]
-@SolidClass base(CPhysBox) color(255 0 255) color(255 0 255) = func_physbox_multiplayer : "A brush that's free to move around like a prop_physics."
+@SolidClass base(CPhysBox) color(255 0 255) = func_physbox_multiplayer : "A brush that's free to move around like a prop_physics."
 [
 ]
 @SolidClass base(CBaseEntity) color(0 127 127) = func_precipitation : "It creates precipitation effects inside its volume. Func_precipitations should not intersect with func_smokevolumes, as it can freeze the game. If precipitation is so dense that more than 32,000 vertices must be rendered at once, the game will crash. An active point_camera may cause precipitation to stop rendering. Precipitation may fall through very thin roofs."
 [
 	renderamt(integer) : "Density (0-100%)" : 100 : "How much precipitation will fall from the brush. The rate may also be influenced by the brush's size. Tip: To maintain a consistent density across your entire map, combine all your func_precipitation brushes into one entity."
 	rendercolor(color255) : "Color (R G B)" : "255 255 255" : "Color of precipitation. Only some types of precipitation acknowledge this value."
-	preciptype(choices) : "Precipitation Type" :  : "What type of precipitation to make." =
+	preciptype(choices) : "Precipitation Type" : 0 : "What type of precipitation to make." =
 	[
 		0 : "Rain"
+		1 : "Snow"
 		2 : "Ash - Missing textures! Take all 3 materials/effects/fleck_ash* textures and /ember_swirling001 from HL2Ep1's ep1_pak_dir.vpk"
 		3 : "Snowfall"
 	]
@@ -2461,7 +2487,7 @@
 @SolidClass base(CRotButton) = func_rot_button : "Rotates to an activated position when pressed."
 [
 ]
-@SolidClass base(CBaseEntity,VisibleBrush) = func_rotating : "Rotates indefinitely."
+@SolidClass base(CBaseEntity,VisibleBrush,Origin) = func_rotating : "Rotates indefinitely."
 [
 	spawnflags(flags) =
 	[
@@ -2513,7 +2539,7 @@
 	input SetMovementSpeed(float) : "Sets Movement Speed."
 	input SetDensity(float) : "Sets Density."
 ]
-@SolidClass base(CBaseEntity,VisibleBrush) = func_tracktrain : "An entity that moves along a path defined by path_track entities.\n" +
+@SolidClass base(CBaseEntity,VisibleBrush,Origin) = func_tracktrain : "An entity that moves along a path defined by path_track entities.\n" +
 	"IMPORTANT: Unless the Fixed Orientation flag is set, build your train so that the front of the train is facing down the X axis. (This means that the front of the train is visible in the front view, top is seen from the top view, etc.) When it spawns it will automatically rotate to face the first path_track on the path.\n" +
 	"BUG: The Reverse and StartBackward inputs may not function correctly if the New Train Speed keyvalue in the involved path_track entities is set to 0. The train may fail to reverse, and be jammed in place or move in the wrong direction. To solve this issue, some or all of the path_tracks must have their New Train Speed keyvalue set to a non-zero value.\n" +
 	"BUG: Trains stop just short of their final destination, with higher speed resulting in a larger gap. At low speeds, this is hard to notice.\n" +
@@ -2590,7 +2616,7 @@
 @SolidClass base(CFuncMoveLinear) = func_water_analog : "Can be used to make a water brush move. MUST use cheap water! There are bugs that may arise when parenting this entity to a func_movelinear or func_water_analog. A func_door can be used as a workaround."
 [
 ]
-@SolidClass base(CBaseEntity) color(255 0 255) = func_weight_button : "It's a brush which fires outputs depending on how much weight is pressing on it. Weapons and other items being carried by players, and hostages, are considered weightless. BUG: Players will not be weighed correctly, and their effective weight on the button can change unpredictably as they move."
+@SolidClass base(CBaseEntity,VisibleBrush) color(255 0 255) = func_weight_button : "It's a brush which fires outputs depending on how much weight is pressing on it. Weapons and other items being carried by players, and hostages, are considered weightless. BUG: Players will not be weighed correctly, and their effective weight on the button can change unpredictably as they move."
 [
 	WeightToActivate(float) : "Weight to Activate" :  : "Amount of weight (kg) needed to fire outputs. TIP: Use sv_massreport 1 to see the weights of objects ingame."
 	output OnPressed(void) : "Fires when enough weight is on the button."
@@ -2686,8 +2712,8 @@
 	input CountPlayersInZone(void) : "Tells the entity to count how many players are inside it, then fires the outputs which should fire."
 	output OnPlayerInZone(void) : "Fires once for every player found in the zone when the input is sent. !activator is that player."
 	output OnPlayerOutZone(void) : "Fires once for every player found outside the zone when the input is sent. !activator is that player."
-	output PlayersInCount(integer) : "Fires when the input is sent. Automatically puts the number of players inside the zone as the input parameter, unless overridden by the mapper."
-	output PlayersOutCount(integer) : "Fires when the input is sent. Automatically puts the number of players outside the zone as the input parameter, unless overridden by the mapper."
+	output PlayersInCount(integer) : "Fires when the CountPlayersInZone input is sent. Automatically puts the number of players inside the zone as the input parameter, unless overridden by the mapper."
+	output PlayersOutCount(integer) : "Fires when the CountPlayersInZone input is sent. Automatically puts the number of players outside the zone as the input parameter, unless overridden by the mapper."
 ]
 @PointClass base(CBaseEntity) = hammer_updateignorelist : "Entities with targetnames matching the ones specified here will not have their VMF position updated when using the hammer_update_safe_entities console command. Several of these can exist in a map."
 [
@@ -2714,7 +2740,6 @@
 ]
 @PointClass base(CBaseEntity) color(255 203 11) = info_camera_link : "It displays the view of a point_camera onto brushes or models. When making the material to show the view on, specify _rt_Camera for the $basetexture. An info_camera_link is used in the last Half-Life 2 map to create the view through the opening portal (effects/portalrift.mdl)."
 [
-	target(target_destination) : "Entity Whose Material Uses _rt_Camera" :  : "Entity which will show the camera view."
 	PointCamera(target_destination) : "Camera Name" :  : "point_camera which the view will be taken from."
 	input SetCamera(target_destination) : "Sets Camera Name."
 ]
@@ -2782,7 +2807,10 @@
 	BasisU(vector) readonly : "Overlay Basis U (Read-Only)" :  : "Direction of the material's X-axis."
 	BasisV(vector) readonly : "Overlay Basis V (Read-Only)" :  : "Direction of the material's Y-axis."
 	BasisNormal(vector) readonly : "Overlay Basis Normal (Read-Only)" :  : "Direction perpendicular to the surface."
-	uv0(vector) readonly : "Overlay Point 1 (Read-Only)" :  : "The positions of the overlay's four corners. Adjust these using the Hammer overlay tool.pngoverlay tool."
+	uv0(vector) readonly : "Overlay Point 1 (Read-Only)" :  : "Position of a corner. Adjust using the overlay tool."
+	uv1(vector) readonly : "Overlay Point 2 (Read-Only)" :  : "Position of a corner. Adjust using the overlay tool."
+	uv2(vector) readonly : "Overlay Point 3 (Read-Only)" :  : "Position of a corner. Adjust using the overlay tool."
+	uv3(vector) readonly : "Overlay Point 4 (Read-Only)" :  : "Position of a corner. Adjust using the overlay tool."
 ]
 @PointClass base(CBaseEntity,Angles) studio("models/editor/cone_helper.mdl") line(255 255 255, targetname, cpoint1) line(255 255 255, targetname, cpoint2) line(255 255 255, targetname, cpoint3) line(255 255 255, targetname, cpoint4) line(255 255 255, targetname, cpoint5) line(255 255 255, targetname, cpoint6) line(255 255 255, targetname, cpoint7) line(255 255 255, targetname, cpoint8) line(255 255 255, targetname, cpoint9) line(255 255 255, targetname, cpoint10) line(255 255 255, targetname, cpoint11) line(255 255 255, targetname, cpoint12) line(255 255 255, targetname, cpoint13) line(255 255 255, targetname, cpoint14) line(255 255 255, targetname, cpoint15) line(255 255 255, targetname, cpoint16) line(255 255 255, targetname, cpoint17) line(255 255 255, targetname, cpoint18) line(255 255 255, targetname, cpoint19) line(255 255 255, targetname, cpoint20) line(255 255 255, targetname, cpoint21) line(255 255 255, targetname, cpoint22) line(255 255 255, targetname, cpoint23) line(255 255 255, targetname, cpoint24) line(255 255 255, targetname, cpoint25) line(255 255 255, targetname, cpoint26) line(255 255 255, targetname, cpoint27) line(255 255 255, targetname, cpoint28) line(255 255 255, targetname, cpoint29) line(255 255 255, targetname, cpoint30) line(255 255 255, targetname, cpoint31) line(255 255 255, targetname, cpoint32) line(255 255 255, targetname, cpoint33) line(255 255 255, targetname, cpoint34) line(255 255 255, targetname, cpoint35) line(255 255 255, targetname, cpoint36) line(255 255 255, targetname, cpoint37) line(255 255 255, targetname, cpoint38) line(255 255 255, targetname, cpoint39) line(255 255 255, targetname, cpoint40) line(255 255 255, targetname, cpoint41) line(255 255 255, targetname, cpoint42) line(255 255 255, targetname, cpoint43) line(255 255 255, targetname, cpoint44) line(255 255 255, targetname, cpoint45) line(255 255 255, targetname, cpoint46) line(255 255 255, targetname, cpoint47) line(255 255 255, targetname, cpoint48) line(255 255 255, targetname, cpoint49) line(255 255 255, targetname, cpoint50) line(255 255 255, targetname, cpoint51) line(255 255 255, targetname, cpoint52) line(255 255 255, targetname, cpoint53) line(255 255 255, targetname, cpoint54) line(255 255 255, targetname, cpoint55) line(255 255 255, targetname, cpoint56) line(255 255 255, targetname, cpoint57) line(255 255 255, targetname, cpoint58) line(255 255 255, targetname, cpoint59) line(255 255 255, targetname, cpoint60) line(255 255 255, targetname, cpoint61) line(255 255 255, targetname, cpoint62) line(255 255 255, targetname, cpoint63) color(255 203 11) = info_particle_system : "Creates and controls a particle system. https://developer.valvesoftware.com/wiki/Particle_System_Overview"
 [
@@ -2898,7 +2926,7 @@
 	]
 	input Activate(void) : "Applies the decal, then removes the infodecal entity."
 ]
-@PointClass base(CItem) studio("models/weapons/w_defuser.mdl") color(160 37 240) = item_defuser : "A defuse kit which CTs can pick up."
+@PointClass base(CItem) studio("models/weapons/w_defuser.mdl") color(160 37 240) sphere(fademindist) sphere(fademaxdist) = item_defuser : "A defuse kit which CTs can pick up."
 [
 ]
 @KeyFrameClass base(CRopeKeyframe) studio("models/editor/axis_helper_thick.mdl") animator() keyframe() color(255 203 11) = keyframe_rope : "Defines one end of a rope. The properties set in a rope entity will only affect the rope drawn between that entity and the one specified in that entity's Next KeyFrame field. BUG: The rope will mysteriously vanish if it has a parent when a round begins. Use Shift+Drag to create ropes quickly. Identical to move_rope."
@@ -2917,7 +2945,7 @@
 	_linear_attn(float) : "Linear" : 0 : "How strongly the light should use linear attenuation."
 	_quadratic_attn(float) : "Quadratic" : 1 : "How strongly the light should use quadratic attenuation."
 	_fifty_percent_distance(float) : "50 percent falloff distance" : 0 : "How far away from the source that light weakens to 50% its original brightness. Do not use these if already using the constant-linear-quadratic falloff KVs."
-	_fifty_percent_distance(float) : "0 percent falloff distance" : 0 : "How far away from the source that light weakens to 0.4% (1/256) its original brightness, at which point VRAD will quit calculating it."
+	_zero_percent_distance(float) : "0 percent falloff distance" : 0 : "How far away from the source that light weakens to 0.4% (1/256) its original brightness, at which point VRAD will quit calculating it."
 	_hardfalloff(float) : "hard falloff" : 0 : "Light will not hit surfaces this far away from the source."
 ]
 @PointClass base(CBaseEntity,Toggle) iconsprite("editor/light") sphere(distance) lightcone() size(-4 -4 -4, 4 4 4) color(160 240 37) = light_dynamic : "Light that's computed and rendered in realtime. It can move and change its properties at any moment. The Pitch keyvalue doesn't actually affect the entity ingame. All it does is set the pitch of Hammer's lightcone helper. To see where light will cast, set Pitch to the first number in Pitch Yaw Roll and flip the + or - sign. env_projectedtexture is generally agreed upon as a better entity for dynamic lighting for its more realistic results and less unintuitive setup. light_dynamic does have some advantages, though; more than one can be on at once, and it can emit in all directions."
@@ -2934,9 +2962,21 @@
 	pitch(integer) : "Pitch" :  : "Pitch value used by Hammer's lightcone visualization. Doesn't affect the actual lighting at all."
 	distance(float) : "Maximum distance" :  : "How far away from the entity light can cast, in world units."
 	spotlight_radius(float) : "Spotlight end radius" :  : "How big of a circle to illuminate when light hits brushes. The light will always be in a circle shape."
-	style(choices) : "Appearance" :  : "Modulates the light's brightness. See https://developer.valvesoftware.com/wiki/Template:Light_appearances for preset info." =
+	style(choices) : "Appearance" : 0 : "Modulates the light's brightness. See https://developer.valvesoftware.com/wiki/Template:Light_appearances for preset info." =
 	[
-
+		0 : "Normal"
+		10 : "Fluorescent flicker"
+		2 : "Slow, strong pulse"
+		11 : "Slow pulse, noblack"
+		5 : "Gentle pulse"
+		1 : "Flicker A"
+		6 : "Flicker B"
+		3 : "Candle A"
+		7 : "Candle B"
+		8 : "Candle C"
+		4 : "Fast strobe"
+		9 : "Slow strobe"
+		12 : "Underwater light mutation"
 	]
 	input Color(color255) : "Sets Light color."
 	input Brightness(integer) : "Sets Light brightness."
@@ -2953,20 +2993,20 @@
 	_ambient(color255) : "Ambient" : "255 255 255 20" : "Color and intensity of the ambient light. Ambient light is added on all surfaces which have LOS to a skybox brush, without any regard for the sunlight's angle."
 	_ambientHDR(color255) : "Ambient HDR" : "-1 -1 -1 1" : "If specified, ambient light settings for players with HDR turned on. The default -1 -1 -1 1 means the lightmap data will be the same, regardless of HDR. The lighting may still appear different ingame, due to HDR being on."
 	_AmbientScaleHDR(float) : "Ambient Scale HDR" : 1 : "Multiplier for the color + intensity of ambient light for players with HDR turned on. (Works with Ambient HDR, though it doesn't make sense to use them together.)"
-	SunSpreadAngle(float) : "Sun Spread Angle" :  : "How much the angles of the light particles can vary to simulate a penumbra effect. The lightmap scale of the brushes which light falls on also determines how blurry the shadows look."
+	SunSpreadAngle(float) : "Sun Spread Angle" : 0 : "How much the angles of the light particles can vary to simulate a penumbra effect. The lightmap scale of the brushes which light falls on also determines how blurry the shadows look."
 ]
 @PointClass base(CLight,Angles) lightprop("models/editor/spot.mdl") lightcone() sphere(_fifty_percent_distance) sphere(_zero_percent_distance) color(160 240 37) = light_spot : "A light entity made to emit light in a certain direction. Unless the entity is given a targetname, it will remove itself upon spawning because the game no longer needs it for anything. Named lights are toggleable and can take inputs but do a simpler light calculation and lightmap pieces are limited to up to 2 toggled lights shining on them at once."
 [
-	pitch(angle_negative_pitch) : "Pitch" : -90 : "If this light emits in a certain direction, this overrides the pitch in Pitch Yaw Roll. VRAD ignores the regular one, so it must be specified in order to orientate the light. Note that this pitch is the negative of the regular one, so -90 is straight down."
-	target(target_destination) : "Entity To Point At" :  : "If this light emits in a certain direction, tell it to point at this entity. info_null works well."
-	_inner_cone(float) : "Inner (bright) angle" : 30 : "If this light emits in a certain direction, this is the angle of the cone in which the light emits at full intensity. Past this angle, light will weaken until it stops completely at Outer (fading) angle. Maximum 90."
-	_cone(float) : "Outer (fading) angle" : 45 : "If this light emits in a certain direction, this is the farthest angle away from that direction that the light is allowed emit at. Maximum 90."
-	_exponent(float) : "Focus" : 1 : "Bias for where most of the intensity falloff between Inner (bright) angle and Outer (fading) angle occurs. 1 means a simple linear (TODO: Or is that inverse square root?) falloff. Decimals between 0 and 1 cause the falloff to occur closer to the outer angle, and numbers above 1 make it happen closer to the inner angle."
+	pitch(angle_negative_pitch) : "Pitch" : -90 : "Overrides the pitch in Pitch Yaw Roll. VRAD ignores the regular one, so it must be specified in order to orientate the light. Note that this pitch is the negative of the regular one, so -90 is straight down."
+	target(target_destination) : "Entity To Point At" :  : "Light will point at this entity. info_null works well."
+	_inner_cone(float) : "Inner (bright) angle" : 30 : "The angle of the cone in which the light emits at full intensity. Past this angle, light will weaken until it stops completely at Outer (fading) angle. Maximum 90."
+	_cone(float) : "Outer (fading) angle" : 45 : "The farthest angle away from Pitch Yaw Roll that the light is allowed emit at. Maximum 90."
+	_exponent(float) : "Focus" : 1 : "Bias for where most of the intensity falloff between Inner (bright) angle and Outer (fading) angle occurs. Decimals between 0 and 1 cause the falloff to occur closer to the outer angle, and numbers above 1 make it happen closer to the inner angle."
 	_constant_attn(float) : "Constant" : 0 : "How strongly the light should use constant attenuation. Processed in a ratio along with Linear and Quadratic to determine how quickly light weakens as it moves away from its source (this entity). Do not use these if already using the 50% and 0% falloff KVs. See here: https://developer.valvesoftware.com/wiki/Constant-Linear-Quadratic_Falloff."
 	_linear_attn(float) : "Linear" : 0 : "How strongly the light should use linear attenuation."
 	_quadratic_attn(float) : "Quadratic" : 1 : "How strongly the light should use quadratic attenuation."
 	_fifty_percent_distance(float) : "50 percent falloff distance" : 0 : "How far away from the source that light weakens to 50% its original brightness. Do not use these if already using the constant-linear-quadratic falloff KVs."
-	_fifty_percent_distance(float) : "0 percent falloff distance" : 0 : "How far away from the source that light weakens to 0.4% (1/256) its original brightness, at which point VRAD will quit calculating it."
+	_zero_percent_distance(float) : "0 percent falloff distance" : 0 : "How far away from the source that light weakens to 0.4% (1/256) its original brightness, at which point VRAD will quit calculating it."
 	_hardfalloff(float) : "hard falloff" : 0 : "Light will not hit surfaces this far away from the source."
 ]
 @PointClass base(CBaseEntity) iconsprite("editor/logic_auto") color(248 155 0) = logic_auto : "Fires outputs automatically."
@@ -2977,9 +3017,11 @@
 	]
 	globalstate(string) : "Global State to Read" :  : "A global state (env_global) which must be set to 'On' in order for this entity to fire any outputs."
 	output OnMapSpawn(void) : "Fires when the server loads the map and once at the start of every round."
+	output OnNewGame(void) : "Fires when the server loads the map and once at the start of every round."
+	output OnMultiNewMap(void) : "Fires when the server loads the map and once at the start of every round."
 	output OnBackgroundMap(void) : "Fires when the map is loaded as a background map (map_background command)."
 ]
-@PointClass base(CBaseEntity) iconsprite("editor/logic_branch") color(248 155 0) = logic_branch : "It stores a boolean (true/false, yes/no, 1/0) value."
+@PointClass base(CBaseEntity) iconsprite("editor/logic_branch") color(248 155 0) = logic_branch : "It stores a boolean (true/false, yes/no, 1/0) value. Use env_global to make the value persist across rounds."
 [
 	InitialValue(integer) : "Initial value" : 1 : "What the value should be set to when the entity spawns."
 	input SetValue(integer) : "Sets Initial value."
@@ -3034,7 +3076,22 @@
 	input InValue(string) : "Makes the entity fire an output if the parameter matches any of the Case values."
 	input PickRandom(void) : "Makes the entity fire a random OnCase output if that output is being used in the map."
 	input PickRandomShuffle(void) : "Makes the entity fire a random OnCase output if that output is being used in the map. This input will not fire outputs it previously fired, until all of them have, which will make the shuffle start over."
-	output OnCase01(void) : "Fired when the 'in' value matches the associated Case keyvalue."
+	output OnCase01(void) : "Fired when the 'in' value matches the string stored in Case 01."
+	output OnCase02(void) : "Fired when the 'in' value matches the string stored in Case 02."
+	output OnCase03(void) : "Fired when the 'in' value matches the string stored in Case 03."
+	output OnCase04(void) : "Fired when the 'in' value matches the string stored in Case 04."
+	output OnCase05(void) : "Fired when the 'in' value matches the string stored in Case 05."
+	output OnCase06(void) : "Fired when the 'in' value matches the string stored in Case 06."
+	output OnCase07(void) : "Fired when the 'in' value matches the string stored in Case 07."
+	output OnCase08(void) : "Fired when the 'in' value matches the string stored in Case 08."
+	output OnCase09(void) : "Fired when the 'in' value matches the string stored in Case 09."
+	output OnCase10(void) : "Fired when the 'in' value matches the string stored in Case 10."
+	output OnCase11(void) : "Fired when the 'in' value matches the string stored in Case 11."
+	output OnCase12(void) : "Fired when the 'in' value matches the string stored in Case 12."
+	output OnCase13(void) : "Fired when the 'in' value matches the string stored in Case 13."
+	output OnCase14(void) : "Fired when the 'in' value matches the string stored in Case 14."
+	output OnCase15(void) : "Fired when the 'in' value matches the string stored in Case 15."
+	output OnCase16(void) : "Fired when the 'in' value matches the string stored in Case 16."
 	output OnDefault(string) : "Fired if the 'in' value did not match any Case value. Automatically puts the 'in' value as the input parameter, unless overridden by the mapper."
 ]
 @PointClass base(CBaseEntity) color(255 0 255) = logic_collision_pair : "It can be used to control if two specific entities consider each other to be solid."
@@ -3169,8 +3226,8 @@
 	input Divide(float) : "Divides the stored number by the parameter value."
 	input SetValue(float) : "Sets the stored number."
 	input SetValueNoFire(float) : "Sets the stored number without firing any outputs."
-	input SetHitMin(float) : "Sets Minimum Legal Value."
-	input SetHitMax(float) : "Sets Maximum Legal Value."
+	input SetHitMin(float) : "Sets Minimum Legal Value. OnHitMin will fire if appropriate."
+	input SetHitMax(float) : "Sets Maximum Legal Value. OnHitMax will fire if appropriate."
 	input GetValue(void) : "Fires OnGetValue."
 	input Enable(void) : "Makes the entity active."
 	input Disable(void) : "Makes the entity inactive."
@@ -3195,7 +3252,7 @@
 	input Disable(void) : "Makes the entity inactive."
 	output OutValue(float) : "Fires when InValue is sent. Automatically puts a number as the input parameter, unless overridden by the mapper."
 ]
-@SolidClass base(CRotButton,VisibleBrush) = momentary_rot_button : "It's a brush that continues to rotate as the player holds down +use."
+@SolidClass base(CRotButton,VisibleBrush,Origin) = momentary_rot_button : "It's a brush that continues to rotate as the player holds down +use."
 [
 	spawnflags(flags) =
 	[
@@ -3325,7 +3382,7 @@
 	minlength(float) : "Minimum Length" : 0 : "Minimum distance the entities can be from each other."
 	attachpoint(vecline) : "Attached object 2 point" :  : "The point that Entity 2 is attached by. (For Entity 1, that point is this entity's origin.)"
 ]
-@PointClass base(Model,CBaseAnimating,Toggle) color(255 0 255) = phys_magnet : "It acts like a magnet. Objects with the material types M and P (metal and computer, https://developer.valvesoftware.com/wiki/Material_Types) will get attached to the magnet if they touch it. BUG: The magnet does not check what's touching it when the TurnOn input is sent, so if it's touching something as it's turned on, that object will not stick until a new touchlink is created."
+@PointClass base(Model,CBaseAnimating,Toggle) color(255 0 255) sphere(fademindist) sphere(fademaxdist) = phys_magnet : "It acts like a magnet. Objects with the material types M and P (metal and computer, https://developer.valvesoftware.com/wiki/Material_Types) will get attached to the magnet if they touch it. BUG: The magnet does not check what's touching it when the TurnOn input is sent, so if it's touching something as it's turned on, that object will not stick until a new touchlink is created."
 [
 	spawnflags(flags) =
 	[
@@ -3431,7 +3488,7 @@
 		32 : "Ignore Pos - Puts the thrust at the object center to prevent spinning" : 0
 	]
 ]
-@PointClass base(CBaseCombatCharacter) sphere(expradius) studioprop() color(255 0 255) = physics_cannister : "It's a regular physics object that acts like a gas canister. When hurt, the cannister will fly off cartoonishly. If it takes enough damage, it will explode. The model should have a 'nozzle' attachment point, which is where gas will escape and thrust will be produced from."
+@PointClass base(CBaseCombatCharacter) sphere(expradius) studioprop() color(255 0 255) sphere(fademindist) sphere(fademaxdist) = physics_cannister : "It's a regular physics object that acts like a gas canister. When hurt, the cannister will fly off cartoonishly. If it takes enough damage, it will explode. The model should have a 'nozzle' attachment point, which is where gas will escape and thrust will be produced from."
 [
 	spawnflags(flags) =
 	[
@@ -3457,11 +3514,12 @@
 [
 	spawnflags(flags) =
 	[
-		1 : "Suppress weapons - Hides and disables weapons." : 0
-		4 : "Suppress jump (buggy)" : 0
+		1 : "Suppress weapons - Hides and disables weapons, stops working when weapons are switched" : 0
+		2 : "Suppress HUD (only hides part of HUD, disables weapon switching and sniper scope graphic)" : 0
+		4 : "Suppress jump (view still shifts up for a moment)" : 0
 		8 : "Suppress duck" : 0
 		16 : "Suppress +use" : 0
-		64 : "Suppress attack (no bullet, still makes sound and visuals)" : 0
+		64 : "Suppress attack (no bullet, still makes sound and visuals, viewmodels may do draw animation when attempting to fire)" : 0
 	]
 	input ModifySpeed(float) : "Multiplies the player velocity by this much and does the things specified in the flags. To set everything back to normal, send the input with the parameter 1. The !activator must be a player in order to work. Tip: Set the speed to .99 to only use the flags."
 ]
@@ -3532,14 +3590,17 @@
 ]
 @PointClass base(CBaseEntity) color(248 155 0) = point_clientcommand : "It executes a console command as if it were typed in from a certain player's console. (As opposed to the server's own console.) As with most other text fields in Hammer, using quote marks on this entity will cause a minor corruption of the VMF, because the file format relies on quote marks as syntax. If you accidentally do this, open the VMF in a text editor and delete the extra quote marks."
 [
-	input Command(string) : "Command to execute. In multiplayer, the player to affect has to be the !activator."
+	input Command(string) : "Executes the string in the parameter. In multiplayer, the player to affect has to be the !activator."
 ]
 @PointClass base(CBaseEntity,Angles) studioprop("models/editor/camera.mdl") = point_devshot_camera : "It takes screenshots of a map every time the map is loaded. Used to create time lapses of a map's development. The game must have been loaded with -maxdevshots in the launch options/command line. The first camera is prone to taking screenshots of the welcome HUD. If this happens, make an extra camera to take a picture of that, then other ones should function fine."
 [
 	cameraname(string) : "Camera Name" :  : "Required. A folder inside /screenshots/[mapname]/ to save screenshots to. Must not match the name of another camera, or they might both break!"
 	FOV(integer) : "Camera FOV" :  : "How wide the camera's view is in degrees."
 ]
-@PointClass base(CBaseEntity) = point_gamestats_counter : "'Generic game statistics counter.' TODO: Just explain this entire thing to me."
+@PointClass base(CBaseEntity,Angles) = point_enable_motion_fixup : "If a motion-disabled prop has this entity parented to it, it will teleport to the position and angles of this entity when its motion becomes enabled."
+[
+]
+@PointClass base(CBaseEntity,Origin) = point_gamestats_counter : "'Generic game statistics counter.' TODO: Just explain this entire thing to me."
 [
 	Name(string) : "Name of statistic counter" :  : "Name of like, something."
 	input SetName(string) : "Sets Name of statistic counter."
@@ -3556,14 +3617,21 @@
 	damagetype(choices) : "Damage Type" : 0 : "What kind of damage to do." =
 	[
 		0 : "Generic"
+		1 : "Crush (physics)"
+		5 : "Sharp physics object (Crush+Slash)"
+		8 : "Burn"
 		32 : "Fall"
-		64 : "Blast"
+		64 : "Blast (C4, HE)"
+		128 : "CS projectile collision (Club)"
+		256 : "Shock"
+		4098 : "CS bullets, knife (Bullet+Nevergib)"
+		16384 : "Drown"
 	]
 	input Hurt(void) : "Forces damage immediately, regardless of Delay."
 	input TurnOn(void) : "Makes the entity begin doing damage at timed intervals."
 	input TurnOff(void) : "Makes the entity stop doing timed damage."
 ]
-@PointClass base(CBaseEntity) = point_playermoveconstraint : "It contains the player to a sphere by reducing their walking speed. They may still escape the sphere by other means of movement such as jumping, or even simply using walking inertia to their advantage. If you want to use this to keep someone constrained with 100% certainty, you need to also include something else, such as clipping."
+@PointClass base(CBaseEntity) sphere(radius) = point_playermoveconstraint : "It contains the player to a sphere by reducing their walking speed. They may still escape the sphere by other means of movement such as jumping, or even simply using walking inertia to their advantage. If you want to use this to keep someone constrained with 100% certainty, you need to also include something else, such as clipping."
 [
 	radius(float) : "Radius" : 256 : "How far away the player can go."
 	width(float) : "Constraint Width" : 75 : "Width of the constraint edge. This is the distance in which to start slowing players down as they approach the edge of the radius."
@@ -3640,7 +3708,7 @@
 ]
 @PointClass base(CBaseEntity) color(248 155 0) = point_servercommand : "It executes a command from the server's console. As with most other text fields in Hammer, using quote marks on this entity will cause a minor corruption of the VMF, because the file format relies on quote marks as syntax. If you accidentally do this, open the VMF in a text editor and delete the extra quote marks."
 [
-	input Command(string) : "Command to execute."
+	input Command(string) : "Executes the string in the parameter."
 ]
 @PointClass base(CBaseEntity,RenderColor,Angles) studio("models/editor/cone_helper.mdl") color(160 240 37) = point_spotlight : "It's a lighting effect that either shows a beam or a halo, depending on where the viewer is."
 [
@@ -3775,7 +3843,7 @@
 		2 : "Rotate to face the camera, but ignore the Z axis."
 	]
 ]
-@PointClass base(CPropDoorRotating) color(0 255 0) = prop_door_rotating : "A rotating door. These doors are usually opened by players when they +use it (E by default)."
+@PointClass base(CPropDoorRotating) color(0 255 0) studioprop() = prop_door_rotating : "A rotating door. These doors are usually opened by players when they +use it (E by default)."
 [
 ]
 @PointClass base(CDynamicProp,DynamicPropAnimations) sphere(fademindist) sphere(fademaxdist) studioprop() color(255 203 11) = prop_dynamic : "A model that can animate."
@@ -3789,9 +3857,9 @@
 ]
 @PointClass base(CDynamicProp,DynamicPropAnimations) sphere(fademindist) sphere(fademaxdist) studioprop() color(255 203 11) = prop_dynamic_override : "A version of prop_dynamic that lets you use ANY model, and set its Health on spawn. Automatically converts to prop_dynamic after spawning."
 [
-	input Health(integer) : "How close the prop is to breaking. If not set, the health is defined through the model's QC file."
+	health(integer) : "Health" :  : "How close the prop is to breaking. If not set, the health is defined through the model's QC file. Even if this is set, the prop will not take damage if its model is not configured to break."
 ]
-@PointClass base(CPhysicsProp) studioprop() sphere(fademindist) sphere(fademaxdist) color(255 0 255) = prop_physics : "A model that moves around realistically. Use prop_physics_multiplayer instead!"
+@PointClass base(CPhysicsProp) studioprop() sphere(fademindist) sphere(fademaxdist) color(255 0 255) = prop_physics : "A model that moves around realistically. Most of the time, you should use prop_physics_multiplayer instead for networking reasons."
 [
 ]
 @PointClass base(CPhysicsProp) studioprop() sphere(fademindist) sphere(fademaxdist) color(255 0 255) = prop_physics_multiplayer : "A version of prop_physics which can cut down on network traffic generated by moving props."
@@ -3806,7 +3874,7 @@
 ]
 @PointClass base(CPhysicsProp) studioprop() sphere(fademindist) sphere(fademaxdist) color(255 0 255) = prop_physics_override : "A version of prop_physics that can use ANY model and set its Health on spawn."
 [
-	input Health(integer) : "How close the prop is to breaking. If not set, the health is defined through the model's QC file."
+	health(integer) : "Health" :  : "How close the prop is to breaking. If not set, the health is defined through the model's QC file. Even if this is set, the prop will not take damage if its model is not configured to break."
 ]
 @PointClass base(Model,CBaseAnimating) sphere(fademindist) sphere(fademaxdist) studioprop() color(255 0 255) = prop_ragdoll : "A realistically-moving model with multiple connected components, like a player's corpse after they die. Ragdolls made by this entity are server-side, meaning they can create a LOT of network traffic. Use them carefully."
 [
@@ -3832,7 +3900,7 @@
 	input Disable(void) : "Makes the ragdoll invisible."
 	input FadeAndRemove(float) : "Fades the ragdoll out over the specified number of seconds, then removes it."
 ]
-@PointClass base(Model,Angles,FadeKeys) color(255 203 11) = prop_static : "It adds a model to the world which cannot move or animate. Static props are less expensive than other model entities. Models with $bumpmapped materials are never lit per-vertex. Up to 4096 prop_statics can be in a map. Models will work with this entity only if the 'static' box is checked inside the model browser. Alternatives are a prop_physics with motion disabled and a prop_dynamic that simply sits there and does nothing (though, the lighting might not be the same)."
+@PointClass base(Model,Angles,FadeKeys) color(255 203 11) sphere(fademindist) sphere(fademaxdist) studioprop() = prop_static : "It adds a model to the world which cannot move or animate. Static props are less expensive than other model entities. Models with $bumpmapped materials are never lit per-vertex. Up to 4096 prop_statics can be in a map. Models will work with this entity only if the 'static' box is checked inside the model browser. Alternatives are a prop_physics with motion disabled and a prop_dynamic that simply sits there and does nothing (though, the lighting might not be the same)."
 [
 	fadescale(float) : "Fade Scale" : 1 : "If specified in the worldspawn, or if the game is running below DirectX 8, entities will fade out even if the Start/End Fade Distance keyvalues aren't specified. This value gives more control over when this happens: numbers smaller than 1 cause the entity to fade out farther away, and greater than 1 cause it to fade out at closer distances. Using 0 turns off the forced fade altogether. See also $noforcedfade."
 	skin(integer) : "Skin" : 0 : "Some models have multiple skins. This value selects from the index, starting with 0."
@@ -3926,7 +3994,7 @@
 ]
 @PointClass base(CBaseEntity) color(255 0 255) = target_changegravity : "Changes the gravity setting of players."
 [
-	gravity(integer) : "Gravity" :  : "What to change the gravity amount to. Multiplier of regular gravity. Mods can easily change this keyvalue to a float, thereby greatly increasing its usefulness. Cannot be set to 0."
+	gravity(integer) : "Gravity" : 1 : "What to change the gravity amount to. Multiplier of regular gravity. Mods can easily change this keyvalue to a float, thereby greatly increasing its usefulness. Cannot be set to 0."
 	input ChangeGrav(void) : "Changes the gravity of the activating player to the amount in Gravity."
 	input ResetGrav(void) : "Changes the gravity of the activating player to the previous amount of gravity that was being experienced by the most recent activator player of the ChangeGrav input, before that input was sent."
 ]
@@ -4034,6 +4102,7 @@
 	DirectionNoise(integer) : "Direction Noise" : 0 : "The wind direction will randomly vary off Pitch Yaw Roll by up to this much."
 	HoldTime(integer) : "Hold Time" : 10 : "How long to wait between making random changes in the wind's speed and angle."
 	HoldNoise(integer) : "Hold Noise" : 0 : "Hold Time will randomly vary by up to this much."
+	input SetSpeed(integer) : "Sets Speed, then immediately recomputes the speed and direction noise."
 ]
 @PointClass base(CBaseEntity,Angles) size(-4 -4 -4, 4 4 4) color(255 203 11) = vgui_screen : "A computer-like screen that shows one or more textures. TODO: Can a vgui_screens.txt be successfully packed into a map? If not, that severely limits this entity's capabilities."
 [
@@ -4074,98 +4143,91 @@
 	input SetCycleType(integer) : "Sets Cycle Type."
 	input SetNoListRepeat(integer) : "Sets No List Repeat."
 ]
-@PointClass base(CBaseEntity) iconsprite("editor/waterlodcontrol") color(28 146 214) = water_lod_control : "It controls how far away from the player that water turns into cheap water, which is easier to render. Every map with water in it must have one. VBSP will create this entity if it's not included."
-[
-	cheapwaterstartdistance(float) : "Start Transition to Cheap Water" :  : "Distance from the camera that water will start transitioning to cheap water, in units."
-	cheapwaterenddistance(float) : "End Transition to Cheap Water" :  : "Distance from the camera that water will finish transitioning to cheap water, in units."
-	input SetCheapWaterStartDistance(float) : "Sets Start Transition to Cheap Water."
-	input SetCheapWaterEndDistance(float) : "Sets End Transition to Cheap Water."
-]
-@PointClass base(CWeaponCSBase) color(160 37 240) studio("models/weapons/w_rif_ak47.mdl") = weapon_ak47 : "CV-47"
+@PointClass base(CWeaponCSBase) color(160 37 240) sphere(fademindist) sphere(fademaxdist) studio("models/weapons/w_rif_ak47.mdl") = weapon_ak47 : "CV-47"
 [
 ]
-@PointClass base(CWeaponCSBase) color(160 37 240) studio("models/weapons/w_rif_aug.mdl") = weapon_aug : "Bullpup"
+@PointClass base(CWeaponCSBase) color(160 37 240) sphere(fademindist) sphere(fademaxdist) studio("models/weapons/w_rif_aug.mdl") = weapon_aug : "Bullpup"
 [
 ]
-@PointClass base(CWeaponCSBase) color(160 37 240) studio("models/weapons/w_snip_awp.mdl") = weapon_awp : "Magnum Sniper Rifle"
+@PointClass base(CWeaponCSBase) color(160 37 240) sphere(fademindist) sphere(fademaxdist) studio("models/weapons/w_snip_awp.mdl") = weapon_awp : "Magnum Sniper Rifle"
 [
 ]
-@PointClass base(CWeaponCSBase) color(160 37 240) studio("models/weapons/w_c4.mdl") = weapon_c4 : "C4 Explosive"
+@PointClass base(CWeaponCSBase) color(160 37 240) sphere(fademindist) sphere(fademaxdist) studio("models/weapons/w_c4.mdl") = weapon_c4 : "C4 Explosive"
 [
 ]
-@PointClass base(CWeaponCSBase) color(160 37 240) studio("models/weapons/w_pist_deagle.mdl") = weapon_deagle : "Night Hawk .50C"
+@PointClass base(CWeaponCSBase) color(160 37 240) sphere(fademindist) sphere(fademaxdist) studio("models/weapons/w_pist_deagle.mdl") = weapon_deagle : "Night Hawk .50C"
 [
 ]
-@PointClass base(CWeaponCSBase) color(160 37 240) studio("models/weapons/w_pist_elite.mdl") = weapon_elite : ".40 Dual Elites"
+@PointClass base(CWeaponCSBase) color(160 37 240) sphere(fademindist) sphere(fademaxdist) studio("models/weapons/w_pist_elite.mdl") = weapon_elite : ".40 Dual Elites"
 [
 ]
-@PointClass base(CWeaponCSBase) color(160 37 240) studio("models/weapons/w_rif_famas.mdl") = weapon_famas : "Clarion 5.56"
+@PointClass base(CWeaponCSBase) color(160 37 240) sphere(fademindist) sphere(fademaxdist) studio("models/weapons/w_rif_famas.mdl") = weapon_famas : "Clarion 5.56"
 [
 ]
-@PointClass base(CWeaponCSBase) color(160 37 240) studio("models/weapons/w_pist_fiveseven.mdl") = weapon_fiveseven : "ES Five-Seven"
+@PointClass base(CWeaponCSBase) color(160 37 240) sphere(fademindist) sphere(fademaxdist) studio("models/weapons/w_pist_fiveseven.mdl") = weapon_fiveseven : "ES Five-Seven"
 [
 ]
-@PointClass base(CWeaponCSBase) color(160 37 240) studio("models/weapons/w_eq_flashbang.mdl") = weapon_flashbang : "Flashbang"
+@PointClass base(CWeaponCSBase) color(160 37 240) sphere(fademindist) sphere(fademaxdist) studio("models/weapons/w_eq_flashbang.mdl") = weapon_flashbang : "Flashbang"
 [
 ]
-@PointClass base(CWeaponCSBase) color(160 37 240) studio("models/weapons/w_snip_g3sg1.mdl") = weapon_g3sg1 : "D3/AU-1"
+@PointClass base(CWeaponCSBase) color(160 37 240) sphere(fademindist) sphere(fademaxdist) studio("models/weapons/w_snip_g3sg1.mdl") = weapon_g3sg1 : "D3/AU-1"
 [
 ]
-@PointClass base(CWeaponCSBase) color(160 37 240) studio("models/weapons/w_rif_galil.mdl") = weapon_galil : "IDF Defender"
+@PointClass base(CWeaponCSBase) color(160 37 240) sphere(fademindist) sphere(fademaxdist) studio("models/weapons/w_rif_galil.mdl") = weapon_galil : "IDF Defender"
 [
 ]
-@PointClass base(CWeaponCSBase) color(160 37 240) studio("models/weapons/w_pist_glock18.mdl") = weapon_glock : "9X19mm Sidearm"
+@PointClass base(CWeaponCSBase) color(160 37 240) sphere(fademindist) sphere(fademaxdist) studio("models/weapons/w_pist_glock18.mdl") = weapon_glock : "9X19mm Sidearm"
 [
 ]
-@PointClass base(CWeaponCSBase) color(160 37 240) studio("models/weapons/w_eq_fraggrenade.mdl") = weapon_hegrenade : "High Explosive Grenade"
+@PointClass base(CWeaponCSBase) color(160 37 240) sphere(fademindist) sphere(fademaxdist) studio("models/weapons/w_eq_fraggrenade.mdl") = weapon_hegrenade : "High Explosive Grenade"
 [
 ]
-@PointClass base(CWeaponCSBase) color(160 37 240) studio("models/weapons/w_knife_t.mdl") = weapon_knife : "Knife"
+@PointClass base(CWeaponCSBase) color(160 37 240) sphere(fademindist) sphere(fademaxdist) studio("models/weapons/w_knife_t.mdl") = weapon_knife : "Knife"
 [
 ]
-@PointClass base(CWeaponCSBase) color(160 37 240) studio("models/weapons/w_mach_m249para.mdl") = weapon_m249 : "M249"
+@PointClass base(CWeaponCSBase) color(160 37 240) sphere(fademindist) sphere(fademaxdist) studio("models/weapons/w_mach_m249para.mdl") = weapon_m249 : "M249"
 [
 ]
-@PointClass base(CWeaponCSBase) color(160 37 240) studio("models/weapons/w_shot_m3super90.mdl") = weapon_m3 : "Leone 12 Gauge Super"
+@PointClass base(CWeaponCSBase) color(160 37 240) sphere(fademindist) sphere(fademaxdist) studio("models/weapons/w_shot_m3super90.mdl") = weapon_m3 : "Leone 12 Gauge Super"
 [
 ]
-@PointClass base(CWeaponCSBase) color(160 37 240) studio("models/weapons/w_rif_m4a1.mdl") = weapon_m4a1 : "Maverick M4A1 Carbine"
+@PointClass base(CWeaponCSBase) color(160 37 240) sphere(fademindist) sphere(fademaxdist) studio("models/weapons/w_rif_m4a1.mdl") = weapon_m4a1 : "Maverick M4A1 Carbine"
 [
 ]
-@PointClass base(CWeaponCSBase) color(160 37 240) studio("models/weapons/w_smg_mac10.mdl") = weapon_mac10 : "Ingram Mac-10"
+@PointClass base(CWeaponCSBase) color(160 37 240) sphere(fademindist) sphere(fademaxdist) studio("models/weapons/w_smg_mac10.mdl") = weapon_mac10 : "Ingram Mac-10"
 [
 ]
-@PointClass base(CWeaponCSBase) color(160 37 240) studio("models/weapons/w_smg_mp5.mdl") = weapon_mp5navy : "K&M Sub-Machine Gun"
+@PointClass base(CWeaponCSBase) color(160 37 240) sphere(fademindist) sphere(fademaxdist) studio("models/weapons/w_smg_mp5.mdl") = weapon_mp5navy : "K&M Sub-Machine Gun"
 [
 ]
-@PointClass base(CWeaponCSBase) color(160 37 240) studio("models/weapons/w_pist_p228.mdl") = weapon_p228 : "228 Compact"
+@PointClass base(CWeaponCSBase) color(160 37 240) sphere(fademindist) sphere(fademaxdist) studio("models/weapons/w_pist_p228.mdl") = weapon_p228 : "228 Compact"
 [
 ]
-@PointClass base(CWeaponCSBase) color(160 37 240) studio("models/weapons/w_smg_p90.mdl") = weapon_p90 : "ES C90"
+@PointClass base(CWeaponCSBase) color(160 37 240) sphere(fademindist) sphere(fademaxdist) studio("models/weapons/w_smg_p90.mdl") = weapon_p90 : "ES C90"
 [
 ]
-@PointClass base(CWeaponCSBase) color(160 37 240) studio("models/weapons/w_snip_scout.mdl") = weapon_scout : "Schmidt Scout"
+@PointClass base(CWeaponCSBase) color(160 37 240) sphere(fademindist) sphere(fademaxdist) studio("models/weapons/w_snip_scout.mdl") = weapon_scout : "Schmidt Scout"
 [
 ]
-@PointClass base(CWeaponCSBase) color(160 37 240) studio("models/weapons/w_snip_sg550.mdl") = weapon_sg550 : "Krieg 550 Commando"
+@PointClass base(CWeaponCSBase) color(160 37 240) sphere(fademindist) sphere(fademaxdist) studio("models/weapons/w_snip_sg550.mdl") = weapon_sg550 : "Krieg 550 Commando"
 [
 ]
-@PointClass base(CWeaponCSBase) color(160 37 240) studio("models/weapons/w_rif_sg552.mdl") = weapon_sg552 : "Krieg 552"
+@PointClass base(CWeaponCSBase) color(160 37 240) sphere(fademindist) sphere(fademaxdist) studio("models/weapons/w_rif_sg552.mdl") = weapon_sg552 : "Krieg 552"
 [
 ]
-@PointClass base(CWeaponCSBase) color(160 37 240) studio("models/weapons/w_eq_smokegrenade.mdl") = weapon_smokegrenade : "Smoke Grenade"
+@PointClass base(CWeaponCSBase) color(160 37 240) sphere(fademindist) sphere(fademaxdist) studio("models/weapons/w_eq_smokegrenade.mdl") = weapon_smokegrenade : "Smoke Grenade"
 [
 ]
-@PointClass base(CWeaponCSBase) color(160 37 240) studio("models/weapons/w_smg_tmp.mdl") = weapon_tmp : "Schmidt Machine Pistol"
+@PointClass base(CWeaponCSBase) color(160 37 240) sphere(fademindist) sphere(fademaxdist) studio("models/weapons/w_smg_tmp.mdl") = weapon_tmp : "Schmidt Machine Pistol"
 [
 ]
-@PointClass base(CWeaponCSBase) color(160 37 240) studio("models/weapons/w_smg_ump45.mdl") = weapon_ump45 : "K&M UMP45"
+@PointClass base(CWeaponCSBase) color(160 37 240) sphere(fademindist) sphere(fademaxdist) studio("models/weapons/w_smg_ump45.mdl") = weapon_ump45 : "K&M UMP45"
 [
 ]
-@PointClass base(CWeaponCSBase) color(160 37 240) studio("models/weapons/w_pist_usp.mdl") = weapon_usp : "K&M .45 Tactical"
+@PointClass base(CWeaponCSBase) color(160 37 240) sphere(fademindist) sphere(fademaxdist) studio("models/weapons/w_pist_usp.mdl") = weapon_usp : "K&M .45 Tactical"
 [
 ]
-@PointClass base(CWeaponCSBase) color(160 37 240) studio("models/weapons/w_shot_xm1014.mdl") = weapon_xm1014 : "Leone YG1265 Auto Shotgun"
+@PointClass base(CWeaponCSBase) color(160 37 240) sphere(fademindist) sphere(fademaxdist) studio("models/weapons/w_shot_xm1014.mdl") = weapon_xm1014 : "Leone YG1265 Auto Shotgun"
 [
 ]
 @SolidClass = worldspawn : "This entity represents the entire map. It holds the static props and brushes, including displacements, and many 'global' settings which must be easily available to other entities at all times. When something refers to 'the world', it means this entity.\n" +
@@ -4185,7 +4247,7 @@
 	minpropscreenwidth(float) : "End Fade Pixels" : 0 : "Minimum number of pixels wide an entity must be for it to be drawn. This number is ignored if the entity has a specific fade distance specified."
 	detailvbsp(string) : "Detail.vbsp file" : "detail.vbsp" : "Detail.vbsp to use for emitting detail props/sprites."
 	detailmaterial(string) : "Detail material file" : "detail/detailsprites" : "Material properties that apply to all detail props."
-	input AddOutput(string) : "Evaluates a keyvalue or IO event on this entity. Not all keyvalues will work with this input as they require special handling.\n" +
+	input AddOutput(string) : "Changes a keyvalue or adds an I/O connection on this entity. Not all keyvalues will work with this input as they require special handling.\n" +
 	"Keyvalue format: <key> <value>\n" +
 	"IO format: <output name> <targetname>:<input name>:<parameter>:<delay>:<fire once>\n" +
 	"The parameter can be left blank, but do not omit either ':' surrounding it or the game will think the delay is the parameter! <fire once> is whether the IO event can be fired again. Put 0 to allow infinite refires, put 1 to make it only fire once ever."
