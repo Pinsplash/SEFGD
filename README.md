@@ -5,9 +5,9 @@ They aren't perfect yet. Open an issue and tell me about any problems with them.
 Progress:
 - **Counter-Strike: Global Offensive**: ✔
 - **Counter-Strike: Source**: ✔
-- **Day of Defeat: Source**: ❌
+- **Day of Defeat: Source**: ❌, next up
 - **Half-Life 2 (Episode Two)**: ❌
 - **Half-Life 2: Deathmatch**: ❌
-- **Left 4 Dead 2**: ❌, next up
-- **Portal 2**: In progress
+- **Left 4 Dead 2**: In Progress
+- **Portal 2**: ✔
 - **Team Fortress 2**: ❌
