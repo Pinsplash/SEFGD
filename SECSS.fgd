@@ -1,5 +1,5 @@
 
-//To install this FGD:
+//To install this FGD: 
 //1. Open Hammer.
 //2. Click 'Tools'.
 //3. Click 'Options'.
@@ -58,7 +58,6 @@
 		"info_map_parameters"
 		"info_player_counterterrorist"
 		"info_player_terrorist"
-		"player_weaponstrip"
 		"point_hurt"
 		"prop_door_rotating"
 		"trigger_hurt"
@@ -117,7 +116,7 @@
 		"math_colorblend"
 		"math_counter"
 		"math_remap"
-		"path_track"
+		"player_weaponstrip"
 		"point_anglesensor"
 		"point_angularvelocitysensor"
 		"point_clientcommand"
@@ -140,6 +139,7 @@
 		"hammer_updateignorelist"
 		"info_null"
 		"info_target"
+		"path_track"
 		"player_speedmod"
 		"point_devshot_camera"
 		"point_enable_motion_fixup"
@@ -511,6 +511,7 @@
 	]
 	shadowcastdist(integer) : "Shadow Cast Distance" : 0 : "Sets how far the entity casts _rt_shadows shadows. 0 means default distance from the shadow_control entity."
 	modelscale(float) : "Model Scale" : 1 : "A multiplier for the size of the model. Negative values are accepted. Does not scale the individual pieces that make up physics meshes, but will scale the distances between them."
+	input Skin(integer) : "Sets Skin."
 	input SetBodyGroup(integer) : "Sets the Body Group keyvalue."
 	input Ignite(void) : "Makes the entity catch on fire indefinitely."
 	input IgniteLifetime(float) : "Makes the entity catch on fire for a given amount of time."
@@ -1344,7 +1345,7 @@
 		32 : "Is NOT Looped - Allows the sound to played rapidly without interrupting itself. Does not make sound loop or not loop. BUGGY!" : 0
 	]
 	message(sound) : "Sound Name" :  : "Sound to play."
-	radius(float) : "Max Audible Distance" : 1250 : "Maximum distance that this distance may be heard. BUG: Impressively, sounds are still slightly audible outside this range."
+	radius(float) : "Max Audible Distance" : 1250 : "Maximum distance that this sound may be heard from. BUG: Impressively, sounds are still slightly audible outside this range."
 	SourceEntityName(target_destination) : "Source Entity" :  : "A location that the sound will play at instead of from the ambient_generic. BUG: That entity must exist when this entity is spawned, or else the sound will still play at the ambient_generic. Using AddOutput to change this keyvalue does not work."
 	preset(choices) : "Dynamic Presets" : 0 : "Various effect filters that change how sounds sound. Note that these are not DSP effects. Setting this will override many of the settings below." =
 	[
@@ -2562,7 +2563,7 @@
 	MovePingSound(sound) : "Move Ping Sound" :  : "A sound that is played more frequently as the train speeds up."
 	StartSound(sound) : "Start Sound" :  : "A sound played when the train starts moving."
 	StopSound(sound) : "Stop Sound" :  : "A sound played when the train stops moving."
-	volume(float) : "Volume" :  : "How loudly (from 1 to 10) sounds will play."
+	volume(integer) : "Volume" :  : "How loudly (from 1 to 10) sounds will play."
 	MoveSoundMinPitch(integer) : "Min pitch" : 100 : "The pitch of Move Sound as the train comes to a stop. This value is between 1 and 255, with 100 being the sound's normal pitch."
 	MoveSoundMaxPitch(integer) : "Max pitch" : 100 : "The pitch of Move Sound once the train's speed reaches 1000 units per second (or Max Speed, if 'Use max speed for pitch shifting move sound' was checked)."
 	MoveSoundMinTime(float) : "Min move sound interval" : 1 : "Minimum interval between playing the Move Ping Sound."
@@ -3045,22 +3046,22 @@
 ]
 @PointClass base(CBaseEntity) color(248 155 0) = logic_branch_listener : "It observes the states of multiple logic_branches at once, allowing for more complex logic setups. When the state of a logic_branch changes, it will automatically tell logic_branch_listeners which are watching it to fire outputs."
 [
-	Branch01(target_destination) : "Logic Branch 01" :  : "logic_branches to watch. These keyvalues will accept more than 16 logic_branches if some are given the same targetname. Wildcards (i.e. branch_1, branch_2 being referred to as branch_*) are also supported."
-	Branch02(target_destination) : "Logic Branch 02" :  : "logic_branches to watch. These keyvalues will accept more than 16 logic_branches if some are given the same targetname. Wildcards (i.e. branch_1, branch_2 being referred to as branch_*) are also supported."
-	Branch03(target_destination) : "Logic Branch 03" :  : "logic_branches to watch. These keyvalues will accept more than 16 logic_branches if some are given the same targetname. Wildcards (i.e. branch_1, branch_2 being referred to as branch_*) are also supported."
-	Branch04(target_destination) : "Logic Branch 04" :  : "logic_branches to watch. These keyvalues will accept more than 16 logic_branches if some are given the same targetname. Wildcards (i.e. branch_1, branch_2 being referred to as branch_*) are also supported."
-	Branch05(target_destination) : "Logic Branch 05" :  : "logic_branches to watch. These keyvalues will accept more than 16 logic_branches if some are given the same targetname. Wildcards (i.e. branch_1, branch_2 being referred to as branch_*) are also supported."
-	Branch06(target_destination) : "Logic Branch 06" :  : "logic_branches to watch. These keyvalues will accept more than 16 logic_branches if some are given the same targetname. Wildcards (i.e. branch_1, branch_2 being referred to as branch_*) are also supported."
-	Branch07(target_destination) : "Logic Branch 07" :  : "logic_branches to watch. These keyvalues will accept more than 16 logic_branches if some are given the same targetname. Wildcards (i.e. branch_1, branch_2 being referred to as branch_*) are also supported."
-	Branch08(target_destination) : "Logic Branch 08" :  : "logic_branches to watch. These keyvalues will accept more than 16 logic_branches if some are given the same targetname. Wildcards (i.e. branch_1, branch_2 being referred to as branch_*) are also supported."
-	Branch09(target_destination) : "Logic Branch 09" :  : "logic_branches to watch. These keyvalues will accept more than 16 logic_branches if some are given the same targetname. Wildcards (i.e. branch_1, branch_2 being referred to as branch_*) are also supported."
-	Branch10(target_destination) : "Logic Branch 10" :  : "logic_branches to watch. These keyvalues will accept more than 16 logic_branches if some are given the same targetname. Wildcards (i.e. branch_1, branch_2 being referred to as branch_*) are also supported."
-	Branch11(target_destination) : "Logic Branch 11" :  : "logic_branches to watch. These keyvalues will accept more than 16 logic_branches if some are given the same targetname. Wildcards (i.e. branch_1, branch_2 being referred to as branch_*) are also supported."
-	Branch12(target_destination) : "Logic Branch 12" :  : "logic_branches to watch. These keyvalues will accept more than 16 logic_branches if some are given the same targetname. Wildcards (i.e. branch_1, branch_2 being referred to as branch_*) are also supported."
-	Branch13(target_destination) : "Logic Branch 13" :  : "logic_branches to watch. These keyvalues will accept more than 16 logic_branches if some are given the same targetname. Wildcards (i.e. branch_1, branch_2 being referred to as branch_*) are also supported."
-	Branch14(target_destination) : "Logic Branch 14" :  : "logic_branches to watch. These keyvalues will accept more than 16 logic_branches if some are given the same targetname. Wildcards (i.e. branch_1, branch_2 being referred to as branch_*) are also supported."
-	Branch15(target_destination) : "Logic Branch 15" :  : "logic_branches to watch. These keyvalues will accept more than 16 logic_branches if some are given the same targetname. Wildcards (i.e. branch_1, branch_2 being referred to as branch_*) are also supported."
-	Branch16(target_destination) : "Logic Branch 16" :  : "logic_branches to watch. These keyvalues will accept more than 16 logic_branches if some are given the same targetname. Wildcards (i.e. branch_1, branch_2 being referred to as branch_*) are also supported."
+	Branch01(target_destination) : "Logic Branch 01" :  : "logic_branches to watch. These keyvalues will accept multiple logic_branches in the same field if some are given the same targetname, but the entity only accepts 16 entities maximum. Wildcards (i.e. branch_1, branch_2 being referred to as branch_*) are also supported."
+	Branch02(target_destination) : "Logic Branch 02" :  : "logic_branches to watch. These keyvalues will accept multiple logic_branches in the same field if some are given the same targetname, but the entity only accepts 16 entities maximum. Wildcards (i.e. branch_1, branch_2 being referred to as branch_*) are also supported."
+	Branch03(target_destination) : "Logic Branch 03" :  : "logic_branches to watch. These keyvalues will accept multiple logic_branches in the same field if some are given the same targetname, but the entity only accepts 16 entities maximum. Wildcards (i.e. branch_1, branch_2 being referred to as branch_*) are also supported."
+	Branch04(target_destination) : "Logic Branch 04" :  : "logic_branches to watch. These keyvalues will accept multiple logic_branches in the same field if some are given the same targetname, but the entity only accepts 16 entities maximum. Wildcards (i.e. branch_1, branch_2 being referred to as branch_*) are also supported."
+	Branch05(target_destination) : "Logic Branch 05" :  : "logic_branches to watch. These keyvalues will accept multiple logic_branches in the same field if some are given the same targetname, but the entity only accepts 16 entities maximum. Wildcards (i.e. branch_1, branch_2 being referred to as branch_*) are also supported."
+	Branch06(target_destination) : "Logic Branch 06" :  : "logic_branches to watch. These keyvalues will accept multiple logic_branches in the same field if some are given the same targetname, but the entity only accepts 16 entities maximum. Wildcards (i.e. branch_1, branch_2 being referred to as branch_*) are also supported."
+	Branch07(target_destination) : "Logic Branch 07" :  : "logic_branches to watch. These keyvalues will accept multiple logic_branches in the same field if some are given the same targetname, but the entity only accepts 16 entities maximum. Wildcards (i.e. branch_1, branch_2 being referred to as branch_*) are also supported."
+	Branch08(target_destination) : "Logic Branch 08" :  : "logic_branches to watch. These keyvalues will accept multiple logic_branches in the same field if some are given the same targetname, but the entity only accepts 16 entities maximum. Wildcards (i.e. branch_1, branch_2 being referred to as branch_*) are also supported."
+	Branch09(target_destination) : "Logic Branch 09" :  : "logic_branches to watch. These keyvalues will accept multiple logic_branches in the same field if some are given the same targetname, but the entity only accepts 16 entities maximum. Wildcards (i.e. branch_1, branch_2 being referred to as branch_*) are also supported."
+	Branch10(target_destination) : "Logic Branch 10" :  : "logic_branches to watch. These keyvalues will accept multiple logic_branches in the same field if some are given the same targetname, but the entity only accepts 16 entities maximum. Wildcards (i.e. branch_1, branch_2 being referred to as branch_*) are also supported."
+	Branch11(target_destination) : "Logic Branch 11" :  : "logic_branches to watch. These keyvalues will accept multiple logic_branches in the same field if some are given the same targetname, but the entity only accepts 16 entities maximum. Wildcards (i.e. branch_1, branch_2 being referred to as branch_*) are also supported."
+	Branch12(target_destination) : "Logic Branch 12" :  : "logic_branches to watch. These keyvalues will accept multiple logic_branches in the same field if some are given the same targetname, but the entity only accepts 16 entities maximum. Wildcards (i.e. branch_1, branch_2 being referred to as branch_*) are also supported."
+	Branch13(target_destination) : "Logic Branch 13" :  : "logic_branches to watch. These keyvalues will accept multiple logic_branches in the same field if some are given the same targetname, but the entity only accepts 16 entities maximum. Wildcards (i.e. branch_1, branch_2 being referred to as branch_*) are also supported."
+	Branch14(target_destination) : "Logic Branch 14" :  : "logic_branches to watch. These keyvalues will accept multiple logic_branches in the same field if some are given the same targetname, but the entity only accepts 16 entities maximum. Wildcards (i.e. branch_1, branch_2 being referred to as branch_*) are also supported."
+	Branch15(target_destination) : "Logic Branch 15" :  : "logic_branches to watch. These keyvalues will accept multiple logic_branches in the same field if some are given the same targetname, but the entity only accepts 16 entities maximum. Wildcards (i.e. branch_1, branch_2 being referred to as branch_*) are also supported."
+	Branch16(target_destination) : "Logic Branch 16" :  : "logic_branches to watch. These keyvalues will accept multiple logic_branches in the same field if some are given the same targetname, but the entity only accepts 16 entities maximum. Wildcards (i.e. branch_1, branch_2 being referred to as branch_*) are also supported."
 	input Test(void) : "Tells the entity to look at the state of every logic_branch it was told to watch, then fires the appropriate output."
 	output OnAllTrue(void) : "Fires if all logic_branches are set to true."
 	output OnAllFalse(void) : "Fires if all logic_branches are set to false."
@@ -3199,7 +3200,7 @@
 	output OnTimerHigh(void) : "Fires every other interval if Oscillator is checked."
 	output OnTimerLow(void) : "Fires every other interval if Oscillator is checked."
 ]
-@PointClass base(CBaseEntity) color(255 203 11) = material_modify_control : "It modifies a VMT parameter in real time. The material must have the MaterialModify or MaterialModifyAnimated proxy. MaterialModifyAnimated can take the same parameters as AnimatedTexture."
+@PointClass base(CBaseEntity) color(255 203 11) = material_modify_control : "It modifies a VMT parameter in real time. The material must have the MaterialModify or MaterialModifyAnimated proxy. MaterialModifyAnimated can take the same parameters as AnimatedTexture. BUG: The entity will not work unless it's parented to an object that's in the PVS, on-screen, and has at least one face facing towards the viewer that's textured with the Material to Modify. The entity does not limit itself to only controlling textures on its parent."
 [
 	materialName(material) : "Material to modify" :  : "The material that will get modified. By default, the entity will edit the parameter for *every* surface in the map that uses the targeted material. To control which specific surfaces get modified, make them this entity's Parent."
 	materialVar(string) : "Material variable to modify" :  : "Which parameter to modify. E.g. $color."
@@ -3242,7 +3243,7 @@
 	input GetValue(void) : "Fires OnGetValue."
 	input Enable(void) : "Makes the entity active."
 	input Disable(void) : "Makes the entity inactive."
-	output OutValue(float) : "Fires whenever the stored number changes, except when caused by SetMinValueNoFire, SetMaxValueNoFire, or SetValueNoFire. Automatically puts the stored number as the input parameter, unless overridden by the mapper."
+	output OutValue(float) : "Fires whenever the stored number changes, except when caused by SetValueNoFire. Automatically puts the stored number as the input parameter, unless overridden by the mapper."
 	output OnHitMin(void) : "Fires when the stored number reaches Minimum Legal Value."
 	output OnHitMax(void) : "Fires when the stored number reaches Maximum Legal Value."
 	output OnGetValue(float) : "Fires when GetValue is sent. Automatically puts the stored number as the input parameter, unless overridden by the mapper."
@@ -3306,7 +3307,7 @@
 	]
 	MoveSpeed(integer) readonly : "Speed (units per second)" : 1 : "Does not actually exist. Needs to be above 0 to show the rope preview in Hammer."
 ]
-@PointClass base(CBaseEntity,Parent) color(248 155 0) = path_track : "When multiple of these are put together, they define a path that func_tracktrains can follow. TIP: If the targetname and Next Stop Target keyvalues are set, the entity can be dragged while holding Shift to create the next node in the path while automatically updating those two keyvalues."
+@PointClass base(CBaseEntity,Parent) color(248 155 0) = path_track : "When multiple of these are put together, they define a path that some entities can follow. TIP: If the targetname and Next Stop Target keyvalues are set, the entity can be dragged while holding Shift to create the next node in the path while automatically updating those two keyvalues."
 [
 	spawnflags(flags) =
 	[
@@ -3551,12 +3552,12 @@
 	tolerance(float) : "Tolerance" : 5 : "How many degrees off Target Entity can point at Look At Entity while still counting as looking at it. 0 means the target must point perfectly at the other entity. 180 means the direction can be anything."
 	input Test(void) : "Immediately fires OnFacingLookat or OnNotFacingLookat depending on if the Target Entity is looking at Look At Entity within Tolerance."
 	input SetTargetEntity(target_destination) : "Sets Target Entity."
-	output FacingPercentage(float) : "Constantly fires. Automatically puts a value which is closer to 1.0 when pointing at Look At Entity and closer to 0.0 when not as the input parameter, unless overridden by the mapper. (Hits 0 when not within Tolerance.)"
+	output FacingPercentage(float) : "Constantly fires. Automatically puts a value (closer to 1.0 when pointing at Look At Entity and closer to 0.0 when not) as the input parameter, unless overridden by the mapper. (Hits 0 when not within Tolerance.)"
 	output TargetDir(vector) : "Fires every time the Target Entity changes its angle. Automatically puts the new angles as numbers from -1.0 to 1.0 as the input parameter, unless overridden by the mapper. This is not very useful, as there are practically zero inputs that take a vector."
 	output OnFacingLookat(void) : "Fires when the Target Entity has looked at Look At Entity within Tolerance for Duration, or when it's looking at it when the entity is sent the Test input."
 	output OnNotFacingLookat(void) : "Fires when the Target Entity is not looking at Look At Entity within Tolerance when the Test input is sent."
 ]
-@PointClass base(CBaseEntity) color(248 155 0) = point_angularvelocitysensor : "It detects how fast an entity is spinning (angular velocity). BUG: Testing with cl_yawspeed reveals that the entity simply does not detect when the measured spinning speed is equal to Threshold Velocity. Cannot detect spinning speed of func_rotating."
+@PointClass base(CBaseEntity) color(248 155 0) = point_angularvelocitysensor : "It detects how fast an entity is spinning (angular velocity). Cannot detect spinning speed of func_rotating."
 [
 	target(target_destination) : "Target Entity Name" :  : "Name of the entity whose angular velocity will be sensed."
 	threshold(float) : "Threshold Velocity" : 150 : "Speed to compare the Target Entity to, in degrees per second."
@@ -3975,7 +3976,7 @@
 	input SetAngles(string) : "Sets Pitch Yaw Roll (shadow direction as a set of angles)."
 	input SetShadowsDisabled(integer) : "Sets All Shadows Disabled."
 ]
-@PointClass base(CBaseEntity,Angles) color(255 203 11) = sky_camera : "It is used to mark the position of the map's origin inside 3D skyboxes. As your position changes relative to the maps origin it will be scaled and applied relative to the sky_camera. Multiple/moving 3D skyboxes are possible. More info here https://tf2maps.net/threads/multiple-3d-skyboxes.35829"
+@PointClass base(CBaseEntity,Angles) color(255 203 11) = sky_camera : "It is used to mark the position of the map's origin inside 3D skyboxes. As your position changes relative to the map's origin it will be scaled and applied relative to the sky_camera. Multiple/moving 3D skyboxes are possible. More info here https://tf2maps.net/threads/multiple-3d-skyboxes.35829"
 [
 	scale(integer) : "3D Skybox scale" : 16 : "How much bigger than normal objects in the skybox space will appear to be. If the scale is 16 (the usual value), a 1x1x1 cube will appear to be 16x16x16. Fog distances will automatically be scaled up by this amount."
 	fogenable(choices) : "Fog Enable" : 1 : "Shows fog on skybox objects." =
