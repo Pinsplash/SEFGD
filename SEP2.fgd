@@ -1,5 +1,5 @@
 
-//To install this FGD:
+//To install this FGD: 
 //1. Open Hammer.
 //2. Click 'Tools'.
 //3. Click 'Options'.
@@ -3367,7 +3367,15 @@
 	[
 		1 : "Fire Automatically When First Seen" : 0
 	]
-	event_name(float) : "Name of the event to generate" :  : "An event to fire. TODO: Make a list of valid events..."
+	event_name(choices) : "Name of the event to generate" : "move_hint_visible" : "An event to fire. Note: Some hint events will not show to players who have seen the message a certain number of times before." =
+	[
+		"move_hint_visible" : "move_hint_visible (shows hint for walking)"
+		"movedone_hint_visible" : "movedone_hint_visible (hides hint for walking)"
+		"zoom_hint_visible" : "zoom_hint_visible (shows hint for zooming in, disappears when zoom in)"
+		"jump_hint_visible" : "jump_hint_visible (shows hint for jumping, disappears shortly after)"
+		"partnerview_hint_visible" : "partnerview_hint_visible (shows hint for seeing partner view, disappears when key is pressed)"
+		"map_already_completed" : "map_already_completed (shows hint to pause to go to hub, disappears shortly after)"
+	]
 	range(float) : "Range" :  : "If using 'Fire Automatically When First Seen', this sets a limit for how far away a player can be while the entity is considered visible."
 	input GenerateGameEvent(void) : "Generates the event. (This entity will be the 'subject' ent.)"
 ]
