@@ -1,5 +1,5 @@
 
-//To install this FGD: 
+//To install this FGD:
 //1. Open Hammer.
 //2. Click 'Tools'.
 //3. Click 'Options'.
@@ -116,7 +116,6 @@
 		"game_coopmission_manager"
 		"game_ui"
 		"game_zone_player"
-		"info_game_event_proxy"
 		"logic_auto"
 		"logic_branch"
 		"logic_branch_listener"
@@ -130,6 +129,7 @@
 		"logic_relay"
 		"logic_script"
 		"logic_timer"
+		"mapvetopick_controller"
 		"math_colorblend"
 		"math_counter"
 		"math_remap"
@@ -332,6 +332,7 @@
 		"point_viewcontrol"
 		"point_viewcontrol_multiplayer"
 		"point_worldtext"
+		"postprocess_controller"
 		"prop_counter"
 		"prop_detail"
 		"prop_dynamic"
@@ -1628,6 +1629,16 @@
 ]
 @PointClass base(CDynamicProp,DynamicPropAnimations) sphere(fademindist) sphere(fademaxdist) studio("models/chicken/chicken.mdl") = chicken : "A chicken, normally spawned through pet_entity. One created with this entity will never respawn."
 [
+	SetBodyGroup(choices) : "Chicken model" : 0 : "Chicken dress-up." =
+	[
+		0 : "Naked"
+		1 : "Party Hat"
+		2 : "Ghost"
+		3 : "Sweater"
+		4 : "Bunny ears"
+		5 : "Pumpkin head"
+	]
+	input SetHealth(integer) : "Sets chicken's Health."
 ]
 @PointClass base(CBaseEntity,Parent,EnableDisable) sphere(minfalloff) sphere(maxfalloff) iconsprite("editor/color_correction") color(255 203 11) = color_correction : "Loads a color correction lookup table (.raw) and controls its strength. Correction is applied in a sphere surrounding the entity, with a configurable amount of falloff. For more info on color correction, see here: https://developer.valvesoftware.com/wiki/Color_correction"
 [
@@ -3335,26 +3346,7 @@
 	bot_difficulty(integer) : "Bot Difficulty" : 0 : "Uncertain."
 	is_agressive(boolean) : "Is aggressive?" : 0 : "Is the bot aggressive? TODO: What happens?"
 	hide_radius(float) : "Hide Radius" : 1000 : "Range around the spawn spot the bot will try to hide. Set to 0 to hold position and never try to hide."
-	PatrolArea01(target_destination) : "Patrol Area 1" :  : "Unused setting. Probably an area for the bot to guard as defined by a cs_bot_patrol_area. TODO: Not known if this is usable at all."
-	PatrolArea02(target_destination) : "Patrol Area 2" :  : "Unused setting. Probably an area for the bot to guard as defined by a cs_bot_patrol_area."
-	PatrolArea03(target_destination) : "Patrol Area 3" :  : "Unused setting. Probably an area for the bot to guard as defined by a cs_bot_patrol_area."
-	PatrolArea04(target_destination) : "Patrol Area 4" :  : "Unused setting. Probably an area for the bot to guard as defined by a cs_bot_patrol_area."
-	PatrolArea05(target_destination) : "Patrol Area 5" :  : "Unused setting. Probably an area for the bot to guard as defined by a cs_bot_patrol_area."
-	PatrolArea06(target_destination) : "Patrol Area 6" :  : "Unused setting. Probably an area for the bot to guard as defined by a cs_bot_patrol_area."
-	PatrolArea07(target_destination) : "Patrol Area 7" :  : "Unused setting. Probably an area for the bot to guard as defined by a cs_bot_patrol_area."
-	PatrolArea08(target_destination) : "Patrol Area 8" :  : "Unused setting. Probably an area for the bot to guard as defined by a cs_bot_patrol_area."
-	PatrolArea09(target_destination) : "Patrol Area 9" :  : "Unused setting. Probably an area for the bot to guard as defined by a cs_bot_patrol_area."
-	PatrolArea10(target_destination) : "Patrol Area 10" :  : "Unused setting. Probably an area for the bot to guard as defined by a cs_bot_patrol_area."
-]
-@PointClass base(CBaseEntity,EnableDisable) color(248 155 0) = info_game_event_proxy : "It fires a game event. Usually used for showing hint messages."
-[
-	spawnflags(flags) =
-	[
-		1 : "Fire Automatically When First Seen" : 0
-	]
-	event_name(float) : "Name of the event to generate" :  : "An event to fire. TODO: Make a list of valid events..."
-	range(float) : "Range" :  : "If using 'Fire Automatically When First Seen', this sets a limit for how far away a player can be while the entity is considered visible."
-	input GenerateGameEvent(void) : "Generates the event. (This entity will be the 'subject' ent.)"
+	behavior_tree_file(string) : "Behavior Tree File" :  : "The behavior tree file to use for this bot (empty means classic AI). Example: scripts/ai/coop/autumn/bt_guard.kv3 TODO: Is there any info on the internet about how behavior tree files work?"
 ]
 @PointClass base(CBaseEntity,Parent) iconsprite("editor/gibshooter") color(255 203 11) = info_gascanister_launchpoint : "Point at which rockets are launched from in danger zone. Usually placed inside the map's 3D skybox."
 [
@@ -3755,8 +3747,8 @@
 		"player_use" : "player_use (player used use key on something)"
 		"break_prop" : "break_prop"
 		"break_breakable" : "break_breakable (func_breakable broken)"
+		"other_death" : "other_death (non-player entity lost all health)"
 		"item_purchase" : "item_purchase (item bought, does not fire in DZ)"
-		"drone_dispatched" : "drone_dispatched (player bought something in DZ)"
 		"player_radio" : "player_radio"
 		"item_pickup" : "item_pickup (something picked up)"
 		"enter_buyzone" : "enter_buyzone (player entered buyzone)"
@@ -3772,6 +3764,7 @@
 		"round_time_warning" : "round_time_warning (10 seconds left)"
 		"round_end" : "round_end (round won)"
 		"cs_pre_restart" : "cs_pre_restart (new round about to start)"
+		"player_given_c4" : "player_given_c4 (player given C4 at round start or found one in a DZ crate)"
 		"bomb_pickup" : "bomb_pickup (C4 acquired)"
 		"bomb_dropped" : "bomb_dropped (C4 dropped in any way)"
 		"bomb_beginplant" : "bomb_beginplant"
@@ -3785,9 +3778,9 @@
 		"enter_bombzone" : "enter_bombzone (player entered bombsite)"
 		"exit_bombzone" : "exit_bombzone (player left bombsite)"
 		"hostage_follows" : "hostage_follows (hostage picked up)"
-		"hostage_rescued" : "hostage_rescued"
-		"hostage_rescued_all" : "hostage_rescued_all"
-		"hostage_hurt" : "hostage_hurt"
+		"hostage_rescued" : "hostage_rescued (does not fire in danger zone)"
+		"hostage_rescued_all" : "hostage_rescued_all (does not fire in danger zone)"
+		"hostage_hurt" : "hostage_hurt (does not fire in danger zone)"
 		"enter_rescue_zone" : "enter_rescue_zone (player entered rescue zone)"
 		"exit_rescue_zone" : "exit_rescue_zone (player left rescue zone)"
 		"weapon_fire" : "weapon_fire (primary attack on a weapon, excluding C4)"
@@ -3814,6 +3807,12 @@
 		"smokegrenade_detonate" : "smokegrenade_detonate"
 		"smokegrenade_expired" : "smokegrenade_expired (smoke mostly gone)"
 		"tagrenade_detonate" : "tagrenade_detonate (tactical awareness grenade detonated)"
+		"firstbombs_incoming_warning" : "firstbombs_incoming_warning (first missile wave warning in danger zone)"
+		"choppers_incoming_warning" : "choppers_incoming_warning ('supply drop incoming' message in danger zone)"
+		"survival_paradrop_spawn" : "survival_paradrop_spawn (a prop_paradrop_crate was made)"
+		"survival_paradrop_break" : "survival_paradrop_break (a prop_paradrop_crate was broken)"
+		"survival_no_respawns_warning" : "survival_no_respawns_warning (respawn cutoff warning shown in danger zone)"
+		"survival_no_respawns_final" : "survival_no_respawns_final (players can no longer respawn in danger zone)"
 	]
 	IsEnabled(boolean) : "Start Enabled" : 1 : "Entity starts active."
 	TeamNum(choices) : "Team Number" : -1 : "If set, will only fire its output if the event is generated from someone of the specified team." =
@@ -3981,6 +3980,14 @@
 	output OnTimer(void) : "Fires every interval, unless Oscillator is checked."
 	output OnTimerHigh(void) : "Fires every other interval if Oscillator is checked."
 	output OnTimerLow(void) : "Fires every other interval if Oscillator is checked."
+]
+@PointClass base(CBaseEntity) color(248 155 0) = mapvetopick_controller : "It's used on the map lobby_mapveto and fires outputs related to the pick/ban system in the 'Broken Fang Premiere' mode. It's also involved in the logic to make the UI elements work."
+[
+	output OnMapVetoed(string) : "Fires at the end of a phase when a map was banned. Can fire multiple times at once. Automatically puts the name of the banned map as the input parameter, unless overridden by the mapper. Bug: If multiple maps were banned in a single phase, the parameter passed is always the name of only one of those maps."
+	output OnMapPicked(string) : "Fires when the map to play on has been picked. Automatically puts the name of the picked map as the input parameter, unless overridden by the mapper."
+	output OnSidesPicked(integer) : "Fires when the deciding team has chosen which side they want to play first. Automatically puts a boolean which is true if they're switching sides as the input parameter, unless overridden by the mapper."
+	output OnNewPhaseStarted(integer) : "Fires when a new phase starts. Automatically puts the number of the phase as the input parameter, unless overridden by the mapper."
+	output OnLevelTransition(integer) : "Fires when phase 6 ends. Automatically puts the number 7 as the input parameter, unless overridden by the mapper."
 ]
 @PointClass base(CBaseEntity) color(255 203 11) = material_modify_control : "It modifies a VMT parameter in real time. The material must have the MaterialModify or MaterialModifyAnimated proxy. MaterialModifyAnimated can take the same parameters as AnimatedTexture. BUG: The entity will not work unless it's parented to an object that's in the PVS, on-screen, and has at least one face facing towards the viewer that's textured with the Material to Modify. The entity does not limit itself to only controlling textures on its parent."
 [
@@ -4646,6 +4653,27 @@
 	textsize(float) : "Text Size" :  : "How tall the text is in world units. Four extra units of empty space are added on."
 	color(color255) : "Color" :  : "Color of the text."
 ]
+@PointClass base(CBaseEntity) iconsprite("editor/postprocess_controller") color(255 203 11) = postprocess_controller : "Controls a few visual effects. Must set Shader Detail setting to High or Very High to see vignette and local contrast."
+[
+	spawnflags(flags) =
+	[
+		1 : "Master - For use with fog_volume. If no other postprocess_controllers are active, the game goes back to this one." : 1
+	]
+	fadetime(float) : "Fade-in time" : 1 : "How long it takes for this set of effects to switch in when using fog_volume."
+	vignettestart(float) : "Vignette start distance" : "0.8" : "Radius at which the blur and local contrast begin to fade in. Measured as a distance between the center and edge of the screen. 0 is the center and 1 is touching all four edges tangentially."
+	vignetteend(float) : "Vignette end distance" : "1.1" : "Radius at which the blur and local contrast fade in to full strength. Measured as a distance between the center and edge of the screen. 0 is the center and 1 is touching all four edges tangentially."
+	vignetteblurstrength(float) : "Vignette blur strength" : 0 : "Strength of desaturation & blur inside the vignette. 0 is no effect, 1 is full strength and above 1 inverts colors."
+	localcontraststrength(float) : "Local contrast strength" : 0 : "Strength of local contrast in the non-vignetted portion of the screen."
+	localcontrastedgestrength(float) : "Local contrast edge strength" : 0 : "Strength of local contrast in the ring-shaped area between the start and end of the vignette."
+	fadetoblackstrength(float) : "Fade to black strength" : 0 : "Simple screen darkening. 0 is no effect, 1 is completely black."
+	input SetFadeTime(float) : "Sets Fade-in time."
+	input SetVignetteStart(float) : "Sets Vignette start distance."
+	input SetVignetteEnd(float) : "Sets Vignette end distance."
+	input SetVignetteBlurStrength(float) : "Sets Vignette blur strength."
+	input SetLocalContrastStrength(float) : "Sets Local contrast strength."
+	input SetLocalContrastEdgeStrength(float) : "Sets Local contrast edge strength."
+	input SetFadeToBlackStrength(float) : "Sets Fade to black strength."
+]
 @PointClass base(CPhysicsPropMultiplayer) studio("models/props_survival/crates/crate_ammobox.mdl") color(160 37 240) = prop_ammo_box_generic : "It's an ammo box seen in coop and danger zone. The map has to be loaded in one of those two modes for it to be usable."
 [
 	spawnflags(flags) =
@@ -5112,7 +5140,7 @@
 @PointClass base(CWeaponCSBase) color(160 37 240) studio("models/weapons/w_ied_dropped.mdl") = weapon_c4 : "C4 Explosive"
 [
 ]
-@PointClass base(CWeaponCSBase) color(160 37 240) studio("models/weapons/w_pist_cz_74_dropped.mdl") = weapon_cz75a : "CZ75-Auto (ACTUAL ENTITY: weapon_p250)"
+@PointClass base(CWeaponCSBase) color(160 37 240) studio("models/weapons/w_pist_cz_75_dropped.mdl") = weapon_cz75a : "CZ75-Auto (ACTUAL ENTITY: weapon_p250)"
 [
 ]
 @PointClass base(CWeaponCSBase) color(160 37 240) studio("models/weapons/w_pist_deagle_dropped.mdl") = weapon_deagle : "Desert Eagle"
