@@ -1,5 +1,5 @@
 
-//To install this FGD: 
+//To install this FGD:
 //1. Open Hammer.
 //2. Click 'Tools'.
 //3. Click 'Options'.
@@ -3820,7 +3820,7 @@
 	input Disable(void) : "Makes the entity inactive."
 	output Velocity(float) : "Fires when the Target Entity's velocity changes. Automatically puts the object's new velocity as the input parameter, unless overridden by the mapper."
 ]
-@PointClass base(CBaseEntity,Parent,Angles) studioprop("models/editor/camera.mdl") color(255 203 11) = point_viewcontrol : "Players can be forced to see the world through this entity.\n" +
+@PointClass base(CBaseEntity,Parent,Angles) studioprop("models/editor/camera.mdl") color(255 203 11) = point_viewcontrol : "Players can be forced to see the world through this entity. The entity is also used for the view when players first load into the map (you don't need to change any settings for this, just add it in).\n" +
 "BUG: Various weird behavior results when using the entity's native ability to follow path_tracks. It's recommended to attach the entity to a func_tracktrain using logic_measure_movement.\n" +
 "BUG: Players will be stuck seeing out of the point_viewcontrol if the entity is deleted or they die while viewing!\n" +
 "BUG: Parenting does not work.\n" +
