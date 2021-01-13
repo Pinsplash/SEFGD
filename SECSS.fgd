@@ -58,7 +58,6 @@
 		"info_map_parameters"
 		"info_player_counterterrorist"
 		"info_player_terrorist"
-		"point_hurt"
 		"prop_door_rotating"
 		"trigger_hurt"
 	]
@@ -116,7 +115,6 @@
 		"math_colorblend"
 		"math_counter"
 		"math_remap"
-		"player_weaponstrip"
 		"point_anglesensor"
 		"point_angularvelocitysensor"
 		"point_clientcommand"
@@ -140,10 +138,8 @@
 		"info_null"
 		"info_target"
 		"path_track"
-		"player_speedmod"
 		"point_devshot_camera"
 		"point_enable_motion_fixup"
-		"point_gamestats_counter"
 		"point_playermoveconstraint"
 		"point_teleport"
 		"trigger_playermovement"
@@ -228,6 +224,15 @@
 		"info_player_counterterrorist"
 		"info_player_terrorist"
 	]
+	"Scripting"// color(0 255 255)
+	[
+		"env_explosion"
+		"env_fade"
+		"player_speedmod"
+		"player_weaponstrip"
+		"point_hurt"
+		"point_viewcontrol"
+	]
 	"Sound"// color(0 0 255)
 	[
 		"ambient_generic"
@@ -250,8 +255,6 @@
 		"env_dusttrail"
 		"env_effectscript"
 		"env_embers"
-		"env_explosion"
-		"env_fade"
 		"env_fire"
 		"env_fire_trail"
 		"env_fog_controller"
@@ -294,7 +297,6 @@
 		"point_camera"
 		"point_posecontroller"
 		"point_tesla"
-		"point_viewcontrol"
 		"prop_detail"
 		"prop_dynamic"
 		"prop_dynamic_ornament"
@@ -415,7 +417,7 @@
 ]
 @BaseClass = RenderFX 
 [
-	renderfx(choices) : "Render FX" : 0 : "Preset appearance effects." =
+	renderfx(choices) : "Render FX" : 0 : "Preset appearance effects. Bug: Sometimes functions incorrectly if changed with AddOutput, but is the only way to change effects other than making multiple versions of the object." =
 	[
 		0 : "Normal"
 		1 : "Slow Pulse"
@@ -783,14 +785,14 @@
 	[
 		64 : "Use Hitboxes for Renderbox TODO: Does this REALLY do that?" : 0
 		128 : "TODO: 'No VPhysics'" : 0
-		256 : "Start with collision disabled (if not using bone followers)" : 0
+		256 : "Start with collision disabled" : 0
 	]
 	StartDisabled(choices) : "Start Disabled" : 0 : "Makes the prop invisible but solid. It can be made visible with the Enable input." =
 	[
 		0 : "No"
 		1 : "Yes"
 	]
-	DisableBoneFollowers(choices) : "Disable Bone Followers" : 0 : "Disables generation of phys_bone_followers for each bone of the model. phys_bone_followers can quickly eat up the edict count, so this keyvalue can be very helpful in freeing resources. Disabling this will make the model lose solidity aside from a small box, which can be disabled by setting the 'Start with collision disabled' flag." =
+	DisableBoneFollowers(choices) : "Disable Bone Followers" : 0 : "Disables generation of phys_bone_followers for each piece of the model if it's using $collisionjoints. phys_bone_followers can quickly eat up the edict count, so this keyvalue can be very helpful in freeing resources. Disabling this will make the model lose solidity aside from a small box, which can be disabled by setting the 'Start with collision disabled' flag." =
 	[
 		0 : "No"
 		1 : "Yes"
@@ -1591,7 +1593,7 @@
 	output OnEntitySpawned(void) : "Fires when an instance of the entity template has been spawned."
 	output OnEntityFailedSpawn(void) : "Fires when the template failed to spawn via ForceSpawn due to it not being able to fit properly or due to the player looking at the entity."
 ]
-@PointClass base(CBaseEntity,Parent) iconsprite("editor/env_explosion") color(255 203 11) sphere(iRadiusOverride) = env_explosion : "It creates an explosion at its origin."
+@PointClass base(CBaseEntity,Parent) iconsprite("editor/env_explosion") color(0 255 255) sphere(iRadiusOverride) = env_explosion : "It creates an explosion at its origin."
 [
 	spawnflags(flags) =
 	[
@@ -1614,7 +1616,7 @@
 	DamageForce(float) : "Damage Force" : 0 : "Overrides push force. BUG: Very obvious disparity between force applied to players and force applied to physics objects."
 	input Explode(void) : "Makes the explosion happen. If Repeatable is not ticked, the entity will remove itself shortly after the explosion. If this input is sent very rapidly, the explosion may occur multiple times, or possibly infinitely due to the entity not removing itself fast enough! This delay is probably to avoid errors involved with attributing damage/kills to the explosion. If it becomes a problem, Kill the entity as soon as possible or otherwise prevent the input from sending."
 ]
-@PointClass base(CBaseEntity) iconsprite("editor/env_fade") color(255 203 11) = env_fade : "Makes the screen fade to or from a solid color. Add Duration and Hold Time together for the total time this entity will be in effect."
+@PointClass base(CBaseEntity) iconsprite("editor/env_fade") color(0 255 255) = env_fade : "Makes the screen fade to or from a solid color. Add Duration and Hold Time together for the total time this entity will be in effect."
 [
 	spawnflags(flags) =
 	[
@@ -2628,7 +2630,7 @@
 @SolidClass base(CFuncMoveLinear) = func_water_analog : "Can be used to make a water brush move. MUST use cheap water! There are bugs that may arise when parenting this entity to a func_movelinear or func_water_analog. A func_door can be used as a workaround."
 [
 ]
-@SolidClass base(CBaseEntity,VisibleBrush,Origin) color(255 0 255) = func_weight_button : "It's a brush which fires outputs depending on how much weight is pressing on it. Weapons and other items being carried by players, and hostages, are considered weightless. BUG: Players will not be weighed correctly, and their effective weight on the button can change unpredictably as they move."
+@SolidClass base(CBaseEntity,VisibleBrush,Origin) color(255 0 255) = func_weight_button : "It's a brush which fires outputs depending on how much weight is pressing on it. Weapons and other items being carried by players, and hostages, are considered weightless. BUG: Players will not be weighed correctly, and their effective weight on the button can change unpredictably as they move. BUG: Physics objects may jiggle inexplicably when touching the brush."
 [
 	WeightToActivate(float) : "Weight to Activate" :  : "Amount of weight (kg) needed to fire outputs. TIP: Use sv_massreport 1 to see the weights of objects ingame."
 	output OnPressed(void) : "Fires when enough weight is on the button."
@@ -3166,7 +3168,7 @@
 [
 	spawnflags(flags) =
 	[
-		1 : "Only trigger once - Makes the entity remove itself after firing either output." : 0
+		1 : "Only trigger once - Makes the entity remove itself after firing OnTrigger or OnSpawn." : 0
 		2 : "Allow fast retrigger - Allow refire even if delayed inputs have not fully sent." : 0
 	]
 	input Trigger(void) : "Makes OnTrigger fire."
@@ -3522,7 +3524,7 @@
 	output OnActivate(void) : "Fires whenever the canister is activated."
 	output OnAwakened(void) : "Fires the first time that the entity moves, if Start Asleep was set."
 ]
-@PointClass base(CBaseEntity) = player_speedmod : "It changes the player's velocity (including falling speed) and can disable various things."
+@PointClass base(CBaseEntity) color(0 255 255) = player_speedmod : "It changes the player's velocity (including falling speed) and can disable various things."
 [
 	spawnflags(flags) =
 	[
@@ -3535,7 +3537,7 @@
 	]
 	input ModifySpeed(float) : "Multiplies the player velocity by this much and does the things specified in the flags. To set everything back to normal, send the input with the parameter 1. The !activator must be a player in order to work. Tip: Set the speed to .99 to only use the flags."
 ]
-@PointClass base(CBaseEntity) color(0 255 0) = player_weaponstrip : "It removes the weapons of a player. The activator is the targeted player."
+@PointClass base(CBaseEntity) color(0 255 255) = player_weaponstrip : "It removes the weapons of a player. The activator is the targeted player."
 [
 	input Strip(void) : "Takes away the player's weapons."
 	input StripWeaponsAndSuit(void) : "Takes away the player's weapons and armor+helmet."
@@ -3612,15 +3614,7 @@
 @PointClass base(CBaseEntity,Parent,Angles) = point_enable_motion_fixup : "If a motion-disabled prop has this entity parented to it, it will teleport to the position and angles of this entity when its motion becomes enabled."
 [
 ]
-@PointClass base(CBaseEntity,Origin) = point_gamestats_counter : "'Generic game statistics counter.' TODO: Just explain this entire thing to me."
-[
-	Name(string) : "Name of statistic counter" :  : "Name of like, something."
-	input SetName(string) : "Sets Name of statistic counter."
-	input Increment(float) : "Increments named statistic counter by specified value."
-	input Enable(void) : "Makes the entity active."
-	input Disable(void) : "Makes the entity inactive."
-]
-@PointClass base(CBaseEntity,Parent,Toggle) sphere(DamageRadius) color(0 255 0) = point_hurt : "It damages things inside a radius."
+@PointClass base(CBaseEntity,Parent,Toggle) sphere(DamageRadius) color(0 255 255) = point_hurt : "It damages things inside a radius."
 [
 	damage(float) : "Damage" : 5 : "How much damage to do every time the Delay interval passes. This amount is factored into the force that objects will take when hit."
 	DamageTarget(target_destination) : "Target Entity" :  : "If specified, only this entity will take damage. Otherwise, all entities within the Radius will take damage. If used, the !activator is considered the attacker."
@@ -3820,7 +3814,7 @@
 	input Disable(void) : "Makes the entity inactive."
 	output Velocity(float) : "Fires when the Target Entity's velocity changes. Automatically puts the object's new velocity as the input parameter, unless overridden by the mapper."
 ]
-@PointClass base(CBaseEntity,Parent,Angles) studioprop("models/editor/camera.mdl") color(255 203 11) = point_viewcontrol : "Players can be forced to see the world through this entity. The entity is also used for the view when players first load into the map (you don't need to change any settings for this, just add it in).\n" +
+@PointClass base(CBaseEntity,Parent,Angles) studioprop("models/editor/camera.mdl") color(0 255 255) = point_viewcontrol : "Players can be forced to see the world through this entity. The entity is also used for the view when players first load into the map (you don't need to change any settings for this, just add it in).\n" +
 "BUG: Various weird behavior results when using the entity's native ability to follow path_tracks. It's recommended to attach the entity to a func_tracktrain using logic_measure_movement.\n" +
 "BUG: Players will be stuck seeing out of the point_viewcontrol if the entity is deleted or they die while viewing!\n" +
 "BUG: Parenting does not work.\n" +
@@ -4035,7 +4029,7 @@
 @SolidClass base(CTriggerMultiple) color(248 155 0) = trigger_multiple : "Standard, most common entity for trigger logic. Simply fires outputs."
 [
 ]
-@SolidClass base(CTriggerMultiple) color(248 155 0) = trigger_once : "A trigger which is activated once when touched, then removes itself. Equivalent to setting 'Fire once' on the outputs of a trigger_multiple."
+@SolidClass base(CTriggerMultiple) color(248 155 0) = trigger_once : "Fires an output once when touched, then removes itself. Equivalent to setting 'Fire once' on the outputs of a trigger_multiple."
 [
 ]
 @SolidClass base(CBaseTrigger) = trigger_playermovement : "It controls some aspects of player movement when a player is inside it. BUG: Despite being coded to only affect players, the 'Clients' flag still has to be checked!"
