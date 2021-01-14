@@ -1,5 +1,5 @@
 
-//To install this FGD:
+//To install this FGD: 
 //1. Open Hammer.
 //2. Click 'Tools'.
 //3. Click 'Options'.
@@ -61,7 +61,6 @@
 		"point_dz_weaponspawn"
 		"point_dz_weaponspawn_group"
 		"point_give_ammo"
-		"point_hurt"
 		"prop_door_rotating"
 		"radar_jammer"
 		"trigger_bomb_reset"
@@ -93,6 +92,7 @@
 		"env_tonemap_controller"
 		"info_lighting"
 		"light"
+		"light_directional"
 		"light_dynamic"
 		"light_environment"
 		"light_spot"
@@ -133,7 +133,6 @@
 		"math_colorblend"
 		"math_counter"
 		"math_remap"
-		"player_weaponstrip"
 		"point_anglesensor"
 		"point_angularvelocitysensor"
 		"point_broadcastclientcommand"
@@ -171,10 +170,8 @@
 		"npc_heardanger"
 		"path_track"
 		"pet_entity"
-		"player_speedmod"
 		"point_devshot_camera"
 		"point_enable_motion_fixup"
-		"point_gamestats_counter"
 		"point_playermoveconstraint"
 		"point_teleport"
 		"trigger_playermovement"
@@ -261,6 +258,18 @@
 		"info_player_counterterrorist"
 		"info_player_terrorist"
 	]
+	"Scripting"// color(0 255 255)
+	[
+		"env_explosion"
+		"env_fade"
+		"info_gascanister_launchpoint"
+		"player_speedmod"
+		"player_weaponstrip"
+		"point_hurt"
+		"point_viewcontrol"
+		"point_viewcontrol_multiplayer"
+		"skybox_swapper"
+	]
 	"Sound"// color(0 0 255)
 	[
 		"ambient_generic"
@@ -282,8 +291,6 @@
 		"env_dustpuff"
 		"env_dusttrail"
 		"env_embers"
-		"env_explosion"
-		"env_fade"
 		"env_fire"
 		"env_fire_trail"
 		"env_fog_controller"
@@ -315,10 +322,10 @@
 		"func_fish_pool"
 		"func_monitor"
 		"func_precipitation"
+		"func_reflective_glass"
 		"func_smokevolume"
 		"game_text"
 		"info_camera_link"
-		"info_gascanister_launchpoint"
 		"info_overlay"
 		"info_particle_system"
 		"info_projecteddecal"
@@ -328,9 +335,8 @@
 		"move_rope"
 		"point_camera"
 		"point_message"
+		"point_posecontroller"
 		"point_tesla"
-		"point_viewcontrol"
-		"point_viewcontrol_multiplayer"
 		"point_worldtext"
 		"postprocess_controller"
 		"prop_counter"
@@ -340,8 +346,8 @@
 		"prop_dynamic_override"
 		"prop_static"
 		"sky_camera"
-		"skybox_swapper"
 		"spark_shower"
+		"trigger_tonemap"
 		"vgui_screen"
 		"vgui_slideshow_display"
 		"vgui_world_text_panel"
@@ -582,7 +588,7 @@
 	output OnAnimationBegun(void) : "Fired when an animation begins."
 	output OnAnimationDone(void) : "Fired when an animation finishes."
 ]
-@BaseClass base(Reflection,Parent) = VisibleBrush 
+@BaseClass base(Reflection,Parent,RenderAmount,RenderMode) = VisibleBrush 
 [
 	_minlight(float) : "Minimum Light" : 0 : "Minimum amount of light to hit this brush. 0 is none, 1 is 'fullbright'. Useful because the lightmaps will not update as the entity moves."
 	disableflashlight(boolean) : "Disable Flashlight" : 0 : "Adds EF_NOFLASHLIGHT to this entity. (No shadows cast when lit by env_projectedtexture.)"
@@ -620,7 +626,7 @@
 	input FireUser3(void) : "Fires the OnUser3 output."
 	input FireUser4(void) : "Fires the OnUser4 output."
 	input RunScriptFile(script) : "Executes a VScript file from disk, without file extension. The script contents are merged with the script scope of the receiving entity."
-	input RunScriptCode(string) : "Executes a string of VScript source code in the scope of the entity receiving the input. String quotation may be needed when fired via console. Never try to pass string parameters to a script function with this input. It will minorly corrupt the VMF structure because of the nested quotation marks, which then must be removed manually with a text editor."
+	input RunScriptCode(string) : "Executes a VScript function in the scope of the entity receiving the input. String quotation may be needed when fired via console. Never try to pass string parameters to a script function with this input. It will minorly corrupt the VMF structure because of the nested quotation marks, which then must be removed manually with a text editor."
 	input SetLocalOrigin(string) : "Sends this entity to a spot in the map if not parented to anything. If the entity is parented to something, it will be offset from the parent by this amount."
 	output OnUser1(void) : "Fires in response to the FireUser1 input."
 	output OnUser2(void) : "Fires in response to the FireUser2 input."
@@ -636,7 +642,6 @@
 	LightingOrigin(target_destination) : "Lighting Origin" :  : "An entity from which to sample lighting instead of the entity's origin. It cannot be any internal entity, including info_lighting."
 	fadescale(float) : "Fade Scale" : 1 : "If specified in the worldspawn, or if the game is running below DirectX 8, entities will fade out even if the Start/End Fade Distance keyvalues aren't specified. This value gives more control over when this happens: numbers smaller than 1 cause the entity to fade out farther away, and greater than 1 cause it to fade out at closer distances. Using 0 turns off the forced fade altogether. See also $noforcedfade."
 	modelscale(float) : "Model Scale" : 1 : "A multiplier for the size of the model. Negative values are accepted. Does not scale the individual pieces that make up physics meshes, but will scale the distances between them."
-	glowbackfacemult(float) : "Glow Backface Multiplier" : 1 : "If this object has a glow effect, multiply the effect by this much on the sides of the object that are facing away from the viewer."
 	SuppressAnimSounds(boolean) : "No Animation Sounds" : 0 : "Silences sounds linked to animations."
 	shadowdepthnocache(choices) : "Projected Texture Cache" : 0 : "Tells env_projectedtextures if this object's shadow needs to be updated every frame, or if it's static and the data for it can be cached (thereby saving some resources)." =
 	[
@@ -934,10 +939,10 @@
 	[
 		64 : "Use Hitboxes for Renderbox TODO: Does this REALLY do that?" : 0
 		128 : "TODO: 'No VPhysics'" : 0
-		256 : "Start with collision disabled (if not using bone followers)" : 0
+		256 : "Start with collision disabled" : 0
 	]
 	StartDisabled(boolean) : "Start Disabled" : 0 : "Makes the prop invisible but solid. It can be made visible with the Enable input."
-	DisableBoneFollowers(boolean) : "Disable Bone Followers" : 0 : "Disables generation of phys_bone_followers for each bone of the model. phys_bone_followers can quickly eat up the edict count, so this keyvalue can be very helpful in freeing resources. Disabling this will make the model lose solidity aside from a small box, which can be disabled by setting the 'Start with collision disabled' flag."
+	DisableBoneFollowers(boolean) : "Disable Bone Followers" : 0 : "Disables generation of phys_bone_followers for each piece of the model if it's using $collisionjoints. phys_bone_followers can quickly eat up the edict count, so this keyvalue can be very helpful in freeing resources. Disabling this will make the model lose solidity aside from a small box, which can be disabled by setting the 'Start with collision disabled' flag."
 	LagCompensate(boolean) : "Lag Compensation" : 0 : "Make the entity be lag compensated. https://developer.valvesoftware.com/wiki/Lag_compensation Should be used very sparingly! TODO: Confirm this actually works."
 	AnimateEveryFrame(boolean) : "Animate Every Frame" : 0 : "Force this prop to animate every frame. TODO: When should this be used?"
 	glowenabled(boolean) : "Glow by default?" : 0 : "Self-explanatory."
@@ -1258,11 +1263,6 @@
 		0 : "Solid to World"
 		1 : "Passes through World"
 	]
-	ExploitableByPlayer(choices) : "Exploitable by Player" : 0 : "TODO: Does this do anything?" =
-	[
-		0 : "Default"
-		1 : "Explosive"
-	]
 	input Sleep(void) : "Tells the brush to quit moving. Any physics forces (excluding gravity and water buoyancy) will cause the object to resume moving as usual. Sleeping also occurs automatically when the object has no physics forces to keep it awake, and is no longer moving a noticeable amount."
 	input Wake(void) : "If the object was told to sleep, tells it to start moving again."
 	input DisableMotion(void) : "Tells the object to stop moving completely. No physics forces will re-enable motion, not even Wake."
@@ -1332,11 +1332,6 @@
 	overridescript(string) : "Override Parameters" :  : "A list of physics keyvalues that are usually embedded in the model (https://developer.valvesoftware.com/wiki/Prop_data). Format is key,value,key,value,..."
 	damagetoenablemotion(integer) : "Health Level to Override Motion" :  : "If specified, this object will start with motion disabled. Once its health has dropped below this specified amount, it will enable motion."
 	forcetoenablemotion(float) : "Physics Impact Force to Override Motion" :  : "If specified, this object will start motion disabled. Any impact that imparts a force greater than this value will enable motion."
-	ExploitableByPlayer(choices) : "Exploitable by Player" : 0 : "TODO: Does this do anything?" =
-	[
-		0 : "Default"
-		1 : "Explosive"
-	]
 	input Sleep(void) : "Tell the prop to quit moving. Any physics forces (excluding gravity and water buoyancy) will cause the object to resume moving as usual. Sleeping also occurs automatically when the object has no physics forces to keep it awake, and is no longer moving a noticeable amount."
 	input Wake(void) : "If the object was told to sleep, tell it to start moving again."
 	input DisableMotion(void) : "Tell the object to stop moving completely. No physics forces will re-enable motion, not even Wake."
@@ -1370,11 +1365,6 @@
 	overridescript(string) : "Override Parameters" :  : "A list of physics keyvalues that are usually embedded in the model (https://developer.valvesoftware.com/wiki/Prop_data). Format is key,value,key,value,..."
 	damagetoenablemotion(integer) : "Health Level to Override Motion" :  : "If specified, this object will start with motion disabled. Once its health has dropped below this specified amount, it will enable motion."
 	forcetoenablemotion(float) : "Physics Impact Force to Override Motion" :  : "If specified, this object will start motion disabled. Any impact that imparts a force greater than this value will enable motion."
-	ExploitableByPlayer(choices) : "Exploitable by Player" : 0 : "TODO: Does this do anything?" =
-	[
-		0 : "Default"
-		1 : "Explosive"
-	]
 	input Sleep(void) : "Tell the prop to quit moving. Any physics forces (excluding gravity and water buoyancy) will cause the object to resume moving as usual. Sleeping also occurs automatically when the object has no physics forces to keep it awake, and is no longer moving a noticeable amount."
 	input Wake(void) : "If the object was told to sleep, tell it to start moving again."
 	input DisableMotion(void) : "Tell the object to stop moving completely. No physics forces will re-enable motion, not even Wake."
@@ -1432,6 +1422,8 @@
 	input SetSpeed(float) : "Sets Speed."
 	input SetBreakable(void) : "Makes the door breakable."
 	input SetUnbreakable(void) : "Makes the door unbreakable."
+	input MoveToRotationDistance(float) : "Sets Rotation Distance and moves the door to the open position."
+	output OnRotationDone(void) : "Fires when the door finishes rotating to anywhere. Does not fire when blocked."
 ]
 @BaseClass base(CBaseEntity,Parent,SystemLevel) = CRopeKeyframe 
 [
@@ -1645,7 +1637,7 @@
 	spawnflags(flags) =
 	[
 		1 : "Master - For use with fog_volume. If no other CC is active, default to this one (good for outdoors)." : 0
-		2 : "Simulate client-side - Needs to be set if using the entity with fog_volume." : 0
+		2 : "Simulate client-side - Needs to be set if using the entity with fog_volume. Uncheck if not!" : 0
 	]
 	minfalloff(float) : "Lookup Falloff Start Distance" : -1 : "Within this range to the entity, the effect will be at full strength. If this is larger than the End Distance, the effect will apply to the entire map."
 	maxfalloff(float) : "Lookup Falloff End Distance" : -1 : "Maximum distance from the entity that the effect is applied. At this distance, the effect is barely apparent but will strengthen to 100% as the viewer approaches the Start Distance."
@@ -1865,7 +1857,7 @@
 	output OnEntitySpawned(void) : "Fires when an instance of the entity template has been spawned."
 	output OnEntityFailedSpawn(void) : "Fires when the template failed to spawn via ForceSpawn due to it not being able to fit properly or due to the player looking at the entity."
 ]
-@PointClass base(CBaseEntity,Parent) iconsprite("editor/env_explosion") color(255 203 11) sphere(iRadiusOverride) = env_explosion : "It creates an explosion at its origin."
+@PointClass base(CBaseEntity,Parent) iconsprite("editor/env_explosion") color(0 255 255) sphere(iRadiusOverride) = env_explosion : "It creates an explosion at its origin."
 [
 	spawnflags(flags) =
 	[
@@ -1888,7 +1880,7 @@
 	DamageForce(float) : "Damage Force" : 0 : "Overrides push force. BUG: Very obvious disparity between force applied to players and force applied to physics objects."
 	input Explode(void) : "Makes the explosion happen. If Repeatable is not ticked, the entity will remove itself shortly after the explosion. If this input is sent very rapidly, the explosion may occur multiple times, or possibly infinitely due to the entity not removing itself fast enough! This delay is probably to avoid errors involved with attributing damage/kills to the explosion. If it becomes a problem, Kill the entity as soon as possible or otherwise prevent the input from sending."
 ]
-@PointClass base(CBaseEntity) iconsprite("editor/env_fade") color(255 203 11) = env_fade : "Makes the screen fade to or from a solid color. Add Duration and Hold Time together for the total time this entity will be in effect."
+@PointClass base(CBaseEntity) iconsprite("editor/env_fade") color(0 255 255) = env_fade : "Makes the screen fade to or from a solid color. Add Duration and Hold Time together for the total time this entity will be in effect."
 [
 	spawnflags(flags) =
 	[
@@ -2078,7 +2070,7 @@
 ]
 @PointClass base(CBaseEntity) = env_instructor_hint : "It is used to instruct the player to do some things, such as not shoot teammates. Only one hint can be shown at a time."
 [
-	hint_target(target_destination) : "Target Entity" :  : "The entity to show this hint on top of. The entity used must be one that is replicated on the client, or the hint will never show up. Use info_target to show the hint in empty space or at a specific location on another entity. If not desired, see Positioning."
+	hint_target(target_destination) : "Target Entity" :  : "The entity to show this hint on top of. The entity used must be one that is replicated on the client, or the hint will never show up. Use info_target to show the hint in empty space or at a specific location on another entity, and set its 'Always transmit to client' flag. If not desired, see Positioning."
 	hint_timeout(integer) : "Timeout" : 0 : "How long the hint stays. 0 will persist until stopped with EndHint."
 	hint_icon_onscreen(choices) : "Onscreen Icon" : "icon_tip" : "The icon to use when the hint is within the player's view." =
 	[
@@ -2100,6 +2092,10 @@
 		"icon_key_up" : "Down Arrow Key"
 		"icon_dpad" : "Controller D-Pad"
 		"icon_fire" : "Fire"
+		"voice_player" : "Speaker"
+		"voice_self" : "Speaker 2"
+		"scoreboard_mvp" : "Gold Star"
+		"ico_friend_indicator" : "Person"
 		"icon_blank" : "Blank"
 	]
 	hint_icon_offscreen(choices) : "Offscreen Icon" : "icon_tip" : "The icon to use when the hint is outside the player's view." =
@@ -2122,6 +2118,10 @@
 		"icon_key_up" : "Down Arrow Key"
 		"icon_dpad" : "Controller D-Pad"
 		"icon_fire" : "Fire"
+		"voice_player" : "Speaker"
+		"voice_self" : "Speaker 2"
+		"scoreboard_mvp" : "Gold Star"
+		"ico_friend_indicator" : "Person"
 		"icon_blank" : "Blank"
 	]
 	hint_caption(string) : "Caption" :  : "The text of your hint. 100 character limit. This should match a # string in resource/valve_english.txt or a similar file if possible."
@@ -2216,7 +2216,7 @@
 	SpeakerName(target_destination) : "Speaker target" :  : "Name of an entity at which to play any sounds heard by this microphone. If specified, the microphone will consider itself in 'Speaker mode'."
 	target(target_destination) : "Measure target" :  : "If the speaker is not in 'Speaker mode', this is the name of the entity where the sound level is to be measured. If not specified, the env_microphone uses itself as the target."
 	ListenFilter(filterclass) : "Listen Filter" :  : "The name of a filter entity which specifies which entities the microphone can hear. Sounds emitted by other entities will be ignored."
-	speaker_dsp_preset(choices) : "Speaker DSP Preset" : 0 : "Only useful in Speaker mode. If specified, sounds played back through speakers will be affected by the selected DSP setting. BUG: All active env_microphones are forced to use the same preset at the same time. This is because the entity just sets a ConVar called dsp_speaker which actually controls the preset. DSP will not apply to all sounds. AddOutput is buggy with this keyvalue. It's better to change the dsp_speaker convar directly." =
+	speaker_dsp_preset(choices) : "Speaker DSP Preset" : 0 : "Only useful in Speaker mode. If specified, sounds played back through speakers will be affected by the selected DSP setting. BUG: Some effects will cut off early in quiet environments. All active env_microphones are forced to use the same preset at the same time. This is because the entity just sets a ConVar called dsp_speaker which actually controls the preset. DSP will not apply to all sounds. AddOutput is buggy with this keyvalue. It's better to change the dsp_speaker convar directly." =
 	[
 		0 : "Normal"
 		2 : "Weird Tunnel"
@@ -2322,6 +2322,7 @@
 	lightcolor(color255) : "Light Color" : "255 255 255 200" : "RGB light color. Fourth number is the brightness."
 	cameraspace(boolean) : "Camera Space" : 0 : "If the entity has a Target, makes the projected texture rotate relative to the player's camera. If used, set Pitch Yaw Roll to 0 0 0."
 	textureframe(integer) : "Texture Frame" : 0 : "If the texture is animated, this is the frame it should begin on."
+	brightnessscale(float) : "Brightness Scale" : 1 : "Multiplies the Light Color to otherwise unobtainable RGB values. Does affect the brightness setting."
 	colortransitiontime(float) : "Color Transition Time" : 1 : "Amount of time it takes for a color change to occur. Higher numbers cause faster transitions."
 	style(choices) : "Appearance" : 0 : "Various Custom Appearance presets." =
 	[
@@ -2615,8 +2616,12 @@
 	input IncrementTextureIndex(void) : "Increments the texture's current frame by one."
 	input SetTextureIndex(integer) : "Sets the texture's frame to the specified number."
 ]
-@PointClass base(CBaseEntity) color(160 240 37) = env_tonemap_controller : "Controls tonemapping. Think of it as a method of controlling how the player's pupils adjust as they look at areas of different brightnesses. Also controls bloom. To see the effects of this, the map must be compiled with HDR (check the HDR box in the compile options, or use -hdr or -both on the VRAD command line) and the player in question must have HDR enabled in their video settings."
+@PointClass base(CBaseEntity) color(160 240 37) = env_tonemap_controller : "Controls tonemapping. Think of it as a method of controlling how the player's pupils adjust as they look at areas of different brightnesses. Also controls bloom. To see the effects of this, the map must be compiled with HDR (check the HDR box in the compile options, or use -hdr or -both on the VRAD command line)."
 [
+	spawnflags(flags) =
+	[
+		1 : "Master - For use with trigger_tonemap. If no other tonemapper is active, default to this one (good for outdoors)." : 0
+	]
 	input SetAutoExposureMin(float) : "Sets exposure level when looking at bright things. (Darkens environment in response.)"
 	input SetAutoExposureMax(float) : "Sets exposure level when looking at dark things. (Brightens environment in response.)"
 	input SetBloomScale(float) : "Sets how intense bloom is."
@@ -2721,7 +2726,7 @@
 [
 	input SetTimer(float) : "Tells the flashbang to detonate in this many seconds. Explodes on its own in a few seconds if this input is not sent."
 ]
-@SolidClass base(CBaseEntity,EnableDisable) = fog_volume : "It controls fog and other visual cinematic elements within its volume. Typically when Valve uses this entity, they have a master version of their FX entities (use the Master flag) which is used for the outdoors effects, then only create fog_volumes for indoors areas. The entity uses its bounding box to detect players, meaning the trigger will always be in a cuboid shape regardless of how the brush(es) look."
+@SolidClass base(CBaseEntity,EnableDisable) color(255 203 11) = fog_volume : "It controls fog and other visual cinematic elements within its volume. Typically when Valve uses this entity, they have a master version of their FX entities (use the Master flag) which is used for the outdoors effects, then only create fog_volumes for indoors areas. The entity uses its bounding box to detect players, meaning the trigger will always be in a cuboid shape regardless of how the brush(es) look."
 [
 	FogName(target_destination) : "Fog Name" :  : "The name of the env_fog_controller to activate when this entity is touched."
 	PostProcessName(target_destination) : "Postprocess Name" :  : "The name of the postprocess_controller to activate when this entity is touched."
@@ -2939,6 +2944,9 @@
 	]
 	input Alpha(integer) : "If Precipitation Type is Rain, sets the density."
 ]
+@SolidClass base(CFuncBrush) color(255 203 11) = func_reflective_glass : "Reflects the world in realtime. When looking at the entity, a player if first person will not see theirself correctly, so use of the entity is limited. Expect issues when other realtime surfaces like water are in the PVS. Use the texture glass/reflectiveglass001 from another Source game on the reflective side."
+[
+]
 @SolidClass base(CRotButton) = func_rot_button : "Rotates to an activated position when pressed."
 [
 ]
@@ -3100,7 +3108,7 @@
 @SolidClass base(CFuncMoveLinear) = func_water_analog : "Can be used to make a water brush move. MUST use cheap water! There are bugs that may arise when parenting this entity to a func_movelinear or func_water_analog. A func_door can be used as a workaround."
 [
 ]
-@SolidClass base(CBaseEntity,VisibleBrush,Origin) color(255 0 255) = func_weight_button : "It's a brush which fires outputs depending on how much weight is pressing on it. Weapons and other items being carried by players, and hostages, are considered weightless. BUG: Players are considered weightless."
+@SolidClass base(CBaseEntity,VisibleBrush,Origin) color(255 0 255) = func_weight_button : "It's a brush which fires outputs depending on how much weight is pressing on it. Weapons and other items being carried by players, and hostages, are considered weightless. BUG: Players are considered weightless. BUG: Physics objects may jiggle inexplicably when touching the brush."
 [
 	WeightToActivate(float) : "Weight to Activate" :  : "Amount of weight (kg) needed to fire outputs. TIP: Use sv_massreport 1 to see the weights of objects ingame."
 	output OnPressed(void) : "Fires when enough weight is on the button."
@@ -3348,7 +3356,7 @@
 	hide_radius(float) : "Hide Radius" : 1000 : "Range around the spawn spot the bot will try to hide. Set to 0 to hold position and never try to hide."
 	behavior_tree_file(string) : "Behavior Tree File" :  : "The behavior tree file to use for this bot (empty means classic AI). Example: scripts/ai/coop/autumn/bt_guard.kv3 TODO: Is there any info on the internet about how behavior tree files work?"
 ]
-@PointClass base(CBaseEntity,Parent) iconsprite("editor/gibshooter") color(255 203 11) = info_gascanister_launchpoint : "Point at which rockets are launched from in danger zone. Usually placed inside the map's 3D skybox."
+@PointClass base(CBaseEntity,Parent) iconsprite("editor/gibshooter") color(0 255 255) = info_gascanister_launchpoint : "Point at which rockets are launched from in danger zone. Usually placed inside the map's 3D skybox."
 [
 ]
 @PointClass iconsprite("editor/info_lighting") color(160 240 37) = info_lighting : "When a prop_static's Lighting Origin is set to this entity's targetname, the prop will set its origin to the origin of the info_lighting during compile time. This will affect its lighting and cubemap reflections.\n"+
@@ -3567,6 +3575,11 @@
 	_zero_percent_distance(float) : "0 percent falloff distance" : 0 : "How far away from the source that light weakens to 0.4% (1/256) its original brightness, at which point VRAD will quit calculating it."
 	_hardfalloff(float) : "hard falloff" : 0 : "Light will not hit surfaces this far away from the source."
 ]
+@PointClass base(CLight,Angles) iconsprite("editor/light_env") color(160 240 37) = light_directional : "It makes light come from skybox tool textures in the map in order to simulate sunlight. It can't use ambient settings like light_environment can, but it can be used multiple times in one map, even with a light_environment. Unless the entity is given a targetname, it will remove itself upon spawning because the game no longer needs it for anything. Named lights are toggleable and can take inputs but do a simpler light calculation and lightmap pieces are limited to up to 2 toggled lights shining on them at once. BUG: Colors may come out too strong and look too dark in places when multiple sunlight sources overlap."
+[
+	pitch(integer) : "Pitch" : -57 : "Overrides the pitch in Pitch Yaw Roll. VRAD ignores the regular one, so it must be specified. Note that this pitch is the negative of the regular one, so -90 is straight down. Both pitch values should be opposites."
+	SunSpreadAngle(float) : "Sun Spread Angle" : 0 : "How much the angles of the light particles can vary to simulate a penumbra effect. The lightmap scale of the brushes which light falls on also determines how blurry the shadows look."
+]
 @PointClass base(CBaseEntity,Parent,Toggle) iconsprite("editor/light") sphere(distance) lightcone() size(-4 -4 -4, 4 4 4) color(160 240 37) = light_dynamic : "Light that's computed and rendered in realtime. It can move and change its properties at any moment. The Pitch keyvalue doesn't actually affect the entity ingame. All it does is set the pitch of Hammer's lightcone helper. To see where light will cast, set Pitch to the first number in Pitch Yaw Roll and flip the + or - sign. env_projectedtexture is generally agreed upon as a better entity for dynamic lighting for its more realistic results and less unintuitive setup. light_dynamic does have some advantages, though; more than one can be on at once, and it can emit in all directions."
 [
 	spawnflags(flags) =
@@ -3606,7 +3619,7 @@
 	input TurnOn(void) : "Turns the light on."
 	input TurnOff(void) : "Turns the light off."
 ]
-@PointClass base(CLight,Angles) iconsprite("editor/light_env") color(160 240 37) = light_environment : "It makes light come from skybox tool textures in the map in order to simulate sunlight. Unless the entity is given a targetname, it will remove itself upon spawning because the game no longer needs it for anything. Named lights are toggleable and can take inputs but do a simpler light calculation and lightmap pieces are limited to up to 2 toggled lights shining on them at once."
+@PointClass base(CLight,Angles) iconsprite("editor/light_env") color(160 240 37) = light_environment : "It makes light come from skybox tool textures in the map in order to simulate sunlight. Only one can be used in a map. Multiple 'sunlights' can be made with light_directional. Unless the entity is given a targetname, it will remove itself upon spawning because the game no longer needs it for anything. Named lights are toggleable and can take inputs but do a simpler light calculation and lightmap pieces are limited to up to 2 toggled lights shining on them at once."
 [
 	pitch(integer) : "Pitch" : -57 : "Overrides the pitch in Pitch Yaw Roll. VRAD ignores the regular one, so it must be specified. Note that this pitch is the negative of the regular one, so -90 is straight down. Both pitch values should be opposites."
 	_ambient(color255) : "Ambient" : "255 255 255 20" : "Color and intensity of the ambient light. Ambient light is added on all surfaces which have LOS to a skybox brush, without any regard for the sunlight's angle."
@@ -3932,7 +3945,7 @@
 [
 	spawnflags(flags) =
 	[
-		1 : "Only trigger once - Makes the entity remove itself after firing either output." : 0
+		1 : "Only trigger once - Makes the entity remove itself after firing OnTrigger or OnSpawn." : 0
 		2 : "Allow fast retrigger - Allow refire even if delayed inputs have not fully sent." : 0
 	]
 	input Trigger(void) : "Makes OnTrigger fire."
@@ -4317,7 +4330,7 @@
 	output OnBombDefused(void) : "Fires when the bomb has been defused. (Counter-Terrorists win.)"
 	output OnBombDefuseAborted(void) : "Fires when a defuser stopped interacting with the bomb before they finished defusing."
 ]
-@PointClass base(CBaseEntity) = player_speedmod : "It changes the player's velocity (including falling speed) and can disable various things."
+@PointClass base(CBaseEntity) color(0 255 255) = player_speedmod : "It changes the player's velocity (including falling speed) and can disable various things."
 [
 	spawnflags(flags) =
 	[
@@ -4330,7 +4343,7 @@
 	]
 	input ModifySpeed(float) : "Multiplies the player velocity by this much and does the things specified in the flags. To set everything back to normal, send the input with the parameter 1. The !activator must be a player in order to work. Tip: Set the speed to .99 to only use the flags."
 ]
-@PointClass base(CBaseEntity) color(0 255 0) = player_weaponstrip : "It removes the weapons of a player. The activator is the targeted player."
+@PointClass base(CBaseEntity) color(0 255 255) = player_weaponstrip : "It removes the weapons of a player. The activator is the targeted player."
 [
 	input Strip(void) : "Takes away the player's weapons."
 	input StripWeaponsAndSuit(void) : "Takes away the player's weapons and armor+helmet."
@@ -4430,14 +4443,6 @@
 	input FindEntity(void) : "Tells the finder to find an entity."
 	output OnFoundEntity(void) : "Fires when FindEntity is sent. !caller is the found entity."
 ]
-@PointClass base(CBaseEntity,Origin) = point_gamestats_counter : "'Generic game statistics counter.' TODO: Just explain this entire thing to me."
-[
-	Name(string) : "Name of statistic counter" :  : "Name of like, something."
-	input SetName(string) : "Sets Name of statistic counter."
-	input Increment(float) : "Increments named statistic counter by specified value."
-	input Enable(void) : "Makes the entity active."
-	input Disable(void) : "Makes the entity inactive."
-]
 @PointClass base(CBaseEntity) color(0 255 0) = point_give_ammo : "Refills the activating player's reserve ammo on all their weapons with one."
 [
 	input GiveAmmo(void) : "Refills the activator's ammo."
@@ -4445,7 +4450,7 @@
 @PointClass base(CBaseEntity,Parent) = point_hiding_spot : "In coop, bots can hide near this entity."
 [
 ]
-@PointClass base(CBaseEntity,Parent,Toggle) sphere(DamageRadius) color(0 255 0) = point_hurt : "It damages things inside a radius."
+@PointClass base(CBaseEntity,Parent,Toggle) sphere(DamageRadius) color(0 255 255) = point_hurt : "It damages things inside a radius."
 [
 	damage(float) : "Damage" : 5 : "How much damage to do every time the Delay interval passes. This amount is factored into the force that objects will take when hit."
 	DamageTarget(target_destination) : "Target Entity" :  : "If specified, only this entity will take damage. Otherwise, all entities within the Radius will take damage. If used, the !activator is considered the attacker."
@@ -4491,6 +4496,41 @@
 	input TurnOn(void) : "Starts constraining the player. The entity automatically turns off if the player escapes the radius."
 	input TurnOff(void) : "Stops constraining the player."
 	output OnConstraintBroken(void) : "Fires when the player escapes the radius."
+]
+@PointClass base(CBaseEntity) color(255 203 11) = point_posecontroller : "It manipulates a $poseparameter on a prop. Will interfere with other animations. Trying to modulate a non-existent pose param will cause a crash. TODO: Needs revisions after I find an instance of it being used."
+[
+	PropName(target_destination) : "Prop Name" :  : "Name of the prop to control."
+	PoseParameterName(string) : "Pose Parameter Name" :  : "Name of the $poseparameter to control."
+	PoseValue(float) : "Pose Parameter Value" : 0 : "Value to set the pose param to. 0 min, 1 max."
+	InterpolationTime(float) : "Interpolation Time" : 0 : "How many seconds it takes the prop to shift to the pose specified by this entity. 0 min, 10 max."
+	InterpolationWrap(choices) : "Should wrap from 0.0 to 1.0 when interpolating" : 0 : "TODO: ?" =
+	[
+		0 : "No"
+		1 : "Yes"
+	]
+	CycleFrequency(float) : "Cycle Frequency" : 0 : "How many times to cycle through the parameter per second. -10 min, 10 max."
+	FModulationType(choices) : "Frequency Modulation Type" : 0 : "How to cycle through the parameter." =
+	[
+		0 : "None"
+		1 : "Sine"
+		2 : "Square"
+		3 : "Triangle"
+		4 : "Sawtooth"
+		5 : "Noise"
+	]
+	FModTimeOffset(float) : "Frequency Modulation Time Offset" : 0 : "Modulation time offset. -1 min, 1 max."
+	FModRate(float) : "Frequency Modulation Rate" : 0 : "Modulation cycles per second. -10 min, 10 max. TODO: How is this different from Cycle Frequency."
+	FModAmplitude(float) : "Frequency Modulation Amplitude" : 0 : "Scale of the modulation. 0 min, 10 max."
+	input SetPoseParameterName(string) : "Sets Pose Parameter Name."
+	input SetPoseValue(float) : "Sets Pose Parameter Value."
+	input SetInterpolationTime(float) : "Sets Interpolation Time."
+	input SetCycleFrequency(float) : "Sets Cycle Frequency."
+	input SetFModType(integer) : "Sets Frequency Modulation Type."
+	input SetFModTimeOffset(float) : "Sets Frequency Modulation Time Offset."
+	input SetFModRate(float) : "Sets Frequency Modulation Rate."
+	input SetFModAmplitude(float) : "Sets Frequency Modulation Amplitude."
+	input RandomizeFMod(float) : "Sets Frequency Modulation Type to a random type, sets Frequency Modulation Time Offset to a random amount, and sets the Rate and Amplitude to a random amount which is more or less apparent depending on the value of the parameter (0 to 1)."
+	input GetFMod(void) : "Prints modulation info to the console. (Requires developer 1 in the console before taking effect.)"
 ]
 @PointClass base(CBaseEntity,Parent,EnableDisable,Toggle) color(248 155 0) = point_proximity_sensor : "It records the distance between it and another entity."
 [
@@ -4587,7 +4627,7 @@
 	input Disable(void) : "Makes the entity inactive."
 	output Velocity(float) : "Fires when the Target Entity's velocity changes. Automatically puts the object's new velocity as the input parameter, unless overridden by the mapper."
 ]
-@PointClass base(CBaseEntity,Parent,Angles) studioprop("models/editor/camera.mdl") color(255 203 11) = point_viewcontrol : "Players can be forced to see the world through this entity.\n" +
+@PointClass base(CBaseEntity,Parent,Angles) studioprop("models/editor/camera.mdl") color(0 255 255) = point_viewcontrol : "Players can be forced to see the world through this entity.\n" +
 "BUG: Various weird behavior results when using the entity's native ability to follow path_tracks. It's recommended to attach the entity to a func_tracktrain using logic_measure_movement.\n" +
 "BUG: Players will be stuck seeing out of the point_viewcontrol if the entity is deleted or they die while viewing!\n" +
 "BUG: Parenting does not work.\n" +
@@ -4622,7 +4662,7 @@
 	input SetPath(target_destination) : "Makes the camera begin following a new path."
 	output OnEndFollow(void) : "Fired when the entity deactivates due to the Disable input being sent, the Entity to Look At being destroyed, or the Hold Time expiring."
 ]
-@PointClass base(CBaseEntity,Parent,Angles) studioprop("models/editor/camera.mdl") color(255 203 11) = point_viewcontrol_multiplayer : "It overrides the views of players. Players are unable to do anything while their view is controlled."
+@PointClass base(CBaseEntity,Parent,Angles) studioprop("models/editor/camera.mdl") color(0 255 255) = point_viewcontrol_multiplayer : "It overrides the views of players. Players are unable to do anything while their view is controlled."
 [
 	spawnflags(flags) =
 	[
@@ -4889,7 +4929,7 @@
 	fogdir(vecline) : "Primary Fog Direction" : "1 0 0" : "An angle which the viewer camera is checked against to figure out the blend between the primary and secondary fog colors."
 	use_angles(boolean) : "Use Angles for Fog Dir" : 0 : "Use Pitch Yaw Roll for the Fog Blend direction instead of Primary Fog Direction."
 ]
-@PointClass base(CBaseEntity) color(255 203 11) = skybox_swapper : "It precaches an alternate skybox material and swaps it with the current one on command by changing the sv_skyname convar."
+@PointClass base(CBaseEntity) color(0 255 255) = skybox_swapper : "It precaches an alternate skybox material and swaps it with the current one on command by changing the sv_skyname convar."
 [
 	SkyboxName(string) : "Skybox Material Name" :  : "Skybox to change to. See https://developer.valvesoftware.com/wiki/Sky_List."
 	input Trigger(void) : "Changes the skybox to Skybox Material Name."
@@ -4968,7 +5008,7 @@
 @SolidClass base(CTriggerMultiple) color(248 155 0) = trigger_multiple : "Standard, most common entity for trigger logic. Simply fires outputs."
 [
 ]
-@SolidClass base(CTriggerMultiple) color(248 155 0) = trigger_once : "A trigger which is activated once when touched, then removes itself. Equivalent to setting 'Fire once' on the outputs of a trigger_multiple."
+@SolidClass base(CTriggerMultiple) color(248 155 0) = trigger_once : "Fires an output once when touched, then removes itself. Equivalent to setting 'Fire once' on the outputs of a trigger_multiple."
 [
 ]
 @SolidClass base(CBaseTrigger) = trigger_playermovement : "It controls some aspects of player movement when a player is inside it. BUG: Despite being coded to only affect players, the 'Clients' flag still has to be checked!"
@@ -5023,6 +5063,10 @@
 	UseLandmarkAngles(boolean) : "Use Landmark Angles" : 0 : "Forces the teleported object to the angles of the Local Destination Landmark. NOTE: The trigger will apply a 'rotation' independent from this one which is determined by the difference in the angles of the destination and landmark entities."
 	CheckDestIfClearForPlayer(boolean) : "Only Spawn-Valid Destinations" : 0 : "Only teleports the object to its new destination if there's space for it."
 	input SetRemoteDestination(target_destination) : "Sets Remote Destination."
+]
+@SolidClass base(CBaseTrigger) color(255 203 11) = trigger_tonemap : "It controls tonemapping settings within its volume. Typically when Valve uses this entity, they have a master version of their tonemap entities (use the Master flag) which is used for the outdoors effects, then only create trigger_tonemaps for indoors areas."
+[
+	TonemapName(target_destination) : "Tonemap Name" :  : "Name of the env_tonemap_controller to use here."
 ]
 @SolidClass base(CBaseVPhysicsTrigger) color(255 0 255) = trigger_vphysics_motion : "It can manipulate objects inside it in a number of ways. Sometimes used in Half-Life 2 for forcefield-like effects. BUG: Players are not affected at all."
 [
