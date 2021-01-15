@@ -1817,7 +1817,7 @@
 	input SetFadeInDuration(float) : "Sets Lookup Fade In Duration."
 	input SetFadeOutDuration(float) : "Sets Lookup Fade out Duration."
 ]
-@PointClass base(CBaseTrigger) color(255 203 11) = color_correction_volume : "When a player steps into this volume, they will have a color correction effect applied to their screen."
+@SolidClass base(CBaseTrigger) color(255 203 11) = color_correction_volume : "When a player steps into this volume, they will have a color correction effect applied to their screen."
 [
 	filename(string) : "Lookup Table Filename" :  : "Filepath to the .raw being used. Example: materials/correction/ghost.raw."
 	fadeDuration(float) : "Lookup Fade Duration" : 0 : "How long the CC takes to fade in and out."
@@ -2764,11 +2764,6 @@
 	MainSoundscapeName(target_destination) : "Soundscape Entity" :  : "The soundscape entity to become a copy of."
 	radius(integer) : "Radius" : 128 : "Defines the entity's sphere of influence. -1 means infinite range."
 ]
-@PointClass base(CBaseEntity,Parent,EnableDisable) sphere(radius) iconsprite("editor/env_soundscape") color(0 0 255) = env_soundscape_proxy : "It plays a soundscape with settings copied from an env_soundscape, env_soundscape_proxy, or env_soundscape_triggerable. Can't do anything a regular env_soundscape can't; it's solely for convenience."
-[
-	MainSoundscapeName(target_destination) : "Soundscape Entity" :  : "The soundscape entity to become a copy of."
-	radius(integer) : "Radius" : 128 : "Defines the entity's sphere of influence. -1 means infinite range."
-]
 @PointClass base(CEnvSoundscape) sphere(radius) iconsprite("editor/env_soundscape") line(255 255 255, targetname, position0) line(255 255 255, targetname, position1) line(255 255 255, targetname, position2) line(255 255 255, targetname, position3) line(255 255 255, targetname, position4) line(255 255 255, targetname, position5) line(255 255 255, targetname, position6) line(255 255 255, targetname, position7) color(0 0 255) = env_soundscape_triggerable : "Makes a player hear a certain soundscape when they touch a trigger_soundscape."
 [
 ]
@@ -3104,7 +3099,7 @@
 	input SetFadeStartDistance(integer) : "Sets Fade Start Distance."
 	input SetFadeEndDistance(integer) : "Sets Fade End Distance."
 ]
-@PointClass base(CFuncBrush) color(216 5 136) = func_block_charge : "AI chargers will not charge when they or their target are inside this volume. They will charge through it if the path to their target happens to go completely through it. Player chargers aren't affected at all."
+@SolidClass base(CFuncBrush) color(216 5 136) = func_block_charge : "AI chargers will not charge when they or their target are inside this volume. They will charge through it if the path to their target happens to go completely through it. Player chargers aren't affected at all."
 [
 ]
 @SolidClass base(CBreakable,Origin) color(0 255 0) = func_breakable : "A brush that can take damage and break."
