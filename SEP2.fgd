@@ -1,5 +1,5 @@
 
-//To install this FGD:
+//To install this FGD: 
 //1. Open Hammer.
 //2. Click 'Tools'.
 //3. Click 'Options'.
@@ -1767,7 +1767,7 @@
 	input SetFadeInDuration(float) : "Sets Lookup Fade In Duration."
 	input SetFadeOutDuration(float) : "Sets Lookup Fade out Duration."
 ]
-@PointClass base(CBaseTrigger) color(255 203 11) = color_correction_volume : "When a player steps into this volume, they will have a color correction effect applied to their screen."
+@SolidClass base(CBaseTrigger) color(255 203 11) = color_correction_volume : "When a player steps into this volume, they will have a color correction effect applied to their screen."
 [
 	filename(string) : "Lookup Table Filename" :  : "Filepath to the .raw being used. Example: materials/correction/cc_finale4.raw."
 	fadeDuration(float) : "Lookup Fade Duration" : 0 : "How long the CC takes to fade in and out."
