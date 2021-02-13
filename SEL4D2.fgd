@@ -80,7 +80,6 @@
 	[
 		"env_lightglow"
 		"env_particlelight"
-		"env_projectedtexture"
 		"env_tonemap_controller"
 		"env_tonemap_controller_ghost"
 		"env_tonemap_controller_infected"
@@ -574,10 +573,10 @@
 	"Keyvalue format: <key> <value>\n" +
 	"IO format: <output name> <targetname>:<input name>:<parameter>:<delay>:<fire once>\n" +
 	"The parameter can be left blank, but do not omit either ':' surrounding it or the game will think the delay is the parameter! <fire once> is whether the IO event can be fired again. Put 0 to allow infinite refires, put 1 to make it only fire once ever."
-	input FireUser1(void) : "Fires the OnUser1 output."
-	input FireUser2(void) : "Fires the OnUser2 output."
-	input FireUser3(void) : "Fires the OnUser3 output."
-	input FireUser4(void) : "Fires the OnUser4 output."
+	input FireUser1(string) : "Fires the OnUser1 output. Bug: These inputs can pass a string parameter, but do nothing with it. If the input is sent from an output that automatically passes a non-string parameter (such as OnLessThan from logic_compare) the input will fail to send because the parameters types are incompatible. To work around this, place any placeholder text in the parameter box."
+	input FireUser2(string) : "Fires the OnUser2 output."
+	input FireUser3(string) : "Fires the OnUser3 output."
+	input FireUser4(string) : "Fires the OnUser4 output."
 	input RunScriptFile(script) : "Executes a VScript file from disk, without file extension. The script contents are merged with the script scope of the receiving entity."
 	input RunScriptCode(string) : "Executes a VScript function in the scope of the entity that fires the output. String quotation may be needed when fired via console. Never try to pass string parameters to a script function with this input. It will minorly corrupt the VMF structure because of the nested quotation marks, which then must be removed manually with a text editor."
 	input CallScriptFunction(string) : "Executes a VScript function in the scope of the entity receiving the input."
@@ -1747,7 +1746,7 @@
 	pitch(integer) : "Pitch" : 100 : "Pitch of the sound on a range from 0 to 255. Default is 100. Does not work with soundscripts."
 	pitchstart(integer) : "Start Pitch" : 100 : "A pitch for the sound to 'spin up' (start) and 'spin down' (end) at. See Spin up/down time. BUG: When this number is set higher than Pitch, only a small blip of the sound will play before the sound stops prematurely."
 	spinup(integer) : "Spin up time (0-100)" : 0 : "When the sound begins playing, it will take this long for it to transition from Start Pitch to Pitch."
-	downwind(integer) : "Spin down time (0-100)" : 0 : "When the sound is told to quit playing by an input, it will take this long to transition from Pitch to Start Pitch (once over, the sound finishes entirely)."
+	spindown(integer) : "Spin down time (0-100)" : 0 : "When the sound is told to quit playing by an input, it will take this long to transition from Pitch to Start Pitch (once over, the sound finishes entirely)."
 	health(integer) : "Volume" : 10 : "Volume for this sound to play at by default on a range from 0 (silent) to 10."
 	volstart(integer) : "Start Volume" : 0 : "A volume for the sound to fade in from and fade out to. See Fade in/out time in seconds."
 	fadeinsecs(integer) : "Fade in time in seconds (0-100)" : 0 : "When the sound begins playing, it will take this long to transition from Start Volume to Volume."
@@ -1938,7 +1937,7 @@
 ]
 @PointClass base(CBaseEntity,Parent) iconsprite("editor/env_particles") color(255 203 11) = env_dustpuff : "Makes dust."
 [
-	scale(float) : "Scale" : 8 : "Size of the dust puff."
+	scale(float) : "Scale" : 1 : "Size of the dust puff."
 	speed(float) : "Speed" : 16 : "Speed at which the dust particles should move."
 	color(color255) : "Dust color" : "128 128 128" : "Color of the dust particles."
 	input SpawnDust(void) : "Spawns a dust puff."
@@ -2163,7 +2162,7 @@
 		1 : "Set Initial State - Makes this entity define the global state once the server loads the map." : 1
 	]
 	globalstate(string) : "Global State to Set" :  : "Global state the entity is associated with. Essentially, the name of a variable."
-	initialstate(choices) : "Initial State" :  : "Used by Set Initial State to determine what the global state should be set to when the map starts." =
+	initialstate(choices) : "Initial State" : 1 : "Used by Set Initial State to determine what the global state should be set to when the map starts." =
 	[
 		0 : "Off"
 		1 : "On"
@@ -2563,58 +2562,6 @@
 	input Enable(void) : "Makes the entity active."
 	input Disable(void) : "Makes the entity inactive."
 ]
-@PointClass base(CBaseEntity,Parent,Angles) size(-2 -2 -2, 2 2 2) frustum(lightfov,nearz,farz,lightcolor,-1) color(160 240 37) = env_projectedtexture : "It projects a texture onto the environment, simulating a realistic spotlight. Only one of these should be be active in the PVS at a time to avoid issues. Does not move correctly when parented."
-[
-	spawnflags(flags) =
-	[
-		1 : "Start enabled" : 1
-	]
-	texturename(material) : "Texture Name" : "effects/flashlight001" : "Texture this entity projects."
-	target(target_destination) : "Target" :  : "The entity will rotate to point at this target."
-	lightfov(float) : "FOV" : 90 : "The field of view cone/pyramid at which the texture is projected."
-	nearz(float) : "NearZ" : 4 : "Objects closer than this will not receive the light from the projection."
-	farz(float) : "FarZ" : 800 : "Objects beyond this distance will not receive the light from the projection."
-	enableshadows(choices) : "Enable Shadows" : 1 : "Enables/disables shadows from this projected texture." =
-	[ 
-		0 : "No"
-		1 : "Yes"
-
-	]
-	shadowquality(choices) : "Shadow Quality" : 1 : "Quality of shadows." =
-	[
-		0 : "Low (sharp, pixelated shadows)"
-		1 : "High (smooth edged shadows)"
-	]
-	lightonlytarget(choices) : "Light Only Target" : 0 : "Limit flashlight effect to only affect the Target entity. Does not change lighting on world geometry." =
-	[ 
-		0 : "No"
-		1 : "Yes"
-
-	]
-	lightworld(choices) : "Light World" : 1 : "Control whether flashlight affects static world geometry." =
-	[ 
-		0 : "No"
-		1 : "Yes"
-
-	]
-	lightcolor(color255) : "Light Color" : "255 255 255 200" : "RGB light color. Fourth number is the brightness."
-	cameraspace(choices) : "Camera Space" : 0 : "If the entity has a Target, makes the projected texture rotate relative to the player's camera. If used, set Pitch Yaw Roll to 0 0 0." =
-	[ 
-		0 : "No"
-		1 : "Yes"
-
-	]
-	textureframe(integer) : "Texture Frame" : 0 : "If the texture is animated, this is the frame it should begin on."
-	input TurnOn(void) : "Turns on the texture."
-	input TurnOff(void) : "Turns off the texture."
-	input FOV(float) : "Sets FOV."
-	input EnableShadows(integer) : "Sets Enable Shadows."
-	input SpotlightTexture(string) : "Sets the spotlight texture."
-	input Target(target_destination) : "Sets Target."
-	input CameraSpace(integer) : "Sets Camera Space."
-	input LightOnlyTarget(integer) : "Sets Light Only Target."
-	input LightWorld(integer) : "Sets Light World."
-]
 @PointClass base(CBaseEntity,Angles,Parent) studio("models/editor/cone_helper.mdl") color(0 255 255) = env_rock_launcher : "Launches a rock normally thrown by a tank."
 [
 	RockTargetName(target_destination) : "Target Name" :  : "An entity to throw the rock at, instead of in the direction of Pitch Yaw Roll."
@@ -2990,7 +2937,7 @@
 		3 : "Infected"
 	]
 ]
-@FilterClass base(CBaseFilter) iconsprite("editor/filter_multi") color(248 155 0) = filter_damage_type : "Filter that checks the type of damage inflicted."
+@FilterClass base(CBaseFilter) iconsprite("editor/filter_multiple") color(248 155 0) = filter_damage_type : "Filter that checks the type of damage inflicted."
 [
 	damagetype(choices) : "Damage type" : 0 : "The damage type to filter by. TODO: Currently do not have a working method of extracting damage types from different attacks in L4D2, so the values listed here are uncombined and likely will not work without combining numbers. This is the problem: I currently don't know what those combinations are." =
 	[
@@ -3046,7 +2993,7 @@
 		128 : "only CLUB"
 	]
 ]
-@FilterClass base(CBaseFilter) iconsprite("editor/filter_multi") color(248 155 0) = filter_multi : "A filter that combines other filters."
+@FilterClass base(CBaseFilter) iconsprite("editor/filter_multiple") color(248 155 0) = filter_multi : "A filter that combines other filters."
 [
 	FilterType(choices) : "Logic Type" : 0 : "Boolean logic applied when testing the filters." =
 	[
@@ -3213,7 +3160,7 @@
 "Hammer expects the instance VMF to be in the same folder as this map, or in a subfolder of it."
 [
 	targetname(target_source) : "Fix Up Name" :  : "String appended to the targetnames of every entity in this instance. Useful for differentiating between multiple instances in a map. Hammer assumes all entity I/O is between entities in the instance and will change the names in I/O connections to ones that are potentially wrong. You can prevent this by adding an @ to the entities. If an entity's targetname in the actual map starts with an @ symbol, references to it inside the instance will not be altered by this keyvalue. Hammer may not recognize this syntax, but it does work. @ will also prevent the name of an entity inside the instance from changing."
-	fixup_style(choices) : "Entity Name Fix Up" :  : "How to append the Fix Up Name to the entities." =
+	fixup_style(choices) : "Entity Name Fix Up" : 0 : "How to append the Fix Up Name to the entities." =
 	[
 		0 : "Prefix (fixup-name)"
 		1 : "Postfix (name-fixup)"
@@ -3492,7 +3439,7 @@
 "1. Press the SmartEdit button (in order to turn it off).\n" +
 "2. Click Add to add a new keyvalue.\n" +
 "3. Insert the entity's classname in the Key field. Up to 32 different types of entities may be given.\n" +
-"4. Specify how many instances of the entity to spawn in the Value field. Maximum is 32. This allows you to spawn up to 1024 entities."
+"4. Specify how many instances of the entity to spawn in the Value field. Maximum is 32. This allows you to spawn up to 1024 entities. BUG: Broken for weapon_ entities. Only one weapon_ entity will spawn."
 [
 	input Use(void) : "Gives the !activator the items. If the activator is not a player, the game can crash!"
 ]
@@ -3962,7 +3909,7 @@
 	pitch(integer) : "Pitch" : -57 : "Overrides the pitch in Pitch Yaw Roll. VRAD ignores the regular one, so it must be specified. Note that this pitch is the negative of the regular one, so -90 is straight down. Both pitch values should be opposites."
 	SunSpreadAngle(float) : "Sun Spread Angle" : 0 : "How much the angles of the light particles can vary to simulate a penumbra effect. The lightmap scale of the brushes which light falls on also determines how blurry the shadows look."
 ]
-@PointClass base(CBaseEntity,Parent,Toggle) iconsprite("editor/light") sphere(distance) lightcone() size(-4 -4 -4, 4 4 4) color(160 240 37) = light_dynamic : "Light that's computed and rendered in realtime. It can move and change its properties at any moment. The Pitch keyvalue doesn't actually affect the entity ingame. All it does is set the pitch of Hammer's lightcone helper. To see where light will cast, set Pitch to the first number in Pitch Yaw Roll and flip the + or - sign. env_projectedtexture is generally agreed upon as a better entity for dynamic lighting for its more realistic results and less unintuitive setup. light_dynamic does have some advantages, though; more than one can be on at once, and it can emit in all directions."
+@PointClass base(CBaseEntity,Parent,Toggle) iconsprite("editor/light") sphere(distance) lightcone() size(-4 -4 -4, 4 4 4) color(160 240 37) = light_dynamic : "Light that's computed and rendered in realtime. It can move and change its properties at any moment. The Pitch keyvalue doesn't actually affect the entity ingame. All it does is set the pitch of Hammer's lightcone helper. To see where light will cast, set Pitch to the first number in Pitch Yaw Roll and flip the + or - sign. More than one can be on at once, and it can emit in all directions."
 [
 	spawnflags(flags) =
 	[
@@ -4069,6 +4016,7 @@
 	Branch15(target_destination) : "Logic Branch 15" :  : "logic_branches to watch. These keyvalues will accept multiple logic_branches in the same field if some are given the same targetname, but the entity only accepts 16 entities maximum. Wildcards (i.e. branch_1, branch_2 being referred to as branch_*) are also supported."
 	Branch16(target_destination) : "Logic Branch 16" :  : "logic_branches to watch. These keyvalues will accept multiple logic_branches in the same field if some are given the same targetname, but the entity only accepts 16 entities maximum. Wildcards (i.e. branch_1, branch_2 being referred to as branch_*) are also supported."
 	input Test(void) : "Tells the entity to look at the state of every logic_branch it was told to watch, then fires the appropriate output."
+	input _OnLogicBranchRemoved(void) : "Sent automatically by a logic_branch when it gets removed for any reason. The !activator will no longer be watched by this entity. Makes the entity fire an output, but only if the listener's final result has changed."
 	output OnAllTrue(void) : "Fires if all logic_branches are set to true."
 	output OnAllFalse(void) : "Fires if all logic_branches are set to false."
 	output OnMixed(void) : "Fires if the logic_branches are not all true nor all false."
@@ -4799,7 +4747,7 @@
 	output OnUseCancelled(void) : "Fires when a player stops using this target."
 	output OnUseFinished(void) : "Fires when a player finishes using this target."
 ]
-@PointClass base(CBaseEntity,Parent,EnableDisable,Toggle) color(248 155 0) = point_proximity_sensor : "It records the distance between it and another entity."
+@PointClass base(CBaseEntity,Parent,EnableDisable,Toggle,Angles) color(248 155 0) = point_proximity_sensor : "It records the distance between it and another entity."
 [
 	spawnflags(flags) =
 	[
@@ -5788,10 +5736,10 @@
 	"Keyvalue format: <key> <value>\n" +
 	"IO format: <output name> <targetname>:<input name>:<parameter>:<delay>:<fire once>\n" +
 	"The parameter can be left blank, but do not omit either ':' surrounding it or the game will think the delay is the parameter! <fire once> is whether the IO event can be fired again. Put 0 to allow infinite refires, put 1 to make it only fire once ever."
-	input FireUser1(void) : "Fires the OnUser1 output."
-	input FireUser2(void) : "Fires the OnUser2 output."
-	input FireUser3(void) : "Fires the OnUser3 output."
-	input FireUser4(void) : "Fires the OnUser4 output."
+	input FireUser1(string) : "Fires the OnUser1 output. Bug: These inputs can pass a string parameter, but do nothing with it. If the input is sent from an output that automatically passes a non-string parameter (such as OnLessThan from logic_compare) the input will fail to send because the parameters types are incompatible. To work around this, place any placeholder text in the parameter box."
+	input FireUser2(string) : "Fires the OnUser2 output."
+	input FireUser3(string) : "Fires the OnUser3 output."
+	input FireUser4(string) : "Fires the OnUser4 output."
 	output OnUser1(void) : "Fires in response to the FireUser1 input."
 	output OnUser2(void) : "Fires in response to the FireUser2 input."
 	output OnUser3(void) : "Fires in response to the FireUser3 input."
