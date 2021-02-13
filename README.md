@@ -6,5 +6,5 @@ Progress:
 - **Counter-Strike: Source**: ✔ Removed 84 bad entities, added 20 new ones.
 - **Counter-Strike: Global Offensive**: ✔ Removed 108 bad entities, added 70 new ones.
 - **Portal 2**: ✔ Removed 147 bad entities, added 23 new ones.
-- **Left 4 Dead 2**: ✔ Removed 93 bad entities, added 17 new ones.
+- **Left 4 Dead 2**: ✔ Removed 94 bad entities, added 17 new ones.
 - **Half-Life 2**: ❌
