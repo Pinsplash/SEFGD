@@ -8,7 +8,7 @@
 //6. Open Counter-Strike Source/cstrike/gameinfo.txt and add these two lines (without the comment syntax)
 //	GameData "SECSS.fgd"
 //	InstancePath "maps/instances/"
-//Submit queries here: https://discord.gg/ZW59whj Even if you just have a question, it may help me improve this FGD.
+//Submit queries here: https://github.com/Pinsplash/SEFGD Even if you just have a question, it may help me improve this FGD.
 //Wanna help me out? Search "TODO:" in this file.
 //Derivatives are allowed to be made and distributed.
 @mapsize(-16384, 16384)
