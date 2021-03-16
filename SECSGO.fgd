@@ -5,7 +5,7 @@
 //3. Click 'Options'.
 //4. Select the files in the 'Game Data files' window and press 'Remove' to remove it from Hammer (the files will still exist on your computer, so you can put them back at any time).
 //5. Click 'Add' and browse to this file's location on your computer.
-//Submit queries here: https://discord.gg/ZW59whj Even if you just have a question, it may help me improve this FGD.
+//Submit queries here: https://github.com/Pinsplash/SEFGD Even if you just have a question, it may help me improve this FGD.
 //Wanna help me out? Search "TODO:" in this file.
 //Derivatives are allowed to be made and distributed.
 @mapsize(-16384, 16384)
