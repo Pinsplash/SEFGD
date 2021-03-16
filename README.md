@@ -2,7 +2,7 @@ This is a collection of brand new FGD files for Source engine games. Most of the
 
 They aren't perfect yet. Open an issue and tell me about any problems with them.
 
-#Progress
+# Progress
 * **Counter-Strike: Source**: ✔ Removed 84 bad entities, added 21 new ones.
 * **Counter-Strike: Global Offensive**: ✔ Removed 108 bad entities, added 71 new ones.
 * **Portal 2**: ✔ Removed 147 bad entities, added 24 new ones.
