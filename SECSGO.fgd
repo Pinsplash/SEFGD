@@ -1,5 +1,5 @@
 
-//To install this FGD:
+//To install this FGD: 
 //1. Open Hammer.
 //2. Click 'Tools'.
 //3. Click 'Options'.
@@ -161,6 +161,7 @@
 		"func_instance_io_proxy"
 		"func_instance_origin"
 		"func_instance_parms"
+		"func_proprrespawnzone"
 		"func_traincontrols"
 		"generic_actor"
 		"hammer_updateignorelist"
@@ -671,6 +672,7 @@
 	spawnflags(flags) =
 	[
 		1 : "Start constrained - Makes the weapon not move." : 0
+		2 : "Deny player pickup" : 0
 	]
 	input HideWeapon(void) : "If the weapon is being held by someone, hides the weapon's first person viewmodel. The weapon will reappear if they switch weapons."
 	output OnPlayerPickup(void) : "Fires when a player enter this weapon's pickup zone."
@@ -2944,6 +2946,9 @@
 	]
 	input Alpha(integer) : "If Precipitation Type is Rain, sets the density."
 ]
+@SolidClass base(CBaseEntity) = func_proprrespawnzone : "Clientside physics props that are placed in this brush in Hammer will automatically respawn in their original place if they get destroyed or moved. The props won't respawn if a player could see it happen or if they're too close."
+[
+]
 @SolidClass base(CFuncBrush) color(255 203 11) = func_reflective_glass : "Reflects the world in realtime. When looking at the entity, a player if first person will not see theirself correctly, so use of the entity is limited. Expect issues when other realtime surfaces like water are in the PVS. Use the texture glass/reflectiveglass001 from another Source game on the reflective side."
 [
 ]
@@ -3102,7 +3107,7 @@
 [
 	target(target_destination) : "Train Name" :  : "The train this entity is linked to. The entity also needs be parented to that train."
 ]
-@SolidClass color(0 180 0) = func_viscluster : "Its purpose is reducing the amount of time spent compiling by telling VVIS that all the visleaves in the volume can see each other. Poor use will result in decreased performance ingame. Avoid placing a func_viscluster through the surface of a water brush or touching func_areaportals as both tend to cause visual bugs and leaks."
+@SolidClass color(0 180 0) = func_viscluster : "Its purpose is reducing the amount of time spent compiling by telling VVIS that all the visleaves in the volume should be treated as one. If an outside leaf can see ANY clustered leaf, every leaf of that cluster will be in the PVS of that leaf. The reverse is also true; if any leaf in a cluster can see another leaf (including the ones inside the cluster) then every leaf in the cluster will see that leaf. Every leaf in the cluster will see every other one in the cluster. Poor use will result in decreased performance ingame. Avoid placing a func_viscluster through the surface of a water brush or touching areaportals as it can cause visual bugs and compile errors."
 [
 ]
 @SolidClass base(CFuncMoveLinear) = func_water_analog : "Can be used to make a water brush move. MUST use cheap water! There are bugs that may arise when parenting this entity to a func_movelinear or func_water_analog. A func_door can be used as a workaround."
@@ -4800,6 +4805,7 @@
 		13 : "Equipping ExoJump"
 		14 : "Picking up Bump Mine"
 		15 : "Picking up Item"
+		16 : "Placing Item"
 	]
 	longuseduration(float) : "Use Duration" : 1 : "How long the player has to hold use for."
 	soundstartuse(sound) : "Sound name" :  : "A sound to play when starting to use the entity."
