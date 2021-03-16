@@ -1,5 +1,5 @@
 
-//To install this FGD: 
+//To install this FGD:
 //1. Open Hammer.
 //2. Click 'Tools'.
 //3. Click 'Options'.
@@ -149,6 +149,7 @@
 		"env_entity_igniter"
 		"func_instance"
 		"func_instance_parms"
+		"func_proprrespawnzone"
 		"hammer_updateignorelist"
 		"info_elevator_floor"
 		"info_item_position"
@@ -3271,6 +3272,9 @@
 	maxSpeed(float) : "Maximum speed (Snowfall only)" : 35 : "Maximum speed Snowfall particles descend at."
 	input Alpha(integer) : "If Precipitation Type is Rain, sets the density."
 ]
+@SolidClass base(CBaseEntity) = func_proprrespawnzone : "Clientside physics props that are placed in this brush in Hammer will automatically respawn in their original place if they get destroyed or moved. The props won't respawn if a player could see it happen or if they're too close."
+[
+]
 @SolidClass base(CBaseEntity,Parent) color(0 180 0) = func_ragdoll_fader : "It makes ragdolls which touch it fade away, even clientside ones."
 [
 ]
@@ -3422,7 +3426,7 @@
 	input Start(void) : "Makes the entity start moving."
 	input Stop(void) : "Makes the entity stop moving."
 ]
-@SolidClass color(0 180 0) = func_viscluster : "Its purpose is reducing the amount of time spent compiling by telling VVIS that all the visleaves in the volume can see each other. Poor use will result in decreased performance ingame. Avoid placing a func_viscluster through the surface of a water brush or touching func_areaportals as both tend to cause visual bugs and leaks."
+@SolidClass color(0 180 0) = func_viscluster : "Its purpose is reducing the amount of time spent compiling by telling VVIS that all the visleaves in the volume should be treated as one. If an outside leaf can see ANY clustered leaf, every leaf of that cluster will be in the PVS of that leaf. The reverse is also true; if any leaf in a cluster can see another leaf (including the ones inside the cluster) then every leaf in the cluster will see that leaf. Every leaf in the cluster will see every other one in the cluster. Poor use will result in decreased performance ingame. Avoid placing a func_viscluster through the surface of a water brush or touching areaportals as it can cause visual bugs and compile errors."
 [
 ]
 @SolidClass base(CFuncMoveLinear) = func_water_analog : "Can be used to make a water brush move. MUST use cheap water! There are bugs that may arise when parenting this entity to a func_movelinear or func_water_analog. A func_door can be used as a workaround. Bug: Water cannot be swum in."
