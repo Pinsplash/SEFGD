@@ -1,5 +1,5 @@
 
-//To install this FGD: 
+//To install this FGD:
 //1. Open Hammer.
 //2. Click 'Tools'.
 //3. Click 'Options'.
@@ -209,6 +209,7 @@
 		"func_detail"
 		"func_occluder"
 		"func_viscluster"
+		"game_weapon_manager"
 	]
 	"Physics"// color(255 0 255)
 	[
@@ -461,6 +462,28 @@
 		"weapon_xm1014"
 		"weapon_zone_repulsor"
 	]
+	"Obsolete Entities"// color(255 232 79)
+	[
+		"cycler"
+		"env_dof_controller"
+		"env_tilt"
+		"func_conveyor"
+		"func_illusionary"
+		"func_ladderendpoint"
+		"func_lod"
+		"func_platrot"
+		"func_tanktrain"
+		"func_trackautochange"
+		"func_trackchange"
+		"func_useableladder"
+		"func_wall"
+		"func_wall_toggle"
+		"game_gib_manager"
+		"game_player_team"
+		"info_target_instructor_hint"
+		"info_view_parameters"
+		"phys_torque"
+	]
 ]
 
 //SE BASE SPECIAL CLASSES
@@ -616,6 +639,7 @@
 	hammerid(integer) : "Hammer ID" :  : "An ID (usually) automatically assigned to this entity by Hammer. Used by some debugging commands, such as ent_keyvalue. Entities spawned at run-time are not assigned any Hammer ID."
 	vscripts(scriptlist) : "Entity Scripts" :  : "VScript files the entity should execute after the world has completely loaded and all entities have spawned. The scripts are all executed in the same script scope, later ones overwriting any identical variables and functions."
 	thinkfunction(string) : "Script think function" :  : "Name of a function in this entity's scripts which will be called automatically ten times a second for the duration of the script. It can be used to create timers or to simulate autonomous behavior. The return value (if present) will set the time until the next call. Expensive operations in this function can cause performance problems."
+	ResponseContext(string) : "Response Contexts" :  : "Pre-defined response system contexts for this entity. https://developer.valvesoftware.com/wiki/Response_System Usually only NPCs respond this, but any entity can make use of it with filter_activator_context. Format is key:value,key:value,..."
 	input Kill(void) : "Removes this entity and any entities parented to it from the world."
 	input KillHierarchy(void) : "Functions the same as Kill, although this entity and any entities parented to it are killed on the same frame. TODO: Cases where this is needed?"
 	input AddOutput(string) : "Changes a keyvalue or adds an I/O connection on this entity. Not all keyvalues will work with this input as they require special handling.\n" +
@@ -629,6 +653,9 @@
 	input RunScriptFile(script) : "Executes a VScript file from disk, without file extension. The script contents are merged with the script scope of the receiving entity."
 	input RunScriptCode(string) : "Executes a VScript function in the scope of the entity receiving the input. String quotation may be needed when fired via console. Never try to pass string parameters to a script function with this input. It will minorly corrupt the VMF structure because of the nested quotation marks, which then must be removed manually with a text editor."
 	input SetLocalOrigin(string) : "Sends this entity to a spot in the map if not parented to anything. If the entity is parented to something, it will be offset from the parent by this amount."
+	input AddContext(string) : "Adds to the entity's list of Response Contexts. Format is key:value,key:value,..."
+	input RemoveContext(string) : "Removes a context from this entity's list. The name should match the key of an existing context."
+	input ClearContext(void) : "Removes all contexts from this entity's list."
 	output OnUser1(void) : "Fires in response to the FireUser1 input."
 	output OnUser2(void) : "Fires in response to the FireUser2 input."
 	output OnUser3(void) : "Fires in response to the FireUser3 input."
@@ -1055,7 +1082,6 @@
 		32 : "EndSparks (temporarily emits a sparks at ending point.)" : 0
 		64 : "Decal End (scorch mark where a damaging beam hits something. For env_beam see Decal Name.)" : 0
 	]
-	HDRColorScale(float) : "HDR color scale" : "1.0" : "Value to multiply sprite color by when running in HDR mode."
 	damage(integer) : "Damage/second" : 0 : "How much damage this beam does per second to things it hits when it is continually on, or instantaneously if it strikes. For continuous damage, the value should be greater than 10 or it may not work."
 	dissolvetype(boolean) : "Sparks on Damage" : 0 : "If this beam damages something, shows sparks on that entity."
 	input Width(float) : "Sets the radius of the beam (i.e. 1 = 2 world units total thickness)."
@@ -1156,6 +1182,10 @@
 ]
 @BaseClass base(CBaseEntity,VisibleBrush,Origin) = CFuncBrush 
 [
+	spawnflags(flags) =
+	[
+		2 : "Ignore player +USE - This entity is able to suck in +use inputs for no reason. Check this to make it stop." : 1
+	]
 	Solidity(choices) : "Solidity" : 0 : "Used to control the solidity/collision of these brushes." =
 	[
 		0 : "Toggle - The solidity can be toggled together with its visibility."
@@ -1250,7 +1280,7 @@
 		524288 : "Generate output on +USE (OnPlayerUse)" : 1
 		8388608 : "Prevent motion enable on player bump" : 0
 	]
-	massScale(float) : "Mass Scale" : 1 : "A scale multiplier for the object's mass. Use the convar sv_massreport 1 to see the actual mass of the object ingame."
+	massScale(float) : "Mass Scale" : 1 : "A scale multiplier for the object's mass. Use the convar sv_massreport 1 to see the actual mass of the object ingame. You can also use Override Parameters to set 'mass' to whatever you want."
 	Damagetype(choices) : "Impact Damage Type" : 0 : "Sets the 'sharpness' of the brush. Sharp objects are far more damaging." =
 	[
 		0 : "Blunt"
@@ -1497,7 +1527,7 @@
 		1 : "Doubling with forgiveness - Damage doubles until all hurtable entities have left the trigger for 3 seconds."
 	]
 	nodmgforce(boolean) : "Zero Damage Force" : 0 : "If yes, cancels any physics force the hurt entity might receive."
-	damagetype(choices) : "Damage Type" : 0 : "What kind of damage to do." =
+	damagetype(choices) : "Damage Type" : 0 : "What kind of damage to do. NOTE: If using Danger zone outside of Danger Zone mode, you must create five ambient_generics with the sounds #survival/creep_damage_01.wav to #survival/creep_damage_05.wav." =
 	[
 		0 : "Generic, barrel explosion"
 		1 : "Crush, impact from bumpmine jump"
@@ -1646,7 +1676,7 @@
 	maxweight(float) : "Maximum Weight" : 1 : "How strongly this entity should apply the effect. This is a decimal percent, e.g. 0.45 = 45%."
 	fadeInDuration(float) : "Lookup Fade In Duration" : 0 : "How long this color correction should take to fade in."
 	fadeOutDuration(float) : "Lookup Fade out Duration" : 0 : "How long this color correction should take to fade out."
-	filename(string) : "Lookup Table Filename" :  : "Filepath to the .raw being used."
+	filename(string) : "Lookup Table Filename" :  : "Filepath to the .raw being used. Example: materials/correction/cc_freeze_ct.raw"
 	exclusive(boolean) : "Exclusive" : 0 : "Makes all other color_correction entities be disabled if this one becomes active. This only applies when enabling and disabling correction entities (only one fog_volume can be active at a time, and there's no way to give one priority)."
 	input SetFadeInDuration(float) : "Sets Lookup Fade In Duration."
 	input SetFadeOutDuration(float) : "Sets Lookup Fade out Duration."
@@ -1952,7 +1982,7 @@
 	input Enable(void) : "Turns the entity on."
 	input Disable(void) : "Turns the entity off."
 ]
-@PointClass base(CBaseEntity) iconsprite("editor/fog_controller") color(255 203 11) sphere(fogstart) sphere(fogend) = env_fog_controller : "Creates fog in the air. Multiple may exist in one map in order to change settings at any time. The 3D Skybox fog levels set by the sky_camera parameters should correspond to your env_fog_controller settings. If there's more than one controller in the map, the one a player listens to can be changed by sending the player entity a SetFogController input."
+@PointClass base(CBaseEntity,Angles) iconsprite("editor/fog_controller") color(255 203 11) sphere(fogstart) sphere(fogend) = env_fog_controller : "Creates fog in the air. Multiple may exist in one map in order to change settings at any time. The 3D Skybox fog levels set by the sky_camera parameters should correspond to your env_fog_controller settings. If there's more than one controller in the map, the one a player listens to can be changed by sending the player entity a SetFogController input."
 [
 	spawnflags(flags) =
 	[
@@ -1966,7 +1996,7 @@
 	fogcolor(color255) : "Primary Fog Color" : "170 204 221" : "Fog Color."
 	fogcolor2(color255) : "Secondary Fog Color" : "170 204 221" : "Secondary Fog Color. If Fog Blend is disabled, this color will never appear."
 	fogblend(boolean) : "Fog Blend" : 0 : "Enables color blending between Primary Fog Color and Secondary Fog Color. When the viewer looks in the Primary Fog Direction, fog will appear as the Primary color. When looking away from the specified direction, fog appears as the Secondary color. If the camera is not pointed directly at or away from the direction, a blend of the two colors will result."
-	fogdir(vecline) : "Primary Fog Direction" : "1 0 0" : "Direction which the viewer camera is checked against to figure out the blend between the primary and secondary fog colors."
+	fogdir(vector) : "Primary Fog Direction" : "1 0 0" : "Direction which the viewer camera is checked against to figure out the blend between the primary and secondary fog colors."
 	use_angles(boolean) : "Use Angles for Fog Dir" : 0 : "Use Pitch Yaw Roll for the Fog Blend direction instead of Primary Fog Direction."
 	foglerptime(float) : "Interpolate time" : 5 : "Fade time for the StartFogTransition input."
 	ZoomFogScale(float) : "Zoom Fog Scale" : 1 : "Multiplies the fog start and end distances when the player is looking through a gun's scope (such as the AWP). Does not work with numbers below 1."
@@ -1996,7 +2026,7 @@
 	]
 	input Use(void) : "Emits the effect. Once it's done, the entity is automatically removed from the map."
 ]
-@PointClass base(CBaseEntity) color(248 155 0) = env_global : "Stores boolean info, even across rounds (logic_branch will reset). This also includes across maps."
+@PointClass base(CBaseEntity) color(248 155 0) = env_global : "Stores boolean info, even across rounds (logic_branch will reset). This also includes across maps. These can control if a logic_auto fires its outputs."
 [
 	spawnflags(flags) =
 	[
@@ -2064,9 +2094,9 @@
 		"weapon_taser" : "Zeus x27 (electric effects, max range 189 units)"
 	]
 ]
-@PointClass base(CBaseEntity) = env_hudhint : "It is used to display HUD hints. If there are multiple players, the message will only show to the !activator or the first player on the server."
+@PointClass base(CBaseEntity) color(255 203 11) = env_hudhint : "It is used to display HUD hints. If there are multiple players, the message will only show to the !activator or the first player on the server."
 [
-	message(string) : "Hint Text" :  : "This should be match a HUD hint entry in \resource\valve_english.txt or a similar file. Entering raw text can be done but will not allow the message to be translated between user languages."
+	message(string) : "Hint Text" :  : "This should be match a HUD hint entry in /resource/valve_english.txt or a similar file. Entering raw text can be done but will not allow the message to be translated between user languages."
 	input ShowHudHint(void) : "Shows the hint message."
 	input HideHudHint(void) : "Hides the hint message."
 ]
@@ -2511,18 +2541,18 @@
 		512 : "Directional" : 0
 	]
 	MaxDelay(string) : "Max Delay" : 0 : "The longest delay between sparks (in seconds). If this value is changed with AddOutput, the change will only take effect after the entity sparks again."
-	Magnitude(choices) : "Magnitude" : 1 : "The amount of the sparks." =
+	Magnitude(choices) : "Magnitude" : 1 : "The amount of the sparks. Any number may be entered here." =
 	[
-		1 : "Small"
-		2 : "Medium"
-		5 : "Large"
-		8 : "Huge"
+		1 : "Small (1)"
+		2 : "Medium (2)"
+		5 : "Large (5)"
+		8 : "Huge (8)"
 	]
-	TrailLength(choices) : "Spark Trail Length" : 1 : "Length of the spark trails." =
+	TrailLength(choices) : "Spark Trail Length" : 1 : "Length of the spark trails. Any number may be entered here." =
 	[
-		1 : "Short"
-		2 : "Medium"
-		3 : "Long"
+		1 : "Short (1)"
+		2 : "Medium (2)"
+		3 : "Long (3)"
 	]
 	input StartSpark(void) : "Start the spark effect."
 	input StopSpark(void) : "Stop the spark effect."
@@ -2904,7 +2934,7 @@
 	parm9(instance_parm) : "Parm" :  : "An instance parameter. The order they are defined in will have no effect. Put the $variable name in Variable. The Value is whatever type of value the parameter is. The Default is simply a default value for the variable if you don't define it in the func_instance."
 	parm10(instance_parm) : "Parm" :  : "An instance parameter. The order they are defined in will have no effect. Put the $variable name in Variable. The Value is whatever type of value the parameter is. The Default is simply a default value for the variable if you don't define it in the func_instance."
 ]
-@SolidClass base(CFuncBrush) color(255 203 11) = func_monitor : "It displays a real-time scene captured from a point_camera somewhere else in the world. For the entity to work, the surface(s) on which the camera view will be displayed must have a material with $basetexture _rt_Camera. Stock materials that work are dev\dev_combinemonitor* and dev\dev_tvmonitor*. Players are not rendered if they aren't visible to the viewing player after accounting for PVS, viewcone, and occlusion checks. Visual artifacts may appear if the camera can see a func_monitor."
+@SolidClass base(CFuncBrush) color(255 203 11) = func_monitor : "It displays a real-time scene captured from a point_camera somewhere else in the world. For the entity to work, the surface(s) on which the camera view will be displayed must have a material with $basetexture _rt_Camera. Stock materials that work are dev/dev_combinemonitor* and dev/dev_tvmonitor*. Players are not rendered if they aren't visible to the viewing player after accounting for PVS, viewcone, and occlusion checks. Visual artifacts may appear if the camera can see a func_monitor."
 [
 	target(target_destination) : "Camera name" :  : "The point_camera to render."
 	input SetCamera(target_destination) : "Changes Camera name."
@@ -3247,6 +3277,13 @@
 	output PressedAttack2(void) : "Fires when the player sends +attack2 (secondary attack)."
 	output UnpressedAttack2(void) : "Fires when the player sends -attack2."
 ]
+//CSGO has weapons drop fairly frequently, but killing them randomly would probably not be smart for gameplay, so treat as generic manager
+@PointClass base(CBaseEntity) color(0 180 0) = game_weapon_manager : "Counts how many of an entity are in the map. If it finds too many entities of one kind, it will delete old ones. It's intended as an optimization."
+[
+	weaponname(string) : "Entity Classname" :  : "Classname of the entity to monitor."
+	maxpieces(integer) : "Max Allowed in Level" :  : "How many entities of the specified type may be in the map at once."
+	input SetMaxPieces(integer) : "Sets Max Allowed in Level."
+]
 @SolidClass base(CBaseEntity,Parent) color(248 155 0) = game_zone_player : "It fires outputs depending on if any players (including spectators) are inside or outside its volume."
 [
 	input CountPlayersInZone(void) : "Tells the entity to count how many players are inside it, then fires the outputs which should fire."
@@ -3356,7 +3393,7 @@
 		2 : "Charge Enemy"
 		3 : "Defend Investigate"
 	]
-	bot_difficulty(integer) : "Bot Difficulty" : 0 : "Uncertain."
+	bot_difficulty(integer) : "Bot Difficulty" : 0 : "TODO: Uncertain."
 	is_agressive(boolean) : "Is aggressive?" : 0 : "Is the bot aggressive? TODO: What happens?"
 	hide_radius(float) : "Hide Radius" : 1000 : "Range around the spawn spot the bot will try to hide. Set to 0 to hold position and never try to hide."
 	behavior_tree_file(string) : "Behavior Tree File" :  : "The behavior tree file to use for this bot (empty means classic AI). Example: scripts/ai/coop/autumn/bt_guard.kv3 TODO: Is there any info on the internet about how behavior tree files work?"
@@ -3384,6 +3421,7 @@
 	usenormalspawnsfordm(boolean) : "Use Normal Spawns in Deathmatch?" : 0 : "Set to true if the map should use info_player_counterterrorist and info_player_terrorist instead of info_deathmatch_spawn in deathmatch."
 	disableautogenerateddmspawns(boolean) : "Disable Autogenerated DM Spawns?" : 0 : "If false, the game will create its own info_deathmatch_spawns which are used alongside ones placed in Hammer."
 	botmaxvisiondistance(float) : "Bot max vision distance" : -1 : "Sets the maximum distance bots can see enemies. Default is -1, meaning unlimited."
+	fadeplayervisibilityfarz(boolean) : "Fade Player Visibility" : 0 : "If players are using the Boost Player Contrast setting, this will lessen the effect on player models that are obscured by fog. This is necessary in very large maps where fog has gameplay and optimization purposes. If not used, players with Boost Player Contrast enabled will clearly see other players through fog. This setting has no relation to env_fog_controller's Far Z Clip Plane."
 	input FireWinCondition(integer) : "Makes the round end. Parameter is the visuals and sounds to use to signify the round ended.\n" +
 	"1: Terrorists win\n" +
 	"5: CTs win\n" +
@@ -3537,6 +3575,7 @@
 [
 	texture(decal) : "Texture" :  : "The texture to apply."
 	LowPriority(boolean) : "Low Priority (can be replaced)" : 0 : "Sets if this decal can be deleted for performance reasons if the map has a lot of decals in it."
+	ApplyEntity(target_destination) : "Apply Entity" :  : "An optional entity to apply the decal to. If this is empty, the decal will locate the entity by tracing. This might be useful if the decal is close to multiple things and isn't applying how you want."
 	input Activate(void) : "Applies the decal, then removes the infodecal entity."
 ]
 @PointClass base(CBaseAnimating) studio("models/props_survival/cash/prop_cash_stack.mdl") color(160 37 240) = item_cash : "Cash pickup."
@@ -3624,9 +3663,9 @@
 	input TurnOn(void) : "Turns the light on."
 	input TurnOff(void) : "Turns the light off."
 ]
-@PointClass base(CLight,Angles) iconsprite("editor/light_env") color(160 240 37) = light_environment : "It makes light come from skybox tool textures in the map in order to simulate sunlight. Only one can be used in a map. Multiple 'sunlights' can be made with light_directional. Unless the entity is given a targetname, it will remove itself upon spawning because the game no longer needs it for anything. Named lights are toggleable and can take inputs but do a simpler light calculation and lightmap pieces are limited to up to 2 toggled lights shining on them at once."
+@PointClass base(CLight,Angles) iconsprite("editor/light_env") color(160 240 37) = light_environment : "It makes light come from skybox tool textures in the map in order to simulate sunlight. Only one can be used in a map. Multiple 'sunlights' can be made with light_directional. Unless the entity is given a targetname, it will remove itself upon spawning because the game no longer needs it for anything. Named lights are toggleable and can take inputs but do a simpler light calculation and lightmap pieces are limited to up to 2 toggled lights shining on them at once. NOTE: The pitch value (whether from Pitch or Pitch Yaw Roll) is inverse of the regular one, so -90 is straight down. Also, the roll value means nothing."
 [
-	pitch(integer) : "Pitch" : -57 : "Overrides the pitch in Pitch Yaw Roll. VRAD ignores the regular one, so it must be specified. Note that this pitch is the negative of the regular one, so -90 is straight down. Both pitch values should be opposites."
+	pitch(integer) : "Pitch" : -57 : "If used, overrides the pitch in Pitch Yaw Roll. This is entirely useless."
 	_ambient(color255) : "Ambient" : "255 255 255 20" : "Color and intensity of the ambient light. Ambient light is added on all surfaces which have LOS to a skybox brush, without any regard for the sunlight's angle."
 	SunSpreadAngle(float) : "Sun Spread Angle" : 0 : "How much the angles of the light particles can vary to simulate a penumbra effect. The lightmap scale of the brushes which light falls on also determines how blurry the shadows look."
 ]
@@ -4453,7 +4492,7 @@
 [
 	input GiveAmmo(void) : "Refills the activator's ammo."
 ]
-@PointClass base(CBaseEntity,Parent) = point_hiding_spot : "In coop, bots can hide near this entity."
+@PointClass base(CBaseEntity,Parent) = point_hiding_spot : "Bots will understand the area near this entity to be a good hiding spot and an ideal sniper spot. TODO: How large of an area does it affect?"
 [
 ]
 @PointClass base(CBaseEntity,Parent,Toggle) sphere(DamageRadius) color(0 255 255) = point_hurt : "It damages things inside a radius."
@@ -4893,34 +4932,34 @@
 @PointClass base(CPhysicsPropMultiplayer) color(160 37 240) studio("models/props_survival/upgrades/upgrade_heavy_armor.mdl") = prop_weapon_refill_heavyarmor : "Gives or refills a player's heavy armor. If not used in coop, it gives old-style heavy armor."
 [
 ]
-@PointClass base(CPhysicsPropMultiplayer) color(160 37 240) studio("models/props_survival/upgrades/upgrade_dz_armor.mdl") = prop_weapon_upgrade_armor : "When touched, it gives or refills a player's armor."
+@PointClass base(CPhysicsPropMultiplayer) color(160 37 240) studio("models/props_survival/upgrades/upgrade_dz_armor.mdl") = prop_weapon_upgrade_armor : "When touched, it gives or refills a player's armor. WARNING: If used outside of Danger Zone, the pickup sound will not play unless you add an ambient_generic with the sound survival/armor_pickup_01.wav."
 [
 ]
-@PointClass base(CPhysicsPropMultiplayer) color(160 37 240) studio("models/props_survival/upgrades/upgrade_dz_armor_helmet.mdl") = prop_weapon_upgrade_armor_helmet : "When touched, it gives or refills a player's armor and gives them a helmet. Can only be used in danger zone (otherwise it crashes the game)."
+@PointClass base(CPhysicsPropMultiplayer) color(160 37 240) studio("models/props_survival/upgrades/upgrade_dz_armor_helmet.mdl") = prop_weapon_upgrade_armor_helmet : "When touched, it gives or refills a player's armor and gives them a helmet. WARNING: If using outside of Danger Zone, you must make a prop_dynamic_override with the model models/props_survival/upgrades/upgrade_dz_armor_helmet.mdl, an ambient_generic with the sound survival/armor_pickup_01.wav, and spawn this entity via point_template."
 [
 ]
-@PointClass base(CPhysicsPropMultiplayer) color(160 37 240) studio("models/props_survival/upgrades/parachutepack.mdl") = prop_weapon_upgrade_chute : "Equippable parachute. Usually made through point_dz_parachute. Crashes the game outside of danger zone."
+@PointClass base(CPhysicsPropMultiplayer) color(160 37 240) studio("models/props_survival/upgrades/parachutepack.mdl") = prop_weapon_upgrade_chute : "Equippable parachute. Usually made through point_dz_parachute. WARNING: If using outside of Danger Zone, you must make a prop_dynamic_override with the model models/props_survival/upgrades/parachutepack.mdl, two ambient_generics with the sounds survival/parachute_pickup_start_01.wav and survival/parachute_pickup_success_01.wav, and spawn this entity via point_template."
 [
 ]
-@PointClass base(CPhysicsPropMultiplayer) color(160 37 240) studio("models\props_survival\briefcase\briefcase.mdl") = prop_weapon_upgrade_contractkill : "Contract briefcase from danger zone. Can only be used in danger zone (otherwise it crashes the game)."
+@PointClass base(CPhysicsPropMultiplayer) color(160 37 240) studio("models/props_survival/briefcase/briefcase.mdl") = prop_weapon_upgrade_contractkill : "Contract briefcase from danger zone. WARNING: If using outside of Danger Zone, you must make a prop_dynamic_override with the model models/props_survival/briefcase/briefcase.mdl, two ambient_generics with the sounds ~survival/briefcase_open_success_01.wav and ~survival/briefcase_unlocking_01.wav, and spawn this entity via point_template."
 [
 ]
-@PointClass base(CPhysicsPropMultiplayer) color(160 37 240) studio("models\props_survival\upgrades\exojump.mdl") = prop_weapon_upgrade_exojump : "Equippable exojumps. Can only be used in danger zone (otherwise it crashes the game)."
+@PointClass base(CPhysicsPropMultiplayer) color(160 37 240) studio("models/props_survival/upgrades/exojump.mdl") = prop_weapon_upgrade_exojump : "Equippable exojumps. WARNING: If using outside of Danger Zone, you must make a prop_dynamic_override with the model models/props_survival/upgrades/exojump.mdl, two ambient_generics with the sounds survival/parachute_pickup_start_01.wav and survival/armor_pickup_01.wav, and spawn this entity via point_template."
 [
 ]
-@PointClass base(CPhysicsPropMultiplayer) color(160 37 240) studio("models\props_survival\upgrades\upgrade_dz_helmet.mdl") = prop_weapon_upgrade_helmet : "When touched, gives a player a helmet and 5 armor. Can only be used in danger zone (otherwise it crashes the game)."
+@PointClass base(CPhysicsPropMultiplayer) color(160 37 240) studio("models/props_survival/upgrades/upgrade_dz_helmet.mdl") = prop_weapon_upgrade_helmet : "When touched, gives a player a helmet and 5 armor. WARNING: If using outside of Danger Zone, you must make a prop_dynamic_override with the model models/props_survival/upgrades/upgrade_dz_helmet.mdl, an ambient_generic with the sound survival/armor_pickup_01.wav, and spawn this entity via point_template."
 [
 ]
-@PointClass base(CPhysicsPropMultiplayer) color(160 37 240) studio("models\props_survival\upgrades\upgrade_tablet_drone.mdl") = prop_weapon_upgrade_tablet_droneintel : "Equippable drone intel tablet upgrade. Can only be used in danger zone (crashes the game in other modes)."
+@PointClass base(CPhysicsPropMultiplayer) color(160 37 240) studio("models/props_survival/upgrades/upgrade_tablet_drone.mdl") = prop_weapon_upgrade_tablet_droneintel : "Equippable drone intel tablet upgrade. WARNING: If using outside of Danger Zone, you must make a prop_dynamic_override with the model models/props_survival/upgrades/upgrade_tablet_drone.mdl, two ambient_generics with the sounds ~survival/tablet_upgradestart_01.wav and ~survival/tablet_pickup_sdcard_01.wav, and spawn this entity via point_template."
 [
 ]
-@PointClass base(CPhysicsPropMultiplayer) color(160 37 240) studio("models\props_survival\upgrades\upgrade_tablet_hires.mdl") = prop_weapon_upgrade_tablet_highres : "Equippable high-res tablet upgrade. Can only be used in danger zone (crashes the game in other modes)."
+@PointClass base(CPhysicsPropMultiplayer) color(160 37 240) studio("models/props_survival/upgrades/upgrade_tablet_hires.mdl") = prop_weapon_upgrade_tablet_highres : "Equippable high-res tablet upgrade. WARNING: If using outside of Danger Zone, you must make a prop_dynamic_override with the model models/props_survival/upgrades/upgrade_tablet_hires.mdl, two ambient_generics with the sounds ~survival/tablet_upgradestart_01.wav and ~survival/tablet_pickup_sdcard_01.wav, and spawn this entity via point_template."
 [
 ]
-@PointClass base(CPhysicsPropMultiplayer) color(160 37 240) studio("models\props_survival\upgrades\upgrade_tablet_zone.mdl") = prop_weapon_upgrade_tablet_zoneintel : "Equippable zone intel tablet upgrade. Can only be used in danger zone (crashes the game in other modes)."
+@PointClass base(CPhysicsPropMultiplayer) color(160 37 240) studio("models/props_survival/upgrades/upgrade_tablet_zone.mdl") = prop_weapon_upgrade_tablet_zoneintel : "Equippable zone intel tablet upgrade. WARNING: If using outside of Danger Zone, you must make a prop_dynamic_override with the model models/props_survival/upgrades/upgrade_tablet_zone.mdl and spawn this entity via point_template."
 [
 ]
-@PointClass base(CPhysicsPropMultiplayer) color(0 255 0) studio("models\props_survival\jammer\jammer.mdl") = radar_jammer : "Danger zone radar jammer. Can only be used in danger zone (crashes the game in other modes)."
+@PointClass base(CPhysicsPropMultiplayer) color(0 255 0) studio("models/props_survival/jammer/jammer.mdl") = radar_jammer : "Danger zone radar jammer. WARNING: If using outside of Danger Zone, you must make a prop_dynamic_override with the model models/props_survival/jammer/jammer.mdl and spawn this entity via point_template."
 [
 ]
 @PointClass base(CBaseEntity,Angles) color(255 203 11) = sky_camera : "It is used to mark the position of the map's origin inside 3D skyboxes. As your position changes relative to the map's origin it will be scaled and applied relative to the sky_camera. Multiple/moving 3D skyboxes are possible. More info here https://tf2maps.net/threads/multiple-3d-skyboxes.35829"
@@ -4933,7 +4972,7 @@
 	fogcolor(color255) : "Primary Fog Color" : "136 158 166" : "Fog Color."
 	fogcolor2(color255) : "Secondary Fog Color" : "255 255 255" : "Secondary Fog Color. If Fog Blend is disabled, this color will never appear."
 	fogblend(boolean) : "Fog Blend" : 0 : "Enables color blending between Primary Fog Color and Secondary Fog Color. When the viewer looks in the Primary Fog Direction, fog will appear as the Primary color. When looking away from the specified direction, fog appears as the Secondary color. If the camera is not pointed directly at or away from the direction, a blend of the two colors will result."
-	fogdir(vecline) : "Primary Fog Direction" : "1 0 0" : "An angle which the viewer camera is checked against to figure out the blend between the primary and secondary fog colors."
+	fogdir(vector) : "Primary Fog Direction" : "1 0 0" : "An angle which the viewer camera is checked against to figure out the blend between the primary and secondary fog colors."
 	use_angles(boolean) : "Use Angles for Fog Dir" : 0 : "Use Pitch Yaw Roll for the Fog Blend direction instead of Primary Fog Direction."
 ]
 @PointClass base(CBaseEntity) color(0 255 255) = skybox_swapper : "It precaches an alternate skybox material and swaps it with the current one on command by changing the sv_skyname convar."
@@ -5423,4 +5462,63 @@
 	output OnUser2(void) : "Fires in response to the FireUser2 input."
 	output OnUser3(void) : "Fires in response to the FireUser3 input."
 	output OnUser4(void) : "Fires in response to the FireUser4 input."
+]
+
+//SE OBSOLETES
+@PointClass base(CBaseAnimating) color(255 232 79) iconsprite("editor/obsolete") = cycler : "OBSOLETE: You shouldn't use this entity, though it may appear in other people's maps. This entity was used in Half-Life for models, so replace it with a prop_ entity."
+[
+]
+@PointClass base(CBaseEntity) color(255 232 79) iconsprite("editor/obsolete") = env_dof_controller : "OBSOLETE: You shouldn't use this entity, though it may appear in other people's maps. This entity never works."
+[
+]
+@PointClass base(CBaseEntity) color(255 232 79) iconsprite("editor/obsolete") = env_tilt : "OBSOLETE: You shouldn't use this entity, though it may appear in other people's maps. This entity never works."
+[
+]
+@SolidClass base(CBaseEntity,VisibleBrush) color(255 232 79) iconsprite("editor/obsolete") = func_conveyor : "OBSOLETE: You shouldn't use this entity, though it may appear in other people's maps. It's a conveyor belt that looks like trash. You should use a prop and a trigger_push instead. This entity is known to cause hitbox issues."
+[
+]
+@SolidClass base(CBaseEntity,VisibleBrush) color(255 232 79) iconsprite("editor/obsolete") = func_illusionary : "OBSOLETE: You shouldn't use this entity, though it may appear in other people's maps. This entity was used in Half-Life for non-solid brushes. Use func_brush instead."
+[
+]
+@PointClass base(CBaseEntity,VisibleBrush) color(255 232 79) iconsprite("editor/obsolete") = func_ladderendpoint : "OBSOLETE: You shouldn't use this entity, though it may appear in other people's maps. This entity does nothing in CSGO."
+[
+]
+@SolidClass base(CBaseEntity,VisibleBrush) color(255 232 79) iconsprite("editor/obsolete") = func_lod : "OBSOLETE: You shouldn't use this entity, though it may appear in other people's maps. This entity used to be needed as an optimization which would fade brushes away when not near them. This is no longer useful as checking the distance from camera to brush, and rendering the brush translucently, is slower than drawing the brush opaquely as world/detail."
+[
+]
+@SolidClass base(CBaseEntity,VisibleBrush) color(255 232 79) iconsprite("editor/obsolete") = func_platrot : "OBSOLETE: You shouldn't use this entity, though it may appear in other people's maps. This entity was used in Half-Life for brushes that could rotate while moving up and down at the same time, so use func_tracktrain instead."
+[
+]
+@SolidClass base(CBaseEntity,VisibleBrush) color(255 232 79) iconsprite("editor/obsolete") = func_tanktrain : "OBSOLETE: You shouldn't use this entity, though it may appear in other people's maps. This entity is buggy. You should really use func_tracktrain instead."
+[
+]
+@SolidClass base(CBaseEntity,VisibleBrush) color(255 232 79) iconsprite("editor/obsolete") = func_trackautochange : "OBSOLETE: You shouldn't use this entity, though it may appear in other people's maps. This entity was used in Half-Life for platforms that carry a func_tracktrain to another track. You should use another func_tracktrain instead."
+[
+]
+@SolidClass base(CBaseEntity,VisibleBrush) color(255 232 79) iconsprite("editor/obsolete") = func_trackchange : "OBSOLETE: You shouldn't use this entity, though it may appear in other people's maps. This entity was used in Half-Life for platforms that carry a func_tracktrain to another track. You should use another func_tracktrain instead."
+[
+]
+@PointClass base(CBaseEntity,VisibleBrush) color(255 232 79) iconsprite("editor/obsolete") = func_useableladder : "OBSOLETE: You shouldn't use this entity, though it may appear in other people's maps. This entity does nothing in CSGO."
+[
+]
+@SolidClass base(CBaseEntity,VisibleBrush) color(255 232 79) iconsprite("editor/obsolete") = func_wall : "OBSOLETE: You shouldn't use this entity, though it may appear in other people's maps. This entity was basically Half-Life's version of func_brush. Use func_brush instead."
+[
+]
+@SolidClass base(CBaseEntity,VisibleBrush) color(255 232 79) iconsprite("editor/obsolete") = func_wall_toggle : "OBSOLETE: You shouldn't use this entity, though it may appear in other people's maps. This entity was basically Half-Life's version of func_brush. Use func_brush instead."
+[
+]
+@PointClass base(CBaseEntity) color(255 232 79) iconsprite("editor/obsolete") = game_gib_manager : "OBSOLETE: You shouldn't use this entity, though it may appear in other people's maps. This entity is a pointlessly excessive optimization technique. It limits how many gibs there can be on the map. Gibs almost always clean themselves up after a certain amount of time."
+[
+]
+@PointClass base(CBaseEntity) color(255 232 79) iconsprite("editor/obsolete") = game_player_team : "OBSOLETE: You shouldn't use this entity, though it may appear in other people's maps. This entity does not work."
+[
+]
+@PointClass base(CBaseEntity) color(255 232 79) iconsprite("editor/obsolete") = info_target_instructor_hint : "OBSOLETE: You shouldn't use this entity, though it may appear in other people's maps. This entity can be replaced with an info_target that always transmits to clients."
+[
+]
+@PointClass base(CBaseEntity) color(255 232 79) iconsprite("editor/obsolete") = info_view_parameters : "OBSOLETE: You shouldn't use this entity, though it may appear in other people's maps. This entity does nothing."
+[
+]
+@PointClass base(CBaseEntity) color(255 232 79) iconsprite("editor/obsolete") = phys_torque : "OBSOLETE: You shouldn't use this entity, though it may appear in other people's maps. It spins things. Use phys_motor or phys_thruster instead, which offer more options for the same function."
+[
 ]
