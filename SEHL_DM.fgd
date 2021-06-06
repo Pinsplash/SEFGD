@@ -1,0 +1,210 @@
+
+//To install this FGD: 
+//1. Open Hammer for Half-Life 2: Deathmatch.
+//2. Click 'Tools'.
+//3. Click 'Options'.
+//4. Select the files in the 'Game Data files' window and press 'Remove' to remove it from Hammer (the files will still exist on your computer, so you can put them back at any time).
+//5. Click 'Add' and browse to this file's location on your computer.
+//6. Put SEHL_base.fgd in the same folder you put this file in.
+//7. Stuff for NPCs (and other stuff that you would normally only use in singleplayer) isn't included by default, but is somewhat functional and can be added easily. If you want it, put SEHL_HL2.fgd in the same folder you put this file in, then remove the // from this line below: "//@include "SEHL_HL2.fgd""
+//Submit queries here: https://github.com/Pinsplash/SEFGD Even if you just have a question, it may help me improve this FGD.
+//Wanna help me out? Search "TODO:" in this file.
+//Derivatives are allowed to be made and distributed.
+@include "SEHL_base.fgd"
+//@include "SEHL_HL2.fgd"
+@mapsize(-16384, 16384)
+//SE BASE SPECIAL CLASSES
+
+//SE BASE CLASSES
+
+//SE ENTITIES
+@FilterClass base(CBaseFilter) iconsprite("editor/filter_team") color(248 155 0) = filter_activator_team : "Filter that checks which team a player is on."
+[
+	filterteam(choices) : "Filter Team Number" : 0 : "The team number to filter by." =
+	[
+		0 : "Any"
+		2 : "Combine"
+		3 : "Rebels"
+	]
+]
+@SolidClass base(CPhysBox) color(255 0 255) = func_physbox_multiplayer : "A version of func_physbox that works better when in multiplayer maps. It has optimizations which make it easier to network than func_physbox, though it can appear to move differently."
+[
+]
+@SolidClass base(CBaseEntity) = func_proprrespawnzone : "Clientside physics props that are placed in this brush in Hammer will automatically respawn in their original place if they get destroyed or moved. The props won't respawn if a player could see it happen or if they're too close."
+[
+]
+@SolidClass base(CFuncTank) color(160 37 240) = func_tank : "Immobile, fully-controllable gun. Used for mounted guns."
+[
+	effecthandling(choices) : "Effect Handling" : 0 : "What bullet effects to show." =
+	[
+		0 : "Use Individual Settings - See Bullets."
+		1 : "AR2"
+		2 : "Combine Cannon"
+	]
+	bullet(choices) : "Bullets" : 3 : "What kind of bullets to shoot." =
+	[
+		0 : "None"
+		1 : "Pistol"
+		2 : "SMG1"
+		3 : "AR2"
+	]
+]
+@PointClass base(CBaseEntity) color(0 255 0) = game_score : "Manually gives points to players and teams."
+[
+	spawnflags(flags) =
+	[
+		1 : "Allow Negative - If Points to add is negative, allow player score to go lower than 0. No effect on whole team." : 1
+		2 : "Team Points - Applies score change to the entire team. (The big number at the top of the scoreboard.)" : 0
+	]
+	points(integer) : "Points to add (+/-)" : 1 : "How many points to add or subtract."
+	input ApplyScore(void) : "Applies the score change to the input's !activator (or the activator's team)."
+]
+@SolidClass base(CBaseEntity,Parent) color(248 155 0) = game_zone_player : "It fires outputs depending on if any players (including spectators) are inside or outside its volume."
+[
+	input CountPlayersInZone(void) : "Tells the entity to count how many players are inside it, then fires the outputs which should fire."
+	output OnPlayerInZone(void) : "Fires once for every player found in the zone when the input is sent. !activator is that player."
+	output OnPlayerOutZone(void) : "Fires once for every player found outside the zone when the input is sent. !activator is that player."
+	output PlayersInCount(integer) : "Fires when the CountPlayersInZone input is sent. Automatically puts the number of players inside the zone as the input parameter, unless overridden by the mapper."
+	output PlayersOutCount(integer) : "Fires when the CountPlayersInZone input is sent. Automatically puts the number of players outside the zone as the input parameter, unless overridden by the mapper."
+]
+@PointClass base(CBaseEntity,Parent,Angles) studio("models/editor/playerstart.mdl") color(0 255 0) = info_player_combine : "When mp_teamplay 1, Combine players spawn here."
+[
+]
+@PointClass base(CBaseEntity,Parent,Angles) studio("models/editor/playerstart.mdl") color(0 255 0) = info_player_deathmatch : "It's a spot that a player can spawn at in teamless (FFA) deathmatch. It is also used when mp_teamplay 1 if no info_player_combines or info_player_rebels are found."
+[
+]
+@PointClass base(CBaseEntity,Parent,Angles) studio("models/editor/playerstart.mdl") color(0 255 0) = info_player_rebel : "When mp_teamplay 1, Rebel players spawn here."
+[
+]
+@PointClass base(CBaseAnimating) studio("models/props_combine/suit_charger001.mdl") color(160 37 240) = item_suitcharger : "Combine power supply."
+[
+	spawnflags(flags) =
+	[
+		8192 : "Citadel recharger - Overcharges up to 200 power and gives health. Can give up to 500 power." : 0
+		16384 : "Kleiner's recharger - Gives only 25 power." : 0
+	]
+	output OnPlayerUse(void) : "Fires when a player takes power from the charger."
+	output OnFull(void) : "Fires when the charger is set back to full health."
+	output OnHalfEmpty(void) : "Fires when the charger is half full."
+	output OnEmpty(void) : "Fires when the charger is completely used."
+	output OutRemainingCharge(float) : "Fires every time a point of power is taken from the charger. Automatically puts the remaining charge as a decimal as the input parameter, unless overridden by the mapper."
+]
+@PointClass base(CBaseEntity) iconsprite("editor/logic_auto") color(248 155 0) = logic_auto : "Fires outputs automatically."
+[
+	spawnflags(flags) =
+	[
+		1 : "Remove on fire - Removes the entity after firing outputs. Delayed inputs will work." : 1
+	]
+	globalstate(choices) : "Global State to Read" :  : "A global state (env_global) which must be set to 'On' in order for this entity to fire any outputs. Options are not limited to these and any text may be entered." =
+	[
+		"" : "--- None ---"
+		"gordon_precriminal" : "Gordon pre-criminal"
+		"antlion_allied" : "Antlions are player allies"
+		"suit_no_sprint" : "Suit sprint function not yet enabled"
+		"super_phys_gun" : "Super phys gun is enabled"
+		"friendly_encounter" : "Friendly encounter sequence (lower weapons, etc.)"
+		"gordon_invulnerable" : "Gordon is invulnerable"
+		"no_seagulls_on_jeep" : "Don't spawn seagulls on the jeep"
+		"is_console" : "Game is running on a console"
+		"is_pc" : "Game is running on a PC"
+	]
+	output OnMapSpawn(void) : "Fires when the server loads the map and once at the start of every round/reset."
+	output OnNewGame(void) : "Fires when the server loads the map and once at the start of every round/reset."
+	output OnBackgroundMap(void) : "Fires when the map is loaded as a background map (map_background command)."
+	output OnMultiNewMap(void) : "Fires when the server loads the map and once at the start of every round."
+]
+@PointClass base(CBaseAnimating) studio("models/Weapons/w_slam.mdl") color(160 37 240) = npc_satchel : "A SLAM that's been thrown. Since it isn't controlled by a player, can't be set off unless shot or sent its Explode input."
+[
+	input Explode(void) : "Makes the SLAM explode. Note: There is usually a 0.2 second delay on SLAM explosions."
+]
+@PointClass base(CBaseAnimating) studio("models/Weapons/w_slam.mdl") color(160 37 240) = npc_tripmine : "Planted SLAM. Pitch Yaw Roll does not match the direction the beam will go. It will go in the direction that the front side of the model faces."
+[
+]
+@PointClass base(CBaseEntity,Parent,RenderColor,Angles) studio("models/editor/cone_helper.mdl") color(160 240 37) = point_spotlight : "It's a lighting effect that either shows a beam or a halo, depending on where the viewer is."
+[
+	spawnflags(flags) =
+	[
+		1 : "Start On" : 1
+		2 : "No Dynamic Light - Does not emit real-time lighting affecting the brightness of props and world geometry." : 1
+	]
+	IgnoreSolid(choices) : "Ignore Solid" : 0 : "If not set, the beam will automatically shorten itself upon hitting a solid surface to avoid going through it." =
+	[
+		0 : "No"
+		1 : "Yes"
+	]
+	spotlightlength(float) : "Spotlight Length" : 200 : "Length of the spotlight beam and dynamic light."
+	spotlightwidth(float) : "Spotlight Width" : 50 : "Width of the spotlight beam and dynamic light."
+	input LightOn(void) : "Turns the light on."
+	input LightOff(void) : "Turns the light off."
+	output OnLightOn(void) : "Fires when the light turns on. Bug: Stops firing if the entity has or had a parent."
+	output OnLightOff(void) : "Fires when the light turns off."
+]
+@PointClass base(CPhysicsProp) studioprop() sphere(fademindist) sphere(fademaxdist) color(255 0 255) = prop_physics_multiplayer : "A version of prop_physics which can cut down on network traffic generated by moving props."
+[
+	physicsmode(choices) : "Physics Mode" : 0 : "How the prop should move and behave." =
+	[
+		0 : "Auto Detect - Lets game decide based on size and mass."
+		1 : "Solid, Server-side - Solid, looks and acts normal."
+		2 : "Solid, Server-side - Same as above."
+		3 : "Non-Solid, Client-side - Non-solid, position may desynchronize between players. Does not generate network traffic when moving."
+	]
+]
+@PointClass base(CPhysicsProp) studioprop() sphere(fademindist) sphere(fademaxdist) color(255 0 255) = prop_physics_respawnable : "A model that moves around realistically. It can respawn when broken."
+[
+	RespawnTime(float) : "Respawn Time" : 60 : "How long to wait before respawning."
+]
+@PointClass base(Model,Angles,FadeKeys) color(255 203 11) sphere(fademindist) sphere(fademaxdist) studioprop() = prop_static : "It adds a model to the world which cannot move or animate. Static props are less expensive than other model entities. Models with $bumpmapped materials are never lit per-vertex. Up to 4096 prop_statics can be in a map. Models will work with this entity only if the 'static' box is checked inside the model browser. Alternatives are a prop_physics with motion disabled and a prop_dynamic that simply sits there and does nothing (though, the lighting might not be the same)."
+[
+	fadescale(float) : "Fade Scale" : 1 : "If specified in the worldspawn, or if the game is running below DirectX 8, entities will fade out even if the Start/End Fade Distance keyvalues aren't specified. This value gives more control over when this happens: numbers smaller than 1 cause the entity to fade out farther away, and greater than 1 cause it to fade out at closer distances. Using 0 turns off the forced fade altogether. See also $noforcedfade."
+	skin(integer) : "Skin" : 0 : "Some models have multiple skins. This value selects from the index, starting with 0."
+	solid(choices) : "Collisions" : 6 : "Method of collision for this entity." =
+	[
+		0 : "None"
+		2 : "Bounding Box"
+		6 : "VPhysics"
+	]
+	disableshadows(choices) : "Disable Shadows" : 0 : "Prevents this entity from creating lightmap shadows." =
+	[
+		0 : "No"
+		1 : "Yes"
+	]
+	screenspacefade(choices) : "Screen Space Fade" : 0 : "Method for judging when the prop should fade in and out of transparency. If 'Yes', Start Fade Distance and End Fade Distance will be a measure of pixels instead of world units. TODO: Does this really measure pixels, or is there some math in between?" =
+	[
+		0 : "No (Determine by distance from object in world units.)"
+		1 : "Yes (Determine by prop size on screen, in pixels.)"
+	]
+	lightingorigin(target_destination) : "Lighting Origin" :  : "An info_lighting from which to sample lighting and cubemaps."
+	disablevertexlighting(choices) : "Disable Vertex lighting" : 0 : "Makes the model be lit solely by the amount of light that hits the origin. This is a small but good optimization for props that are already evenly lit." =
+	[
+		0 : "No"
+		1 : "Yes"
+	]
+	disableselfshadowing(choices) : "Disable Self-Shadowing with vertex lighting" : 0 : "Prop will not cast shadows on itself when per-vertex lighting is calculated. Good for foliage and trees." =
+	[
+		0 : "No"
+		1 : "Yes"
+	]
+	ignorenormals(choices) : "Ignore surface normal for computing vertex lighting" : 0 : "Makes light ignore the angle it hits the side of the prop at. This allows for paper-thin props like grass to be lit evenly on both sides." =
+	[
+		0 : "No"
+		1 : "Yes"
+	]
+	generatelightmaps(choices) : "Generate (and use) lightmaps for this static prop" : 0 : "Tell this prop to generate UV-based lightmaps. Be wary of increased file size and compile time. See here for a guide on using https://tf2maps.net/threads/guide-prop-lightmaps.24682/#post-330133. Requires -staticproplighting for $light_exe in the advanced compile window. BUG: This setting doesn't work on models with multiple skins." =
+	[
+		0 : "No"
+		1 : "Yes"
+	]
+	lightmapresolutionx(integer) : "Lightmap Resolution X" : 32 : "If generating lightmaps, the resolution of the lightmap in the X (U) direction. Higher values will make lightmapping more accurate."
+	lightmapresolutiony(integer) : "Lightmap Resolution Y" : 32 : "If generating lightmaps, the resolution of the lightmap in the Y (V) direction. Higher values will make lightmapping more accurate."
+]
+@SolidClass base(CBaseTrigger) color(255 0 255) = trigger_apply_impulse : "It pushes objects inside it when told to, much like a trigger_push with 'Once Only' checked."
+[
+	impulse_dir(angle) : "Impulse Direction" :  : "Angle to push objects in."
+	force(float) : "Impulse Force" :  : "Force to push objects with."
+	input ApplyImpulse(void) : "Applies the force."
+]
+@PointClass base(CBaseCombatWeapon) studio("models/weapons/w_slam.mdl") color(160 37 240) = weapon_slam : "Selectable Lightweight Attack Munition."
+[
+]
+
+//SE OBSOLETES
