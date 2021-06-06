@@ -1,5 +1,5 @@
 
-//To install this FGD:
+//To install this FGD: 
 //1. Open Hammer.
 //2. Click 'Tools'.
 //3. Click 'Options'.
@@ -169,6 +169,7 @@
 		"info_null"
 		"info_target"
 		"npc_heardanger"
+		"path_corner"
 		"path_track"
 		"pet_entity"
 		"point_devshot_camera"
@@ -234,6 +235,7 @@
 		"phys_motor"
 		"phys_pulleyconstraint"
 		"phys_ragdollconstraint"
+		"phys_ragdollmagnet"
 		"phys_slideconstraint"
 		"phys_spring"
 		"phys_thruster"
@@ -329,6 +331,7 @@
 		"game_text"
 		"info_camera_link"
 		"info_overlay"
+		"info_overlay_transition"
 		"info_particle_system"
 		"info_projecteddecal"
 		"infodecal"
@@ -481,6 +484,7 @@
 		"game_gib_manager"
 		"game_player_team"
 		"info_target_instructor_hint"
+		"info_teleport_destination"
 		"info_view_parameters"
 		"phys_torque"
 	]
@@ -1992,7 +1996,7 @@
 	fogstart(float) : "Fog Start" : 400 : "How far away from the viewer the fog should start."
 	fogend(float) : "Fog End" : 9500 : "How far away from the viewer the fog reaches Fog Max Density."
 	fogmaxdensity(float) : "Fog Max Density" : 1 : "Maximum density the fog may reach. Expressed as a decimal percent, so for 45% put 0.45."
-	farz(integer) : "Far Z Clip Plane" : -1 : "Anything beyond this distance in world units will not be rendered. This should be higher than Fog End. If this is used, Fog Max Density should be set to 1 otherwise far-away areas will look odd."
+	farz(integer) : "Far Z Clip Plane" : -1 : "Anything beyond this distance in world units will not be rendered. This should be higher than Fog End. Past the far Z, the skybox (and only the skybox) is rendered, so your fog color will probably need to match its color."
 	fogcolor(color255) : "Primary Fog Color" : "170 204 221" : "Fog Color."
 	fogcolor2(color255) : "Secondary Fog Color" : "170 204 221" : "Secondary Fog Color. If Fog Blend is disabled, this color will never appear."
 	fogblend(boolean) : "Fog Blend" : 0 : "Enables color blending between Primary Fog Color and Secondary Fog Color. When the viewer looks in the Primary Fog Direction, fog will appear as the Primary color. When looking away from the specified direction, fog appears as the Secondary color. If the camera is not pointed directly at or away from the direction, a blend of the two colors will result."
@@ -2832,7 +2836,7 @@
 	input SetTeam_AllTeams(void) : "Set the buyzone's team to both."
 	input SetTeam_None(void) : "Set the buyzone's team to neither (essentially disables the entity, aside from its base trigger functions)."
 ]
-@SolidClass base(CBaseEntity,Parent) color(216 5 136) color(255 0 255) = func_clip_vphysics : "It's a brush which is only solid to physics objects, like props and weapons. Hull-simulated objects (i.e. players, hostages, nades) can pass through."
+@SolidClass base(CBaseEntity,Parent) color(216 5 136) = func_clip_vphysics : "It's a brush which is only solid to physics objects, like props and weapons. Hull-simulated objects (i.e. players, hostages, nades) can pass through."
 [
 	filtername(filterclass) : "Filter Name" :  : "Filter to use to see if activator collides with this entity."
 	input Enable(void) : "Makes the entity active."
@@ -3465,6 +3469,19 @@
 	uv1(vector) readonly : "Overlay Point 2 (Read-Only)" :  : "Position of a corner. Adjust using the overlay tool."
 	uv2(vector) readonly : "Overlay Point 3 (Read-Only)" :  : "Position of a corner. Adjust using the overlay tool."
 	uv3(vector) readonly : "Overlay Point 4 (Read-Only)" :  : "Position of a corner. Adjust using the overlay tool."
+]
+@PointClass sidelist(sides) sidelist(sides2) overlay_transition() color(255 203 11) = info_overlay_transition : "It puts a texture in the space where a brush/displacement touches water. (i.e. a transition from land to water) It can be used to show waves on a shore. The entity is very buggy. Sometimes bits and pieces of the shore effect will just not render. It may show as a solid color or just not at all. Sometimes using cut and paste in Hammer will bug the entity in some way."
+[
+	material(material) : "Material" :  : "Material to put over the transition between land and water."
+	sides(sidelist) : "Brush faces" :  : "Land faces to apply on."
+	sides2(sidelist) : "Water faces" :  : "Water faces to apply on."
+	Width1(float) : "Width Land" : 5 : "How far the texture goes onto land."
+	Width2(float) : "Width Water" : 5 : "How far the texture goes onto water."
+	LengthTexcoordStart(float) : "Texcoord Length Start" : 0 : "TODO: Description."
+	LengthTexcoordEnd(float) : "Texcoord Length End" : 1 : "TODO: Description."
+	WidthTexcoordStart(float) : "Texcoord Width Start" : 0 : "TODO: Description."
+	WidthTexcoordEnd(float) : "Texcoord Width End" : 1 : "TODO: Description."
+	DebugDraw(boolean) : "Show Debug" : 0 : "Shows debugging info about the positioning of the texture."
 ]
 @PointClass base(CBaseEntity,Parent) sphere(radius) = info_paradrop_denial : "In danger zone, white crates will not spawn above ground within the radius of this entity."
 [
@@ -4159,7 +4176,21 @@
 	output OnHearPlayer(void) : "Fires when the entity hears footsteps."
 	output OnHearCombat(void) : "Fires when the entity hears bullet impacts."
 ]
-@PointClass base(CBaseEntity,Parent) color(248 155 0) = path_track : "When multiple of these are put together, they define a path that some entities can follow. TIP: If the targetname and Next Stop Target keyvalues are set, the entity can be dragged while holding Shift to create the next node in the path while automatically updating those two keyvalues."
+@PointClass base(CBaseEntity,Angles,Parent) color(248 155 0) = path_corner : "When multiple of these are put together, they define a path that some entities can follow. TIP: If the targetname and Next Stop Target keyvalues are set, the entity can be dragged while holding Shift to create the next node in the path while automatically updating those two keyvalues."
+[
+	spawnflags(flags) =
+	[
+		1 : "Wait for retrigger - TODO: No effect?" : 0
+		2 : "Teleport to this path track - func_train will teleport to this spot instead of normal movement." : 0
+	]
+	target(target_destination) : "Next stop target" :  : "The next path_corner in the path."
+	wait(float) : "Wait here (secs)" :  : "How long the path follower should wait here before moving on. This is only acknowledged by func_guntarget, point_viewcontrol, and func_train."
+	speed(float) : "New Train Speed" : 0 : "If the path follower can have a variable speed, when it meets this entity, its speed will be set to this as long as it's not more than the entity's maximum speed if it has one."
+	input SetNextPathCorner(target_destination) : "Sets Next stop target."
+	input InPass(void) : "Fires OnPass. Normally the path follower entity sends this to the path node when it reaches that point."
+	output OnPass(void) : "Fires when an entity passes this node."
+]
+@PointClass base(CBaseEntity,Angles,Parent) color(248 155 0) = path_track : "When multiple of these are put together, they define a path that some entities can follow. TIP: If the targetname and Next Stop Target keyvalues are set, the entity can be dragged while holding Shift to create the next node in the path while automatically updating those two keyvalues."
 [
 	spawnflags(flags) =
 	[
@@ -4169,9 +4200,9 @@
 		16 : "Teleport to this path track - Train will teleport to this spot instead of normal movement." : 0
 		32768 : "Start on Branch - Sends trains to Branch Path by default." : 0
 	]
-	target(target_destination) : "Next Stop Target" :  : "The next path_track in the path."
-	altpath(target_destination) : "Branch Path" :  : "An alternative path_track to be the next node in the path. Useful for making branching paths. Must be enabled with EnableAlternatePath."
-	speed(float) : "New Train Speed" : 0 : "When a train meets this entity, its speed will be set to this. Cannot be higher than the train's Max Speed."
+	target(target_destination) : "Next Stop Target" :  : "The next path_track in the path. TIP: Some but not all path followers will acknowledge when this keyvalue is changed with AddOutput."
+	altpath(target_destination) : "Branch Path" :  : "An alternative path_track to be the next node in the path. Useful for making branching paths. Must be enabled with EnableAlternatePath. TIP: Some but not all path followers will acknowledge when this keyvalue is changed with AddOutput."
+	speed(float) : "New Train Speed" : 0 : "If the path follower can have a variable speed, when it meets this entity, its speed will be set to this as long as it's not more than the entity's maximum speed if it has one."
 	orientationtype(choices) : "Orientation Type" : 1 : "The way that the path follower faces as it moves through this path track." =
 	[
 		0 : "No change"
@@ -4219,9 +4250,9 @@
 	[
 		8 : "Change mass to keep stable attachment to world - TODO: Clarify" : 0
 	]
-	hingefriction(float) : "Friction" :  : "How stiff the hinge is."
+	hingefriction(float) : "Friction" : 0 : "How stiff the hinge is."
 	hingeaxis(vecline) : "Hinge Axis" :  : "The 'other' end of the rotation axis."
-	SystemLoadScale(float) : "Load Scale" :  : "'Scale of the load connected to this hinge (1=just the objects directly connected)' TODO: Clarify"
+	SystemLoadScale(float) : "Load Scale" : 1 : "'Scale of the load connected to this hinge (1=just the objects directly connected)' TODO: Clarify"
 	input SetAngularVelocity(float) : "Makes the hinge begin rotating this many degrees per second."
 	input SetHingeFriction(float) : "Sets Friction."
 ]
@@ -4302,6 +4333,17 @@
 	xfriction(float) : "X axis friction" : 0 : "Friction to apply when moving on the X axis."
 	yfriction(float) : "Y axis friction" : 0 : "Friction to apply when moving on the Y axis."
 	zfriction(float) : "Z axis friction" : 0 : "Friction to apply when moving on the Z axis."
+]
+@PointClass base(CBaseEntity,Parent,EnableDisable) iconsprite("editor/info_target") sphere(radius) color(255 0 255) = phys_ragdollmagnet : "It applies force to ragdolls left by dead infected at the moment they die. Ragdolls get pushed towards or away from the entity."
+[
+	spawnflags(flags) =
+	[
+		2 : "Bar Magnet (use axis helper) - Push to nearest point between origin and Bar Magnet Axis." : 0
+	]
+	radius(float) : "Effective Radius" : 512 : "Radius in which ragdolls are affected around this entity's origin/the line."
+	force(float) : "Force" : 5000 : "Force to apply, in kilograms per unit per second. Negative values push away instead of to the entity. A 10kg ragdoll will get launched farther than a 100kg one. Tip: If the entity appears to not work, you may simply need to set this to a very high value."
+	target(target_destination) : "Entity to affect" :  : "If specified, only affect entities with this targetname."
+	axis(vecline) : "Bar Magnet Axis" :  : "Other end of the bar. See Bar Magnet."
 ]
 @PointClass base(CPhysConstraint) studio("models/editor/axis_helper.mdl") color(255 0 255) = phys_slideconstraint : "It locks the movement of one or two entities to a single axis."
 [
@@ -5514,6 +5556,9 @@
 [
 ]
 @PointClass base(CBaseEntity) color(255 232 79) iconsprite("editor/obsolete") = info_target_instructor_hint : "OBSOLETE: You shouldn't use this entity, though it may appear in other people's maps. This entity can be replaced with an info_target that always transmits to clients."
+[
+]
+@PointClass base(CBaseEntity) color(255 232 79) iconsprite("editor/obsolete") = info_teleport_destination : "OBSOLETE: You shouldn't use this entity, though it may appear in other people's maps. This entity used to be needed for trigger_teleport's destination. Use info_target."
 [
 ]
 @PointClass base(CBaseEntity) color(255 232 79) iconsprite("editor/obsolete") = info_view_parameters : "OBSOLETE: You shouldn't use this entity, though it may appear in other people's maps. This entity does nothing."
