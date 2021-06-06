@@ -1,0 +1,783 @@
+
+//To install this FGD: 
+//1. Open Hammer for Half-Life 2: Episode Two. You could also use Episode One but... why?
+//2. Click 'Tools'.
+//3. Click 'Options'.
+//4. Select the files in the 'Game Data files' window and press 'Remove' to remove it from Hammer (the files will still exist on your computer, so you can put them back at any time).
+//5. Click 'Add' and browse to this file's location on your computer.
+//6. Put SEHL_base.fgd in the same folder you put this file in.
+//Submit queries here: https://github.com/Pinsplash/SEFGD Even if you just have a question, it may help me improve this FGD.
+//Wanna help me out? Search "TODO:" in this file.
+//Derivatives are allowed to be made and distributed.
+@include "SEHL_base.fgd"
+@mapsize(-16384, 16384)
+//SE BASE SPECIAL CLASSES
+
+//SE BASE CLASSES
+
+//SE ENTITIES
+@PointClass base(CAI_AllyManager) color(247 89 93) = ai_ally_manager : "It monitors the number and type of npc_citizen allies and responds accordingly. When this entity receives a Replenish input, it will count the number of allies and send outputs based on how many allies are needed to match this entity's keyvalues."
+[
+]
+@PointClass base(CAI_BattleLine) size( -4 -4 -4, 4 4 4 ) studio("models/pigeon.mdl") color(247 89 93) = ai_battle_line : "Battle lines are part of the ai_goal_standoff behavior. They instruct NPCs to try and stay behind it, though they may disobey it. Hint groups are also very helpful. TODO: Info about why an NPC would disobey the battle line."
+[
+]
+@PointClass base(CAI_ChangeHintGroup) sphere(Radius) color(248 155 0) = ai_changehintgroup : "It changes or adds a specific hint group to an NPC or hint node."
+[
+]
+@PointClass base(CAI_ChangeTarget) color(248 155 0) = ai_changetarget : "It's main use is for changing the 'target' keyvalue of NPCs, but it can change the target of any entity. This task can also be done using AddOutput."
+[
+]
+@PointClass base(CAI_ActBusyGoal) color(0 255 255) = ai_goal_actbusy : "Tells NPCs to act like they're busy with something. https://developer.valvesoftware.com/wiki/Actbusy"
+[
+]
+@PointClass base(CAI_ActBusyQueueGoal) color(0 255 255) = ai_goal_actbusy_queue : "Tells NPCs to wait in a line. https://developer.valvesoftware.com/wiki/Actbusy"
+[
+]
+@PointClass base(CAI_AssaultGoal) color(247 89 93) = ai_goal_assault : "This entity specifies which NPCs are to carry out an assault, https://developer.valvesoftware.com/wiki/Assault and triggers it when any conditions given are met. It must be active to be able to be triggered. Upon activation, the entity will round up all its NPCs (specified in a keyvalue), and instruct them to select their assault_rallypoint(s) and move to it/them. Upon arrival at the rally point(s), the NPCs then begin waiting for an Assault Cue, unless instructed to assault immediately. One goal entity can handle multiple rally points. Upon the cue, it will then instruct all actors to begin moving on from their current rally point to the assault_assaultpoint specified by the rally point."
+[
+]
+@PointClass base(CAI_FollowGoal) iconsprite("editor/ai_goal_follow") color(0 255 255) = ai_goal_follow : "Makes NPCs follow another object or the player at a configurable distance. NPCs may react in some way if they can't find a path to their leader. NPCs do not intelligently follow their leader. They will simply walk or run directly to it. If one follower happens to block the path of another, they will not move out of the way and the leading NPC will eventually give up trying to lead them."
+[
+]
+@PointClass base(CAI_LeadGoal) iconsprite("editor/ai_goal_lead") color(0 255 255) = ai_goal_lead : "Makes an NPC attempt to lead the player to a target. If the player doesn't follow or lags behind, the NPC will wait for the player or attempt to retrieve them. This entity has many options to control its behavior, including extra Response System support."
+[
+]
+@PointClass base(CAI_LeadGoal_Weapon) iconsprite("editor/ai_goal_lead") color(0 255 255) = ai_goal_lead_weapon : "It makes an NPC lead a player somewhere (just like ai_goal_lead) once the player picks up a certain weapon."
+[
+]
+@PointClass base(CAI_PoliceGoal) iconsprite("editor/ai_goal_police") color(0 255 255) = ai_goal_police : "It tells an npc_metropolice to guard a place. Used in pre-war City 17."
+[
+]
+@PointClass base(CAI_StandoffGoal) iconsprite("editor/ai_goal_standoff") color(247 89 93) = ai_goal_standoff : "This entity enables NPCs to take part in standoffs. https://developer.valvesoftware.com/wiki/Standoffs They will attack more tactically, take cover frequently, and possibly wait for the player to lead forward."
+[
+]
+@PointClass base(CNPCEventResponseSystemEntity) color(0 255 255) = ai_npc_eventresponsesystem : "It makes the nearest NPC to the player within 768 units speak a response concept, such as TLK_PLAYERUSE."
+[
+]
+@PointClass base(CAI_Relationship) iconsprite("editor/ai_relationship") sphere(radius) color(247 89 93) = ai_relationship : "This changes the relationship between any NPCs in terms of how they react to each other."
+[
+]
+@PointClass base(CAI_ScriptConditions) sphere(ActorTargetProximity) sphere(PlayerActorProximity) sphere(PlayerTargetProximity) color(248 155 0) = ai_script_conditions : "Makes a list of conditions relating to the player, an NPC (actor), and a third entity, that trigger events when the conditions are fulfilled. Conditions include being able to see one another and proximity to objects."
+[
+	spawnflags(flags) =
+	[
+		1 : "Fire outputs with the Actor as !activator - Otherwise the activator will be the ai_script_conditions." : 0
+	]
+]
+@PointClass base(CAISound) sphere(volume) iconsprite("editor/ai_sound") color(247 89 93) = ai_sound : "This entity makes sounds or smells that can be sensed by NPCs, but not by the player. This can be used to cause reactions in nearby NPCs."
+[
+	soundtype(choices) : "Sound Type" : 0 : "The type of sound or smell will determine the reaction of NPCs that sense it. If the associated numbers are added together, both effects will apply to the sound." =
+	[
+		0 : "Select one"
+		1 : "Combat: NPCs turn to face the sound. NPCs might stop actbusies or other AI routines if the origin is an enemy."
+		2 : "World: Gets attention of most NPCs."
+		4 : "Player: Gets attention of most NPCs."
+		8 : "Danger: Gets attention of most NPCs."
+		16 : "Bullet Impact: NPCs might stop actbusies or other AI routines if the origin is an enemy. Gets attention of some NPCs."
+		256 : "Thumper: Distracts and repels antlions."
+		512 : "Bugbait: Attracts antlions."
+		1024 : "Physics danger: Gets attention of antlions and Combine."
+		2048 : "Sniper danger: Scares snipers into hiding."
+		4096 : "Move Away: Gets attention of some NPCs."
+		8192 : "Player vehicle: Gets attention of hunters and metrocops."
+		16384 : "Readiness - Low: Allies will appear relaxed."
+		32768 : "Readiness - Medium: Allies will appear alert."
+		65536 : "Readiness - High: Allies will appear agitated and ready to fight immediately."
+	]
+	soundcontext(choices) : "Additional sound context (optional)" : 0 : "Optional settings specifying such things as who can or cannot hear the sound. As with Sound Type, if the associated numbers are added together, both effects will apply to the sound." =
+	[
+		0 : "Select one"
+		1048576 : "From sniper: NPCs react ai_sound, not Location Proxy. Allies will speak TLK_DANGER concepts & take cover. Use with Danger."
+		2097152 : "Gunfire: Gets attention of Alyx."
+		4194304 : "Mortar: Allies will avoid this sound."
+		8388608 : "Only Combine hear: Does not necessarily get the attention of Combine soldiers, but can only be heard by them."
+		16777216 : "React to source: NPCs react to the ai_sound instead of Location Proxy."
+		33554432 : "Explosion: Picked up by env_microphone. Alyx may flinch upon hearing this."
+		67108864 : "Combine cannot hear: Combine soldiers do not hear this sound."
+		134217728 : "Danger approach: Sound is getting closer. Combine soldiers turn to face it if nothing else is distracting them."
+		268435456 : "Allies only"
+		536870912 : "Player vehicle: Sound comes from a vehicle. Hunters will prepare to dodge."
+	]
+]
+@PointClass base(CAI_SpeechFilter) color(247 89 93) = ai_speechfilter : "The entity allows to adjust how much an NPC will idle chatter to other NPCs or the player. This is quite useful, especially if you have a script setup where idle chatter will seem out of place, or get in the way of a Face Poser scene. Speech patterns for NPCs are defined in Response System. TODO: More info on how this entity uses response contexts? The concept of them in general is not well-documented."
+[
+]
+@PointClass base(CAI_ScriptedSchedule) sphere(m_flRadius) color(0 255 255) iconsprite("editor/aiscripted_schedule") = aiscripted_schedule : "It issues a command to an NPC without suppressing its normal AI routines, or just to set a readiness state."
+[
+]
+@PointClass base(CAssaultPoint) iconsprite("editor/assault_point") line(255 255 255, targetname, nextassaultpoint) color(247 89 93) = assault_assaultpoint : "These entities form the body of an assault (ai_goal_assault) chain, specifying where the assault should go once it has begun. Assault points only affect the journey to them, not from them. TIP: Naming assault points the same name will cause NPCs to randomly select one. BUG: Specifying an assault_rallypoint as the next assault point will crash the game! BUG: When moving to an assault point partway through a chain, NPCs will pause for a moment before continuing. This bug is fixed in the HL2 Episodes. Unfortunately, there's no way to define a range at which an assaultpoint can be considered cleared. This means large groups of NPCs might spend an unusual amount of time trying to stand in one specific spot. Try making a trigger around your assaultpoint that sends it SetForceClear, and add delay as needed."
+[
+]
+@PointClass base(CRallyPoint) iconsprite("editor/assault_rally") line(255 255 255, targetname, assaultpoint) color(247 89 93) = assault_rallypoint : "It specifies a point used to rally NPCs for assault behavior. Used with either an ai_goal_assault or the Assault input available on some NPCs. All assaults begin at an assault_rallypoint. NPCs move to these points when cued for an assault, optionally waiting here, before commencing the assault by heading to an assault_assaultpoint. A rallypoint can only serve one NPC per assault. If multiple NPCs are required to assault at the same time, each needs their own rallypoint. Use of wildcards can make the assignment of individual NPCs to individual rallypoints easier. NPCs will always turn to face in the direction the entity is set to when arriving at a rally point."
+[
+]
+@NPCClass base(CBounceBomb) studio("models/props_combine/combine_mine01.mdl") = combine_mine : "Hopper mine. Hopper mines don't inherit CAI_BaseNPC, thus aren't capable of many NPC-specific functions. In code, hoppers are explicitly told what to consider an enemy, meaning ai_relationship will not work and the addition of new enemies, or changes to what hoppers attack, may require changing CBounceBomb::IsFriend()."
+[
+]
+@PointClass base(CCredits) color(255 203 11) = env_credits : "This entity is used to control the credits that roll at the start and end of the game. See scripts/credits.txt. This file holds the text that will appear."
+[
+]
+@PointClass base(CBaseEntity) color(248 155 0) iconsprite("editor/env_global") = env_global : "Stores boolean info, even across maps and rounds. These can control if a logic_auto fires its outputs."
+[
+	spawnflags(flags) =
+	[
+		1 : "Set Initial State - Makes this entity define the global state once the server loads the map." : 1
+	]
+	globalstate(choices) : "Global State to Set" :  : "Global state the entity is associated with. Essentially, the name of a variable. Any text may be entered." =
+	[
+		"gordon_precriminal" : "Gordon pre-criminal"
+		"antlion_allied" : "Antlions are player allies"
+		"suit_no_sprint" : "Suit sprint function not yet enabled"
+		"super_phys_gun" : "Super phys gun is enabled"
+		"friendly_encounter" : "Friendly encounter sequence (lower weapons, etc.)"
+		"gordon_invulnerable" : "Gordon is invulnerable"
+		"no_seagulls_on_jeep" : "Don't spawn seagulls on the jeep"
+		"ep2_alyx_injured" : "Episode 2: Alyx injured"
+		"ep_alyx_darknessmode" : "Episodic: Alyx darkness mode"
+		"hunters_to_run_over" : "Ep2 Counter: Hunters to run over before they dodge"
+	]
+	initialstate(choices) : "Initial State" : 1 : "Used by Set Initial State to determine what the global state should be set to when the map starts." =
+	[
+		0 : "Off"
+		1 : "On"
+		2 : "Dead (Dead globals get turned off permanently, and can never be put back to Off or On.)"
+	]
+	input TurnOn(void) : "Sets the global's state to ON."
+	input TurnOff(void) : "Sets the global's state to OFF."
+	input Toggle(void) : "Switches state of the global between ON and OFF."
+	input Remove(void) : "Set state of global to DEAD."
+	input AddToCounter(integer) : "Adds the specified amount to the counter. Only useful for the global hunters_to_run_over because it doesn't rely on the broken Counter output."
+	input SetCounter(integer) : "Sets the value of the counter. Only useful for the global hunters_to_run_over because it doesn't rely on the broken Counter output."
+]
+@PointClass base(CEnvHeadcrabCanister) sphere(DamageRadius) studio("models/props_combine/headcrabcannister01b.mdl") = env_headcrabcanister : "It's a mortar shell containing a payload of headcrabs. The mortar shell inflicts damage within a radius of where it lands and releases headcrabs after impact. BUG: If there is a 3D skybox, canisters may appear to be in the world and in the skybox at the same time. Move the skybox above the world to hide the extra canister. TODO: There's probably a better way to fix this."
+[
+]
+@PointClass base(CEnvHudHint) color(255 203 11) = env_hudhint : "It is used to display HUD hints. If there are multiple players, the message will only show to the !activator or the first player on the server."
+[
+]
+@PointClass base(CMessage) color(255 203 11) = env_message : "It displays a text message on player HUDs, from strings defined in the scripts/titles.txt file. It's used at some points in HL2, such as when the player's buggy falls into water."
+[
+]
+@PointClass base(CEnvPlayerSurfaceTrigger) color(248 155 0) = env_player_surface_trigger : "It monitors the $surfaceprop of the material of the surface the player is standing on, and fires outputs whenever it changes to/from a specific material. Will not work well, if at all in multiplayer."
+[
+]
+@PointClass base(CBaseEntity) color(255 203 11) = env_screeneffect : "It allows effects to be played on the player's screen."
+[
+	type(choices) : "Effect Type" : 0 : "Which effect to use." =
+	[
+		0 : "Advisor Stun - Disorienting, pulsating sideways blur. Used when advisors use their mental stunning attack."
+		1 : "Intro Blur - Radial blur/trailing effect. Used when the hunter attacks Alyx."
+		2 : "Groggy Vision - Unused effect. Most of the screen turns white and nearby objects are drastically blurred."
+	]
+	input StartEffect(float) : "Fades the effect in over this many seconds. (Except for Advisor Stun, where this is the effect duration.)"
+	input StopEffect(float) : "Fades the effect out over this many seconds."
+]
+@PointClass base(CFuncBrush) = func_bulletshield : "It blocks bullets, and nothing else. It was apparently intended to be some sort of protective shield for advisors. Episode 2 has a material called effects/advisor_shield which seems to be related."
+[
+]
+@SolidClass base(CFuncTank) color(160 37 240) = func_tank : "Immobile, fully-controllable gun. Used for mounted guns."
+[
+	effecthandling(choices) : "Effect Handling" : 1 : "What bullet effects to show." =
+	[
+		1 : "AR2"
+		2 : "Combine Cannon"
+	]
+	ammotype(choices) : "Ammo type (obsolete)" : 3 : "Broken setting. Avoid using this. No effect unless Effect Handling is 0, but it's buggy and broken." =
+	[
+		0 : "None"
+		1 : "Pistol"
+		2 : "SMG1"
+		3 : "AR2"
+	]
+]
+@SolidClass base(CFuncTank) color(160 37 240) = func_tank_combine_cannon : "This entity forms the basis of the three-way Combine Autogun from Episode Two. It is operated by an npc_enemyfinder_combinecannon and fires a powerful beam of energy. When controlled by a player, the gun appears to avoid firing at all if the shot would miss."
+[
+	input DisableHarrass(void) : "Disables the cannon tracking an unseen player."
+	input EnableHarrass(void) : "Allows the cannon to track a hiding player. Does so by default."
+	output OnShotAtPlayer(void) : "Fires when the player is shot. Does not fire if the cannon is aiming for something else and happens to hit the player. May fire when being controlled by a player. Make sure to not have the npc_enemyfinder_combinecannon hating the player while they try to use the gun."
+]
+@NPCClass base(CGenericActor) = generic_actor : "A completely normal NPC with no custom behaviors."
+[
+]
+@PointClass base(CGrenadeHelicopter) studio("models/combine_helicopter/helicopter_bomb01.mdl") color(160 37 240) = grenade_helicopter : "Bombs dropped by npc_helicopters. They will explode upon contact with most non-static objects or a certain amount of time after hitting the ground."
+[
+	spawnflags(flags) =
+	[
+		1 : "Megabomb - Gives bombs slightly different behavior (rolls less, quieter)." : 0
+		65536 : "Is a dud - Bomb will only explode after being launched by the gravity gun." : 0
+	]
+	input ExplodeIn(float) : "Makes the bomb explode in the specified number of seconds."
+	output OnPhysGunOnlyPickup(void) : "Fires when the bomb is picked up by the gravity gun."
+]
+@PointClass base(CBaseAnimating) studio("models/spitball_large.mdl") color(160 37 240) = grenade_spit : "Acid antlion spit. IMPORTANT: When placing this entity in Hammer, you must also place an ambient_generic that uses the sound NPC_Antlion.PoisonBall, but don't actually use it."
+[
+]
+@SolidClass base(CInfoAPCMissileHint) color(247 89 93) = info_apc_missile_hint : "It helps APC missiles focus on npc_bullseyes when they have multiple targets to shoot. It's intended to be placed in the space that a player will move through just before they pass by the npc_bullseye."
+[
+]
+@SolidClass base(CBaseEntity,EnableDisable) sphere(LightRadius) color(247 89 93) = info_darknessmode_lightsource : "Acts as a light source when darkness mode is on. This entity is needed near map-placed sources of light for Alyx to see the enemies near it (a light entity alone is not enough)."
+[
+	LightRadius(float) : "Light Radius" :  : "How far away from the entity to illuminate. If using g_debug_darkness, the area of effect will look like a cube, but it's really a sphere like it shows in Hammer."
+]
+@PointClass base(HintNode) studio("models/editor/node_hint.mdl") color(255 255 255) line(255 255 255, nodeid, TargetNode) = info_hint : "A hint that is not used for navigation. They don't go into the nodegraph, nor do they fall to the ground. Use these to provide some spatial context for NPCs, such as 'look here when there's nothing else to look at' or 'burrow into the ground here'."
+[
+]
+@PointClass base(Node) studio("models/editor/ground_node.mdl") color(232 219 8) = info_node : "Generic navigation node used by ground-based NPCs."
+[
+	spawnflags(flags) =
+	[
+		1 : "Force human permission" : 0
+		2 : "Force small_centered permission" : 0
+		4 : "Force wide_human permission" : 0
+		8 : "Force tiny permission" : 0
+		16 : "Force wide_short permission" : 0
+		32 : "Force medium permission" : 0
+		64 : "Force tiny_centered permission" : 0
+		128 : "Force large permission" : 0
+		256 : "Force large_centered permission" : 0
+		512 : "Keep editor position - Makes the node not fall to the ground after spawning" : 0
+	]
+]
+@PointClass base(Node) studio("models/editor/air_node.mdl") color(232 171 8) = info_node_air : "Generic navigation node used by flying NPCs."
+[
+]
+@PointClass base(HintNode) studio("models/editor/air_node_hint.mdl") color(232 171 8) line(255 255 255, nodeid, TargetNode) = info_node_air_hint : "A navigation node for flying NPCs that includes some context information for NPCs that are interested in it. The hint might indicate a window that could be looked into, or an item of interest that could be commented on."
+[
+]
+@PointClass base(Node) studio("models/editor/climb_node.mdl") color(153 215 103) = info_node_climb : "Used by npc_fastzombie to find things that can be climbed. One is needed at both the top and bottom of the climbable path."
+[
+]
+@PointClass base(HintNode) studio("models/editor/ground_node_hint.mdl") color(232 219 8) line(255 255 255, nodeid, TargetNode) = info_node_hint : "A navigation node for ground-based NPCs that includes some context information for NPCs that are interested in it. The hint might indicate a window that could be looked into, or an item of interest that could be commented on."
+[
+]
+@PointClass base(CAI_DynamicLink) line(255 255 255, nodeid, StartNode, nodeid, EndNode) color(247 89 93) = info_node_link : "A manually defined, dynamic connection between two navigation nodes. This could be used to create or destroy a connection in the nodegraph because of some event in your map (a bridge being created/destroyed, etc)."
+[
+]
+@PointClass base(CAI_DynamicLinkController) wirebox(mins, maxs) color(247 89 93) = info_node_link_controller : "It controls all connections between navigation nodes that intersect a certain volume. This allows for mass enabling and disabling of node connections."
+[
+]
+@PointClass base(CNPCSpawnDestination) iconsprite("editor/info_target") color(248 155 0) = info_npc_spawn_destination : "Used by npc_template_maker as a spawn destination for NPCs."
+[
+]
+@PointClass base(CBaseEntity,Angles) studio("models/editor/playerstart.mdl") color(0 255 0) = info_player_start : "The player will spawn here."
+[
+	spawnflags(flags) =
+	[
+		1 : "Master - Prefer this over other info_player_starts. Convenient, lets you avoid flying through already finished parts of the map" : 1
+	]
+]
+@PointClass base(CBaseEntity,Parent,EnableDisable) iconsprite("editor/info_target") sphere(radius) color(255 203 11) = info_radar_target : "This will make an icon appear on the jalopy radar at the location of the entity."
+[
+	radius(float) : "Effective Radius" : 6000 : "How close in units the jalopy must be to detect the beacon."
+	type(choices) : "Type of target" : 0 : "What icon to show." =
+	[
+		0 : "Generic Citizen Beacon (lambda)"
+		1 : "Magnussen RDU Beacon (magnusson device)"
+		2 : "Dog"
+		3 : "Ally Installation (blue triangle with a dot)"
+		4 : "Enemy (red dot)"
+		5 : "Large Enemy (big red dot)"
+	]
+	mode(choices) : "Mode" : 0 : "Behavior when leaving Effective Radius." =
+	[
+		0 : "Default - Disappears."
+		1 : "Sticky - Stays on screen."
+	]
+]
+@PointClass base(CSniperTarget) iconsprite("editor/info_target") color(247 89 93) = info_snipertarget : "An npc_sniper will take aim at this target when told to by inputs available to that entity. info_snipertarget has parameters to alter the behavior while aiming and shooting."
+[
+]
+@PointClass base(CTargetGunshipCrash) iconsprite("editor/info_target") color(247 89 93) = info_target_gunshipcrash : "Gunships will try to crash at this spot when they die. Gunships will try to go to the nearest crash point."
+[
+]
+@PointClass base(CBaseEntity,Parent) iconsprite("editor/info_target") color(247 89 93) = info_target_helicopter_crash : "Helicopters will try to crash at this spot when they die. Helicopters may not deal well with multiple crash points in one map."
+[
+]
+@PointClass base(CBaseEntity,Parent,Angles,EnableDisable) iconsprite("editor/info_target") color(0 255 0) = info_target_vehicle_transition : "This entity is a safeguard that will teleport vehicles to this spot if the player leaves it behind when they go through a trigger_changelevel. The vehicle is told to teleport by the OutsideTransition input, which is normally sent automatically when the player enters a trigger_changelevel and the vehicle isn't being driven and is not touching a trigger_transition."
+[
+]
+@PointClass base(CItem) studio("models/grub_nugget_small.mdl") color(160 37 240) = item_grubnugget : "Antlion grub's healing nugget"
+[
+]
+@PointClass base(CLogicActiveAutosave) color(0 255 0) = logic_active_autosave : "It looks for safe points at which a player can save the game. Once their health goes below a certain point, the game will automatically save once they're up to a certain amount again."
+[
+]
+@PointClass base(CLogicAutosave) color(0 255 0) = logic_autosave : "This entity tells the game to make a save state. It can also do 'dangerous' saves, which will only count as valid if the player has at least a certain amount of health after a certain number of seconds. Danger-saves can be used to almost completely prevent infinite death loops."
+[
+]
+@PointClass base(CBaseEntity) iconsprite("editor/logic_auto") color(248 155 0) = logic_auto : "Fires outputs automatically."
+[
+	spawnflags(flags) =
+	[
+		1 : "Remove on fire - Removes the entity after firing outputs. Delayed inputs will work." : 1
+	]
+	globalstate(choices) : "Global State to Read" :  : "A global state (env_global) which must be set to 'On' in order for this entity to fire any outputs. Options are not limited to these and any text may be entered." =
+	[
+		"" : "--- None ---"
+		"gordon_precriminal" : "Gordon pre-criminal"
+		"antlion_allied" : "Antlions are player allies"
+		"suit_no_sprint" : "Suit sprint function not yet enabled"
+		"super_phys_gun" : "Super phys gun is enabled"
+		"friendly_encounter" : "Friendly encounter sequence (lower weapons, etc.)"
+		"gordon_invulnerable" : "Gordon is invulnerable"
+		"no_seagulls_on_jeep" : "Don't spawn seagulls on the jeep"
+		"is_console" : "Game is running on a console"
+		"is_pc" : "Game is running on a PC"
+	]
+	output OnMapSpawn(void) : "Fires when the map is loaded in any way, including from a save."
+	output OnMapTransition(void) : "Fires when the map is loaded by a level transition."
+	output OnNewGame(void) : "Fires when the map is loaded directly (map command or reloading from death on a map with no saves)."
+	output OnLoadGame(void) : "Fires when the map is loaded from a saved game."
+	output OnBackgroundMap(void) : "Fires when the map is loaded as a background map (map_background command)."
+]
+@SolidClass base(CLogicNavigation) color(247 89 93) = logic_navigation : "Forces an object to be ignored by NPCs when moving around. Useful for making NPCs ignore small objects, or to make one crash through something!"
+[
+]
+@PointClass base(CLogicPlayerProxy) color(248 155 0) = logic_playerproxy : "It's used to relay I/O to and from the player. Most of the entity's functions are impossible to do in other ways."
+[
+	input SetLocatorTargetEntity(target_destination) : "Shows the compass HUD element seen near the end of Episode 2, with the specified entity being shown by a vehicle icon. If the parameter is blank, hides the element."
+	output PlayerMissedAR2AltFire(void) : "Fires when the player fires an AR2 energy ball that doesn't kill anything."
+]
+@PointClass base(CSceneListManager) iconsprite("editor/choreo_manager") color(0 255 255) = logic_scene_list_manager : "It 'manages' sets of choreo entities by deleting old ones. This is sometimes useful for making an NPC quit talking when they no longer have to (though there are other ways as well). At times, she gives the player multiple hints or prompts to do something, then stops giving hints once the player is done with the task."
+[
+]
+@NPCClass base(CGenericNPC) studio() = monster_generic : "A generic NPC."
+[
+]
+@NPCClass base(CAI_BaseNPC) studio() = npc_advisor : "An adorable sluglike alien with benevolent psychic powers."
+[
+	model(studio) : "World Model" : "models/advisor.mdl" : "Model to show."
+]
+@NPCClass base(CNPC_Alyx) studio() = npc_alyx : "Alyx, the female sidekick and love interest that's taking the world by storm!"
+[
+	ShouldHaveEMP(choices) : "Should alyx have her EMP?" :  : "Determines if Alyx has her EMP prop and can reprogram rollermines using it. BUG: Doesn't stop her from trying! Unless the DisallowInteraction input is sent, she still sticks her arm out for no reason." =
+	[ 
+		0 : "No"
+		1 : "Yes"
+
+	]
+	input DisallowInteraction(void) : "Disallows Alyx from trying to hack rollermines."
+	input AllowInteraction(void) : "Allows Alyx to hack rollermines."
+	input AllowDarknessSpeech(integer) : "Enables or disables Alyx's darkness mode lines. (I.e. 'Shine your light on that thing')"
+	input GiveEMP(integer) : "Sets Should alyx have her EMP?."
+	input VehiclePunted(void) : "If Alyx is in a vehicle and that vehicle is the caller, makes her react to being punted by the gravity gun."
+	output OnFinishInteractWithObject(void) : "Fires when Alyx hacks a rollermine. Activator is that NPC."
+	output OnPlayerUse(void) : "Fires when the player +uses Alyx."
+]
+@NPCClass base(CNPC_Antlion) studio("models/antlion.mdl") sphere() = npc_antlion : "Antlion! The player can command them with bugbait, given that the antlion_allied global variable is set."
+[
+	spawnflags(flags) =
+	[
+		65536 : "Burrow when eluded - Automatically burrow away when enemies are too far away or unreachable" : 0
+		131072 : "Use Ground Checks - TODO: Description" : 0
+		262144 : "Worker Type - Makes me an acid-spitter" : 0
+	]
+]
+@NPCClass base(CBaseAnimating) studio("models/antlion_grub.mdl") sphere(fademindist) sphere(fademaxdist) = npc_antlion_grub : "Antlion larva."
+[
+	spawnflags(flags) =
+	[
+		1 : "Don't automatically attach to surface Otherwise NPC will automatically sink down ingame so it looks like it was placed by a pro" : 0
+	]
+	input Squash(void) : "Crushes the grub."
+	input Agitate(float) : "Makes the grub be excited for the specified amount of time."
+	output OnDeath(void) : "Fires when the grub is killed. Activator is what killed it."
+	output OnDeathByPlayer(void) : "Fires when the grub is killed by the player (but not when the player throws something at it which kills it). Activator is the player."
+	output OnAgitated(void) : "Fires under the same conditions as OnDeath."
+]
+@PointClass base(CAntlionTemplateMaker) sphere() color(248 155 0) = npc_antlion_template_maker : "It makes a clone of an antlion that's placed inside Hammer, and copies all of its properties and outputs.\n" +
+"The entity has three methods of determining where to spawn antlions:\n" +
+"NEAR TARGET: Enabled by the Try to spawn close to the current target flag. Antlions spawn near the Spawn target inside the Spawn radius. If the target is an NPC or player in a vehicle, antlions will be spawned a distance ahead of the vehicle based on its speed. Antlions will only spawn on textures with the antlionsand $surfaceprop. Antlions will not spawn in the radii of thumpers or point_antlion_repellants, or in any water, no matter how shallow.\n" +
+"HINT GROUPS: Used when Try to spawn close to the current target is unchecked and Spawn on Hint Group is being used. Antlions will come from the nearest info_node_hint with the Hint Antlion: Burrow Point and the hint group specified in Spawn on Hint Group. The hints must be near the Spawn target and inside the Spawn radius from it. The spawner will spawn from 1.5 seconds ahead of where the target currently is.\n" +
+"SIMPLE: If Try to spawn close to the current target is unchecked and Spawn on Hint Group is not being used, just spawn antlions at the origin of this entity with no regard for Spawn radius."
+[
+	spawnflags(flags) =
+	[
+		1024 : "Random spawn node - If using Hint Group spawning, picks any valid hint instead of the nearest one." : 0
+		2048 : "Try to spawn close to the current target - Enables Near Target spawning behavior instead of Hint Group or Simple." : 0
+		4096 : "Pick a random fight target - If the string in Fight target matches multiple entities (up to 4), pick randomly between them." : 0
+		8192 : "Try to play blocked effects near the player - If burrow points get blocked, play effects of antlions hitting blocker" : 0
+	]
+]
+@NPCClass base(CNPC_AntlionGuard) studio("models/antlion_guard.mdl") = npc_antlionguard : "Antlion guard."
+[
+]
+@NPCClass base(CNPC_APCDriver) studio("models/roller.mdl") = npc_apcdriver : "Drives an APC along a set of path_tracks and fires its rockets or gun when it finds enemies."
+[
+]
+@NPCClass base(CNPC_Barnacle) studio("models/barnacle.mdl") = npc_barnacle : "Barnacle."
+[
+	input LetGo(void) : "Makes the barnacle drop whatever is on its tongue. Bug: Immediately picks players back up."
+	output OnGrab(target_destination) : "Fires when the barnacle grabs something. Automatically puts the name of the grabbed entity as the input parameter, unless overridden by the mapper."
+	output OnRelease(target_destination) : "Fires when the barnacle loses the enemy it had captured in any way. Automatically puts the name of the grabbed entity as the input parameter, unless overridden by the mapper."
+]
+@NPCClass base(CNPC_Barney) studio("models/Barney.mdl") = npc_barney : "Barney."
+[
+]
+@NPCClass base(CNPC_Breen) studio() = npc_breen : "Breen."
+[
+]
+@NPCClass base(CNPC_Bullseye) iconsprite("editor/bullseye") size(-16 -16 -16, 16 16 16) color(247 89 93) = npc_bullseye : "A target for NPCs to shoot. Useful for making them shoot at anything which isn't another NPC. See ai_relationship. The center of a bullseye must not be directly on the surface of anything that could block LOS."
+[
+]
+@NPCClass base(CNPC_Citizen) studio() = npc_citizen : "Citizens."
+[
+	denycommandconcept(string) : "Deny command speech concept" :  : "If you want your citizens to squad with the player but not obey commands the player gives to move the squad, put a concept here and this citizen will speak the concept instead of obeying the order."
+	input ThrowHealthKit(void) : "Launches a healthkit in the player's direction with no built-in animation or delay. Looks awful."
+]
+@NPCClass base(CNPC_CScanner) studio("models/shield_scanner.mdl") = npc_clawscanner : "A scanner that uses the shield model (models/shield_scanner.mdl) regardless of map name. (Regular scanners change their model only if the map name starts with d3_c17.)"
+[
+]
+@NPCClass base(CNPC_CombineCamera) sphere(innerradius) sphere(outerradius) studio("models/combine_camera/combine_camera.mdl") = npc_combine_camera : "Camera. Cameras track NPCs that they're made to hate. When a camera is told to become angry at its target, its light will become red and it will take a few pictures of the target."
+[
+]
+@NPCClass base(CNPC_CombineS) studio("models/Combine_Soldier.mdl") = npc_combine_s : "Combine Soldiers."
+[
+	spawnflags(flags) =
+	[
+		262144 : "Don't drop ar2 alt fire on death (Only done if player was the killer, non-elites never drop this)" : 0
+	]
+	model(studio) : "Model" : "models/combine_soldier.mdl" : "Model to show."
+	usemarch(choices) : "Walk Easy" : 0 : "Gives the soldier a more casual walking animation. Only intended for scripted use, and only works when walking straight forward!" =
+	[ 
+		0 : "No"
+		1 : "Yes"
+
+	]
+]
+@NPCClass base(CNPC_CombineDropship) studio("models/combine_dropship.mdl") = npc_combinedropship : "Dropships fly to places to carry and dispense NPCs or other objects. This NPC uses path_tracks to navigate."
+[
+]
+@NPCClass base(CNPC_CombineGunship) studio("models/gunship.mdl") = npc_combinegunship : "Gunship. This NPC uses path_tracks to navigate."
+[
+]
+@NPCClass base(CNPC_CraneDriver) studio("models/roller.mdl") = npc_cranedriver : "This NPC operates a prop_vehicle_crane. Aside from scripted use, the crane driver AI will automatically try to crush enemies with objects closer than 1400 units and farther away than 700, and between 500 and 10000 kg. If there's no objects to pick up, it will just aim the magnet over the enemy. If the Start Inactive flag is set, the AI will only start this behavior once it's done with a scripted pick up and drop off. If ForcePickup is sent when the crane has nothing in reach, it goes to the AI function. The crane operator is a combine NPC by default. BUG: Outputs appear to not fire when using AI, even though they should."
+[
+]
+@NPCClass base(CNPC_Crow) studio("models/crow.mdl") = npc_crow : "Crow."
+[
+]
+@NPCClass base(CNPC_CScanner) studio("models/combine_scanner.mdl") = npc_cscanner : "Scanner. Maps with a name starting with the string d3_c17 will automatically use the shield scanner model (models/shield_scanner.mdl). Shield scanners were not implemented in a proper way because they came along at a late point in development. See npc_clawscanner for the alternative Valve used later on in the series."
+[
+]
+@NPCClass base(CNPC_Dog) studio("models/dog.mdl") = npc_dog : "D0G."
+[
+]
+@NPCClass base(CNPC_Eli) studio() = npc_eli : "Eli."
+[
+]
+@NPCClass base(CNPC_EnemyFinder) = npc_enemyfinder : "It looks for CBaseCombatCharacters that it hates and fires outputs when it finds and loses them. It will also relay info to its squad. Enemyfinders do not hate anyone by default but can be told what to hate with ai_relationship. They will also take the relationships defaultly used by one of the non-enemyfinder NPCs in their squad (the one it happens to find first, so expect different results if there's multiple NPC types in one squad)."
+[
+]
+@NPCClass base(CNPC_EnemyFinderCombineCannon) = npc_enemyfinder_combinecannon : "This entity is the AI for the combine autogun in Half-Life 2: Episode Two. It finds enemies for a func_tank_combine_cannon to shoot. Its main difference is that it can be told to temporarily widen its fov so that all three guns can shoot a target at once. It also considers players visible even when they're behind hurtable entities, meaning the gun will bore through breakable objects until it reaches the player or finds something unbreakable."
+[
+]
+@NPCClass base(CAI_BaseNPC) studio("models/Zombie/fast.mdl") = npc_fastzombie : "Fast zombie."
+[
+	input AttachToVehicle(target_destination) : "Puts the zombie onto the specified vehicle's front. It will be kicked off and die a moment later."
+]
+@NPCClass base(CAI_BaseNPC) studio("models/Zombie/fast_torso.mdl") = npc_fastzombie_torso : "Fast zombie torso."
+[
+]
+@NPCClass base(CAI_BaseNPC) studio("models/lostcoast/fisherman/fisherman.mdl") = npc_fisherman : "The fisherman is a character who only appears in Half-Life 2: Lost Coast. He helps the player up the mountainside. His weapon is weapon_oldmanharpoon."
+[
+]
+@NPCClass base(CNPC_Furniture) studio() = npc_furniture : "Used for objects which need tight synchronization with an animating NPC, when using scripted_sequences of the same targetname."
+[
+]
+@NPCClass base(CAI_BaseNPC) studio("models/gman.mdl") = npc_gman : "G-man."
+[
+]
+@PointClass base(CBaseAnimating) studio("models/weapons/w_bugbait.mdl") = npc_grenade_bugbait : "Bugbait projectile."
+[
+]
+@PointClass base(CBaseAnimating) studio("models/Weapons/w_grenade.mdl") = npc_grenade_frag : "Grenade projectile."
+[
+	input SetTimer(float) : "Tells the grenade to explode in this many seconds. Needed in order for it to ever explode. Default time is 3 seconds. BUG: The grenade's sprite and trail effects are duplicated when this is sent, wasting performance. If sent enough times, the duplication becomes very noticeable."
+]
+@NPCClass base(CBaseHeadcrab) studio("models/headcrabclassic.mdl") = npc_headcrab : "Headcrab."
+[
+]
+@NPCClass base(CBaseHeadcrab) studio("models/headcrabblack.mdl") = npc_headcrab_black : "Poison headcrab."
+[
+]
+@NPCClass base(CBaseHeadcrab) studio("models/headcrab.mdl") = npc_headcrab_fast : "Fast headcrab."
+[
+]
+@SolidClass base(CAvoidBox) color(247 89 93) = npc_heli_avoidbox : "An npc_helicopter will avoid going in this brush. Helicopters are pushed away from the center (not the origin) of this brush."
+[
+]
+@PointClass base(CAvoidSphere) studio() color(247 89 93) iconsprite("editor/env_firesource") = npc_heli_avoidsphere : "An npc_helicopter will avoid going near this entity."
+[
+]
+@SolidClass base(CBaseEntity) color(247 89 93) = npc_heli_nobomb : "An npc_helicopter will not bomb the area in this brush. The helicopter's bomb attachment point must be inside the brush for it to be blocked."
+[
+]
+@NPCClass base(CNPC_AttackHelicopter) studio("models/combine_helicopter.mdl") = npc_helicopter : "Helicopters move via path_tracks."
+[
+]
+@NPCClass base(CAI_BaseActor) studio("models/hunter.mdl") = npc_hunter : "Hunter."
+[
+	FollowTarget(target_destination) : "Strider to Follow" :  : "Optional, a strider to follow."
+	input FollowStrider(target_destination) : "Makes the hunter follow the specified strider."
+	input UseSiegeTargets(target_destination) : "Tells the hunter to use 'siege' behavior. If the hunter can't see any enemies, it will shoot at the entity closest to the player that has LOS to the player, and a name matching the parameter (wildcards allowed). If the target is an npc_bullseye, the hunter will only consider it if it's within the bullseye's view cone. Siege targets are meant to be placed inside windows. If the input is sent with no parameter, the behavior is disabled."
+	input Dodge(void) : "Makes the hunter jump to its left or right."
+	input FlankEnemy(void) : "Makes the hunter flank its current enemy. This input might fail if the node graph is poorly defined."
+	input DisableShooting(string) : "Disallows the hunter from shooting flechettes. BUG: This input can pass a string parameter, but do nothing with it. If the input is sent from an output that automatically passes a non-string parameter (such as OnLessThan from logic_compare) the input will fail to send because the parameter types are incompatible. To work around this, place any placeholder text in the parameter box, most easily accomplished by editing the FGD to change the input type from void to string."
+	input EnableShooting(string) : "Lets the hunter shoot flechettes again. BUG: This input can pass a string parameter, but do nothing with it. If the input is sent from an output that automatically passes a non-string parameter (such as OnLessThan from logic_compare) the input will fail to send because the parameter types are incompatible. To work around this, place any placeholder text in the parameter box, most easily accomplished by editing the FGD to change the input type from void to string."
+	input EnableUnplantedShooting(void) : "Lets the hunter shoot without 'planting' itself first. TODO: What is the actual significance of planting? It doesn't seem to change anything."
+	input DisableUnplantedShooting(void) : "Makes the hunter 'plant' itself before shooting (default behavior)."
+]
+@PointClass base(CTemplateNPCMaker) iconsprite("editor/npc_maker") color(248 155 0) = npc_hunter_maker : "It makes a clone of a hunter that's placed inside Hammer, and copies all of its properties and outputs. When using the SpawnMultiple input, any hunters in the map without an entity to follow (probably a strider) will have their name set to the name of this maker's template hunter so that when the FollowStrider input fires from map logic, they'll guard the new strider. (Renamed hunters will automatically move to where the npc_hunter_maker is, not the strider.) This entity is used in the Episode Two chapter Our Mutual Fiend.\n" +
+"NOTE: Only the first three strider-less hunters found will have their names changed when using SpawnMultiple. This may have been intentional. You can get around this by sending the input again with the parameter 0 to rename three more hunters.\n" +
+"BUG: When using SpawnMultiple, only three new hunters can be spawned at a time."
+[
+]
+@NPCClass base(CAI_BaseNPC) studio("models/ichthyosaur.mdl") = npc_ichthyosaur : "Ichthyosaur."
+[
+]
+@NPCClass base(CNPC_Kleiner) studio() = npc_kleiner : "Kleiner."
+[
+]
+@NPCClass base(CNPC_Launcher) studio("models/props_junk/trafficcone001a.mdl") = npc_launcher : "It's an NPC that makes rockets which either home in on targets or follow a set of path_tracks. The NPC has no enemies by default, so tell it what to hate with ai_relationship or the SetEnemyEntity input. Be sure to not confuse Path Corner Name with Target Path Corner. Bug: The homing code is bad. Homing rockets often take unnecessary detours, move in a jagged and/or looping path, and miss targets. When Valve used this entity in d3_c17_06b, they had it parented to a func_tank and kept Homing Strength to 0."
+[
+]
+@NPCClass base(CNPC_Kleiner) studio() = npc_magnusson : "Magnusson."
+[
+	model(studio) : "Model" : "models/magnusson.mdl" : "Model to show."
+]
+@NPCClass base(CNPC_Manhack) studio("models/manhack.mdl") = npc_manhack : "Manhack."
+[
+]
+@NPCClass base(CNPC_Monk) studio("models/Monk.mdl") = npc_monk : "Father Grigori."
+[
+]
+@NPCClass base(CAI_PlayerAlly) studio("models/mossman.mdl") = npc_mossman : "Mossman."
+[
+]
+@NPCClass base(CNPC_Pigeon) studio() = npc_pigeon : "Pigeon."
+[
+]
+@NPCClass base(CNPC_PoisonZombie) studio("models/zombie/poison.mdl") = npc_poisonzombie : "Poison zombie."
+[
+]
+@NPCClass base(Model,CAI_BaseNPC) studio() = npc_puppet : "It's a generic NPC which can be attached to a target NPC and animate in a way that corresponds to its target's animations. This entity is used for Alyx is a scene where she is carried by a vortigaunt. A vortigaunt is the only NPC which Valve ever needed to be a target of this NPC, so it's the only one with any stock functionality that lets it acknowledge the relationship it has with the puppet: the BeginCarryNPC and EndCarryNPC inputs. Additionally, the model models/alyx_ep2.mdl is the only model with corresponding animations. TODO: How exactly does the puppet NPC know which animations to use? Are they supposed to have the same name or something?"
+[
+	attachmentname(string) : "Target attachment point name" : "alyx_attachment" : "An attachment point on the target NPC for this NPC to be attached to. Required! Tip: View attachment points ingame with ent_attachments."
+	input SetAnimationTarget(target_destination) : "Tells the puppet to attach to the specified NPC and animate according to how that NPC animates."
+]
+@NPCClass base(CNPC_RollerMine) studio("models/roller.mdl") = npc_rollermine : "Rollermine."
+[
+]
+@NPCClass base(CNPC_Seagull) studio() = npc_seagull : "Seagull."
+[
+]
+@NPCClass base(CProtoSniper) studio("models/combine_soldier.mdl") = npc_sniper : "Combine sniper."
+[
+	input SetPaintInterval(float) : "Sets Paint interval."
+	input SetPaintIntervalVariance(float) : "Sets Paint interval variance."
+]
+@NPCClass base(CNPC_Stalker) studio("models/stalker.mdl") = npc_stalker : "Stalker."
+[
+]
+@NPCClass base(CNPC_Strider) studio("models/combine_strider.mdl") = npc_strider : "Striders are technically flying NPCs and move on a series of path nodes (info_node_air_hint)."
+[
+]
+@PointClass base(CTemplateNPCMaker) iconsprite("editor/npc_maker") color(248 155 0) = npc_template_maker : "Makes a clone of an NPC that's placed inside Hammer, and copies all of its properties and outputs."
+[
+]
+@NPCClass base(CNPC_CeilingTurret) studio("models/combine_turrets/ceiling_turret.mdl") = npc_turret_ceiling : "Ceiling turret."
+[
+]
+@NPCClass base(CNPC_FloorTurret) studio() = npc_turret_floor : "Combine turret."
+[
+]
+@NPCClass base(CNPC_GroundTurret) studio("models/combine_turrets/ground_turret.mdl") = npc_turret_ground : "Ground turret. https://drive.google.com/file/d/1JRMF-2-a9hFc-LLwz1oLtiLmzvJqPtrx/view?usp=sharing"
+[
+]
+@NPCClass base(CNPC_VehicleDriver) studio("models/roller.mdl") = npc_vehicledriver : "Simulates an NPC driving a vehicle. Follows a set of path_tracks. The NPC is a combine entity by default."
+[
+]
+@NPCClass base(CNPC_Vortigaunt) studio() = npc_vortigaunt : "Vortigaunt."
+[
+]
+@NPCClass base(CAI_BaseNPC) studio("models/zombie/classic.mdl") = npc_zombie : "The classic zombie."
+[
+]
+@NPCClass base(CAI_BaseNPC) studio("models/zombie/classic_torso.mdl") = npc_zombie_torso : "The classic zombie torso."
+[
+]
+@NPCClass base(CAI_BaseNPC) studio("models/zombie/zombie_soldier.mdl") = npc_zombine : "It's a combine zombie. That's like a... a zombine, right?"
+[
+	input StartSprint(void) : "Forces the zombine to sprint."
+	input PullGrenade(void) : "Forces the zombine to pull out a grenade."
+]
+@PointClass base(CPhysConstraint) color(255 0 255) = phys_hinge : "It forces one or two entities to rotate only on a single axis, but otherwise move as normal."
+[
+	spawnflags(flags) =
+	[
+		8 : "Change mass to keep stable attachment to world - TODO: Clarify" : 0
+	]
+	hingefriction(float) : "Friction" : 0 : "How stiff the hinge is. No amount of friction will stop the gravity gun from bending the hinge, but hinges with extremely high friction will bounce back to their original angle."
+	hingeaxis(vecline) : "Hinge Axis" :  : "The 'other' end of the rotation axis."
+	SystemLoadScale(float) : "Load Scale" : 1 : "'Scale of the load connected to this hinge (1=just the objects directly connected)' TODO: Clarify"
+	slidesoundfwd(sound) : "Travel sound (forward)" :  : "Sound to make when the hinge is rotating clockwise."
+	slidesoundback(sound) : "Travel sound (backward)" :  : "Sound to make when the hinge is rotating counter-clockwise."
+	minSoundThreshold(float) : "Minimum Sound Velocity" : 6 : "When rotating below this speed, don't play any sounds."
+	maxSoundThreshold(float) : "Full Sound Velocity" : 80 : "When rotating above this speed, play sounds at full volume. Below this speed, faster means louder."
+	reversalsoundSmall(sound) : "Reversal sound (small)" :  : "Sound to play when the hinge makes a reversal at a speed between the small and medium Reversal sound thresholds."
+	reversalsoundMedium(sound) : "Reversal sound (medium)" :  : "Sound to play when the hinge makes a reversal at a speed between the medium and large Reversal sound thresholds."
+	reversalsoundLarge(sound) : "Reversal sound (large)" :  : "Sound to play when the hinge makes a reversal at a speed above the Reversal sound threshold (large)."
+	reversalsoundthresholdSmall(float) : "Reversal sound threshold (small)" :  : "If the hinge makes a reversal with at least this much angular acceleration/deceleration, the Reversal sound (small) will play."
+	reversalsoundthresholdMedium(float) : "Reversal sound threshold (medium)" :  : "If the hinge makes a reversal with at least this much angular acceleration/deceleration, the Reversal sound (medium) will play."
+	reversalsoundthresholdLarge(float) : "Reversal sound threshold (large)" :  : "If the hinge makes a reversal with at least this much angular acceleration/deceleration, the Reversal sound (large) will play."
+	input SetAngularVelocity(float) : "Makes the hinge begin rotating this many degrees per second."
+	input SetHingeFriction(float) : "Sets Friction."
+]
+@PointClass base(CPhysConstraint) studio("models/editor/axis_helper.mdl") color(255 0 255) = phys_slideconstraint : "It locks the movement of one or two entities to a single axis."
+[
+	spawnflags(flags) =
+	[
+		2 : "Limit Endpoints - Limit entity movement to the endpoints defined in Hammer." : 0
+	]
+	slidefriction(float) : "Friction" : 0 : "How much friction is present in the sliding mechanism. Extremely high friction values will not prevent the object from budging, but will return it to its original position."
+	slideaxis(vecline) : "Sliding Axis" :  : "The 'other' end of the axis to slide on."
+	SystemLoadScale(float) : "Load Scale" : 1 : "'Scale of the load connected to this constraint (1=just the objects directly connected)' TODO: Clarify"
+	slidesoundfwd(sound) : "Travel sound (forward)" :  : "Sound to make when the object is sliding forward."
+	slidesoundback(sound) : "Travel sound (backward)" :  : "Sound to make when the object is sliding backward."
+	minSoundThreshold(float) : "Minimum Sound Velocity" : 6 : "When sliding below this speed, don't play any sounds."
+	maxSoundThreshold(float) : "Full Sound Velocity" : 80 : "When sliding above this speed, play sounds at full volume. Below this speed, faster means louder."
+	reversalsoundSmall(sound) : "Reversal sound (small)" :  : "Sound to play when the object makes a reversal at a speed between the small and medium Reversal sound thresholds."
+	reversalsoundMedium(sound) : "Reversal sound (medium)" :  : "Sound to play when the object makes a reversal at a speed between the medium and large Reversal sound thresholds."
+	reversalsoundLarge(sound) : "Reversal sound (large)" :  : "Sound to play when the object makes a reversal at a speed above the Reversal sound threshold (large)."
+	reversalsoundthresholdSmall(float) : "Reversal sound threshold (small)" :  : "If the object makes a reversal with at least this much acceleration/deceleration, the Reversal sound (small) will play."
+	reversalsoundthresholdMedium(float) : "Reversal sound threshold (medium)" :  : "If the object makes a reversal with at least this much acceleration/deceleration, the Reversal sound (medium) will play."
+	reversalsoundthresholdLarge(float) : "Reversal sound threshold (large)" :  : "If the object makes a reversal with at least this much acceleration/deceleration, the Reversal sound (large) will play."
+	input SetVelocity(float) : "Pushes the object(s) in the constraint with this much force."
+]
+@PointClass base(CRevertSaved) color(0 255 0) = player_loadsaved : "Reloads the last save after fading the screen out."
+[
+]
+@PointClass base(CAntlionRepellant) sphere(repelradius) color(247 89 93) = point_antlion_repellant : "Antlions will not jump into the space around this entity. They can still run through it. One is made automatically by prop_thumpers. npc_antlion_template_maker will not spawn antlions near this entity. To keep antlions completely out an area, use an ai_sound with the Sound Type (soundtype) Thumper or a prop_thumper, or a standard method of controlling an NPC's navigation, such as hint groups."
+[
+]
+@PointClass base(CBugBaitSensor) sphere(radius) color(248 155 0) = point_bugbait : "Detects the usage of bugbait and can change how antlions react to it."
+[
+]
+@PointClass base(CBaseEntity) sphere(radius) color(255 203 11) = point_flesh_effect_target : "When this entity gets close to a model using the $flesh material settings, it will show the alternative texture and related effects. https://developer.valvesoftware.com/wiki/$flesh When using with Alyx, use the model alyx_interior.mdl. You can use this model and its materials (alyx_interior_sheet.vmt and alyx_interior_faceandhair.vmf) as a reference for making new flesh-y models. The vortigaunt attachment points used in Episode Two are called leftclaw and rightclaw."
+[
+	radius(float) : "Radius" : 16 : "How big of an area to affect."
+	input SetRadius(string) : "Takes two numbers. First sets Radius to that number, second is how long it should take to shift to the new value."
+]
+@PointClass base(CPropScalable) color(255 203 11) = prop_coreball : "A model that can be scaled by axis, as opposed to other scaling methods which always scale the model uniformly on all axes."
+[
+]
+@PointClass base(CPropScalable) color(255 203 11) = prop_scalable : "The Citadel reactor core. Important: In order for it to render correctly, it has to placed at 2688, 12139, 5170. TODO: How to fix this."
+[
+]
+@PointClass base(CPropThumper) studio() sphere(EffectRadius) color(0 255 0) = prop_thumper : "Thumper."
+[
+	EffectRadius(integer) : "Effect Radius" : 1000 : "How large of an area to affect. BUG: If set too big, antlions that spawn too close to the thumper will be confused and not move away."
+]
+@PointClass base(CPropVehicleChoreoGeneric) studioprop() color(0 255 255) = prop_vehicle_choreo_generic : "An entity used to control the player's view while giving them realistic motion. The motion is done through a model animation instead of a point_viewcontrol moving on path_tracks. Usually the model is invisible. Only one player can be in the vehicle at a time."
+[
+	ignoremoveparent(choices) : "Ignore Move Parent on Exit" : 1 : "When trying to exit the vehicle, the game checks if there's an obstruction between the vehicle and its exit point. If this is set, it will not count the vehicle's parent as an obstruction." =
+	[ 
+		0 : "No"
+		1 : "Yes"
+
+	]
+]
+@PointClass base(CPropVehicleDriveable) studio() = prop_vehicle_jeep : "Jalopy. This is also used for the buggy in HL2 but it's slightly different in Episodic."
+[
+	model(studio) : "Model" : "models/vehicle.mdl" : "Model to use."
+	vehiclescript(string) : "Vehicle Script File" : "scripts/vehicles/jalopy.txt" : "Path to a file that defines properties about this vehicle."
+	CargoVisible(choices) : "Hopper Visible" : 0 : "Sets if the weapon_striderbuster holder is visible. Does not affect functionality! Functionality can be disabled by Killing the entity striderbusters get sensed by: trigger_vehicle_cargo." =
+	[ 
+		0 : "No"
+		1 : "Yes"
+
+	]
+	input ShowHudHint(void) : "Shows the driver the HUD hints for the turbo and handbrake. The jeep automatically sends this to itself the first few times the player enters it."
+	input StartRemoveTauCannon(void) : "Moves the gun off the jeep. Meant to be immediately followed by FinishRemoveTauCannon."
+	input FinishRemoveTauCannon(void) : "Disables and hides the gun. BUG: Any decals that got on the gun will still be visible."
+	input LockEntrance(void) : "Forbids player companions from entering the vehicle (allowed by default)."
+	input UnlockEntrance(void) : "Allows player companions to enter the vehicle."
+	input LockExit(void) : "Forbids player companions from exiting the vehicle (allowed by default)."
+	input UnlockExit(void) : "Allows player companions to exit the vehicle."
+	input EnableRadar(void) : "Shows the radar machine."
+	input DisableRadar(void) : "Hides the radar machine."
+	input EnableRadarDetectEnemies(void) : "Allows the radar to detect striders (when not carried by dropships) and hunters."
+	input AddBusterToCargo(void) : "Puts a weapon_striderbuster on the back rack. Additional busters placed by this input will fall to the ground."
+	input DisablePhysGun(void) : "Disallows the gravity gun to punt the vehicle (allowed by default)."
+	input EnablePhysGun(void) : "Allows the gravity gun to punt the vehicle."
+	input SetCargoHopperVisibility(integer) : "Sets Hopper Visible."
+	input OutsideTransition(void) : "Tells the vehicle to teleport to an info_target_vehicle_transition. Normally sent by trigger_changelevel when the vehicle is not inside a trigger_transition."
+	output OnCompanionEnteredVehicle(void) : "Fires when an NPC the player likes or is neutral to enters the vehicle."
+	output OnCompanionExitedVehicle(void) : "Fires when an NPC the player likes or is neutral to exits the vehicle."
+	output OnHostileEnteredVehicle(void) : "Fires when an NPC the player hates or fears enters the vehicle."
+	output OnHostileExitedVehicle(void) : "Fires when an NPC the player hates or fears exits the vehicle."
+]
+@PointClass base(CAI_ScriptedSentence) sphere() iconsprite("editor/scripted_sentence") color(0 255 255) = scripted_sentence : "Plays a single line (or 'sentence') from Sentences.txt from an NPC. Can be considered obsolete compared to ambient_generic and logic_choreographed_scene."
+[
+]
+@PointClass base(CAI_ScriptedSequence) studio("models/editor/scriptedsequence.mdl") sphere(m_flRadius) color(0 255 255) = scripted_sequence : "Grabs an NPC and makes them play a specified set of animations. Multiple scripted_sequences of the same name will synchronize in the action animation once all the actors have moved to position. This allows tight interaction between actors (one actor grabbing another, hitting them, etc). Tip: Sequences and activities can be viewed in Hammer's model browser."
+[
+]
+@SolidClass base(CChangeLevel) color(0 255 0) = trigger_autosave : "Tells the game to make a save state when a player touches it. The entity will remove itself after saving."
+[
+]
+@SolidClass base(CBaseTrigger) = trigger_changelevel : "Causes the map to change once the player steps inside it. For full usage notes see https://developer.valvesoftware.com/wiki/Trigger_changelevel"
+[
+	spawnflags(flags) =
+	[
+		2 : "Disable Touch - Prevents the trigger from changing the level when touched." : 0
+	]
+	map(string) : "New Map Name" :  : "Name of the map to load."
+	landmark(target_destination) : "Landmark Name" :  : "An info_landmark which is in the exact same in-universe spot as another info_landmark in the new map."
+	input ChangeLevel(void) : "Makes the level change regardless of the player's position. Input is ignored if the player is dead or in challenge mode."
+	output OnChangeLevel(void) : "Fires when the player enters the trigger and causes the level change. TODO: Purpose?"
+]
+@SolidClass base(CBaseTrigger) = trigger_serverragdoll : "NPCs that die in this volume will create server-side ragdolls. This can be useful if fighting on a brush entity, where clientside ragdolls would fall through the floor. Note: Ragdolls created with this entity are set to be debris, and changing the debris flag with AddOutput will not change their collisions."
+[
+]
+@PointClass base(CBaseCombatWeapon) studio("models/weapons/W_Alyx_Gun.mdl") color(160 37 240) = weapon_alyxgun : "This is the gun Alyx uses most of the time. This weapon does not have a proper viewmodel when a player holds it. The gun's secondary fire switches it between burst and automatic fire."
+[
+]
+@PointClass base(CBaseCombatWeapon) studio("models/weapons/w_package.mdl") color(160 37 240) = weapon_citizenpackage : "A holdable food package. Bug: Sometimes NPCs don't hold this weapon correctly. TODO: Why?"
+[
+]
+@PointClass base(CBaseCombatWeapon) studio("models/weapons/w_suitcase_passenger.mdl") color(160 37 240) = weapon_citizensuitcase : "A holdable suitcase. Bug: Sometimes NPCs don't hold this weapon correctly. TODO: Why?"
+[
+]
+@PointClass base(CPhysicsProp) studioprop() sphere(fademindist) sphere(fademaxdist) studio("models/magnusson_device.mdl") color(160 37 240) = weapon_striderbuster : "A Magnusson Device."
+[
+	spawnflags(flags) =
+	[
+		8388608 : "If game_weapon_manager is watching busters, don't count this one." : 0
+	]
+	dud(choices) : "Dud Bomb" : 0 : "Disarms the striderbuster (for the training area). Dud striderbusters break from hitting anything that wasn't a strider." =
+	[ 
+		0 : "No"
+		1 : "Yes"
+
+	]
+	input ConstraintBroken(void) : "Breaks the striderbuster. If it's currently on a strider, it won't have an explosion effect. Bug: If it's in the car's holder, it will give the explosion effect but not actually break."
+	output OnAttachToStrider(void) : "Fires when the striderbuster attaches to a strider."
+	output OnDetonate(void) : "Fires when the strider gets busted."
+	output OnShatter(void) : "Fires when the striderbuster breaks from hitting something that wasn't a strider."
+	output OnShotDown(void) : "Fires when the striderbuster gets broken by a hunter flechette."
+]
+
+//SE OBSOLETES
+@PointClass base(CBaseEntity) color(255 232 79) iconsprite("editor/obsolete") = ai_citizen_response_system : "OBSOLETE: You shouldn't use this entity, though it may appear in other people's maps. It manages some aspects of citizens responding to events. It was replaced by ai_npc_eventresponsesystem."
+[
+	input ResponseVitalNPC(void) : "Fire the VitalNPC Died response."
+]
+@PointClass base(CBaseEntity) color(255 232 79) iconsprite("editor/obsolete") = ai_goal_operator : "OBSOLETE: You shouldn't use this entity, though it may appear in other people's maps. It's an entity similar to scripted_sequence but with less features. The entity is not present in HL2DM."
+[
+]
+@PointClass base(CBaseNPCMaker) color(255 232 79) iconsprite("editor/obsolete") = npc_maker : "OBSOLETE: You shouldn't use this entity, though it may appear in other people's maps. It's a less advanced version of npc_template_maker."
+[
+]
