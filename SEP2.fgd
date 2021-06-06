@@ -44,6 +44,7 @@
 		"info_placement_helper"
 		"linked_portal_door"
 		"logic_autosave"
+		"player_loadsaved"
 		"prop_indicator_panel"
 		"trigger_autosave"
 		"trigger_hurt"
@@ -94,6 +95,7 @@
 		"filter_activator_name"
 		"filter_activator_team"
 		"filter_damage_type"
+		"filter_enemy"
 		"filter_multi"
 		"filter_player_held"
 		"func_portal_detector"
@@ -121,6 +123,7 @@
 		"math_colorblend"
 		"math_counter"
 		"math_remap"
+		"npc_enemyfinder"
 		"point_anglesensor"
 		"point_angularvelocitysensor"
 		"point_broadcastclientcommand"
@@ -153,6 +156,7 @@
 		"hammer_updateignorelist"
 		"info_null"
 		"info_target"
+		"path_corner"
 		"path_track"
 		"point_devshot_camera"
 		"point_enable_motion_fixup"
@@ -200,6 +204,7 @@
 		"func_detail"
 		"func_occluder"
 		"func_viscluster"
+		"game_weapon_manager"
 	]
 	"Physics"// color(255 0 255)
 	[
@@ -252,9 +257,11 @@
 	]
 	"Scripting"// color(0 255 255)
 	[
+		"ai_npc_eventresponsesystem"
 		"env_explosion"
 		"env_fade"
 		"env_portal_credits"
+		"env_speaker"
 		"logic_choreographed_scene"
 		"logic_playmovie"
 		"logic_timescale"
@@ -286,6 +293,7 @@
 		"hot_potato_spawner"
 		"info_paint_sprayer"
 		"npc_portal_turret_floor"
+		"npc_security_camera"
 		"paint_sphere"
 		"point_energy_ball_launcher"
 		"point_laser_target"
@@ -314,7 +322,6 @@
 	[
 		"beam_spotlight"
 		"color_correction"
-		"color_correction_volume"
 		"env_ambient_light"
 		"env_ar2explosion"
 		"env_beam"
@@ -359,6 +366,7 @@
 		"game_text"
 		"info_camera_link"
 		"info_overlay"
+		"info_overlay_transition"
 		"info_particle_system"
 		"info_projecteddecal"
 		"infodecal"
@@ -382,6 +390,32 @@
 		"vgui_neurotoxin_countdown"
 		"vgui_screen"
 		"vgui_slideshow_display"
+	]
+	"Obsolete Entities"// color(255 232 79)
+	[
+		"cycler"
+		"env_dof_controller"
+		"env_lightrail_endpoint"
+		"env_portal_path_track"
+		"env_tilt"
+		"func_conveyor"
+		"func_illusionary"
+		"func_lod"
+		"func_platrot"
+		"func_tanktrain"
+		"func_trackautochange"
+		"func_trackchange"
+		"func_wall"
+		"func_wall_toggle"
+		"game_gib_manager"
+		"game_player_team"
+		"info_lighting_relative"
+		"info_target_instructor_hint"
+		"info_teleport_destination"
+		"logic_achievement"
+		"path_corner"
+		"phys_torque"
+		"vehicle_viewcontroller"
 	]
 ]
 
@@ -544,6 +578,7 @@
 	hammerid(integer) : "Hammer ID" :  : "An ID (usually) automatically assigned to this entity by Hammer. Used by some debugging commands, such as ent_keyvalue. Entities spawned at run-time are not assigned any Hammer ID."
 	vscripts(scriptlist) : "Entity Scripts" :  : "VScript files the entity should execute after the world has completely loaded and all entities have spawned. The scripts are all executed in the same script scope, later ones overwriting any identical variables and functions."
 	thinkfunction(string) : "Script think function" :  : "Name of a function in this entity's scripts which will be called automatically ten times a second for the duration of the script. It can be used to create timers or to simulate autonomous behavior. The return value (if present) will set the time until the next call. Expensive operations in this function can cause performance problems."
+	ResponseContext(string) : "Response Contexts" :  : "Pre-defined response system contexts for this entity. https://developer.valvesoftware.com/wiki/Response_System Usually only NPCs respond this, but any entity can make use of it with filter_activator_context. Format is key:value,key:value,..."
 	input Kill(void) : "Removes this entity and any entities parented to it from the world."
 	input KillHierarchy(void) : "Functions the same as Kill, although this entity and any entities parented to it are killed on the same frame. TODO: Cases where this is needed?"
 	input AddOutput(string) : "Changes a keyvalue or adds an I/O connection on this entity. Not all keyvalues will work with this input as they require special handling.\n" +
@@ -557,6 +592,9 @@
 	input RunScriptFile(script) : "Executes a VScript file from disk, without file extension. The script contents are merged with the script scope of the receiving entity."
 	input RunScriptCode(string) : "Executes a VScript function in the scope of the entity receiving the input. String quotation may be needed when fired via console. Never try to pass string parameters to a script function with this input. It will minorly corrupt the VMF structure because of the nested quotation marks, which then must be removed manually with a text editor."
 	input SetLocalOrigin(string) : "Sends this entity to a spot in the map if not parented to anything. If the entity is parented to something, it will be offset from the parent by this amount."
+	input AddContext(string) : "Adds to the entity's list of Response Contexts. Format is key:value,key:value,..."
+	input RemoveContext(string) : "Removes a context from this entity's list. The name should match the key of an existing context."
+	input ClearContext(void) : "Removes all contexts from this entity's list."
 	output OnUser1(void) : "Fires in response to the FireUser1 input."
 	output OnUser2(void) : "Fires in response to the FireUser2 input."
 	output OnUser3(void) : "Fires in response to the FireUser3 input."
@@ -971,7 +1009,6 @@
 		32 : "EndSparks (temporarily emits a sparks at ending point.)" : 0
 		64 : "Decal End (scorch mark where a damaging beam hits something. For env_beam see Decal Name.)" : 0
 	]
-	HDRColorScale(float) : "HDR color scale" : "1.0" : "Value to multiply sprite color by when running in HDR mode."
 	damage(integer) : "Damage/second" : 0 : "How much damage this beam does per second to things it hits when it is continually on, or instantaneously if it strikes. For continuous damage, the value should be greater than 10 or it may not work."
 	dissolvetype(boolean) : "Sparks on Damage" : 0 : "If this beam damages something, shows sparks on that entity."
 	input Width(float) : "Sets the radius of the beam (i.e. 1 = 2 world units total thickness)."
@@ -1089,6 +1126,10 @@
 ]
 @BaseClass base(CBaseEntity,VisibleBrush,Origin) = CFuncBrush 
 [
+	spawnflags(flags) =
+	[
+		2 : "Ignore player +USE - This entity is able to suck in +use inputs for no reason. Check this to make it stop." : 1
+	]
 	Solidity(choices) : "Solidity" : 0 : "Used to control the solidity/collision of these brushes." =
 	[
 		0 : "Toggle - The solidity can be toggled together with its visibility."
@@ -1249,7 +1290,7 @@
 		524288 : "Generate output on +USE (OnPlayerUse)" : 1
 		8388608 : "Prevent motion enable on player bump" : 0
 	]
-	massScale(float) : "Mass Scale" : 1 : "A scale multiplier for the object's mass. Use the convar sv_massreport 1 to see the actual mass of the object ingame."
+	massScale(float) : "Mass Scale" : 1 : "A scale multiplier for the object's mass. Use the convar sv_massreport 1 to see the actual mass of the object ingame. You can also use Override Parameters to set 'mass' to whatever you want."
 	Damagetype(choices) : "Impact Damage Type" : 0 : "Sets the 'sharpness' of the brush. Sharp objects are far more damaging." =
 	[
 		0 : "Blunt"
@@ -1264,6 +1305,7 @@
 		0 : "Solid to World"
 		1 : "Passes through World"
 	]
+	preferredcarryangles(vector) : "Preferred Player-carry Angles" :  : "If the Use Preferred Carry Angles spawnflag is set, this angle is the angle which the object should orient to when the player picks it up."
 	input Sleep(void) : "Tells the brush to quit moving. Any physics forces (excluding gravity and water buoyancy) will cause the object to resume moving as usual. Sleeping also occurs automatically when the object has no physics forces to keep it awake, and is no longer moving a noticeable amount."
 	input Wake(void) : "If the object was told to sleep, tells it to start moving again."
 	input DisableMotion(void) : "Tells the object to stop moving completely. No physics forces will re-enable motion, not even Wake."
@@ -1321,6 +1363,7 @@
 		64 : "Enable motion when grabbed." : 0
 		128 : "Not affected by rotor wash." : 0
 		256 : "Generate output on +use - Allow OnPlayerUse to fire." : 1
+		512 : "Prevent pickup" : 0
 		1024 : "Prevent motion enable on player bump - Motion will not be enabled by the player simply running into the prop." : 0
 		4096 : "Debris capable of triggering triggers. Requires 'Debris' to be set." : 0
 	]
@@ -1548,6 +1591,12 @@
 ]
 
 //SE ENTITIES
+@PointClass base(CBaseEntity) color(0 255 255) = ai_npc_eventresponsesystem : "It makes the nearest NPC to the player within 768 units speak a response concept, such as TLK_PLAYERUSE."
+[
+	input TriggerResponseEvent(string) : "Makes an NPC speak the specified concept. If the nearest NPC is currently in a scene, they will ignore the concept. Farther NPCs will not do anything."
+	input ForceTriggerResponseEvent(string) : "Makes an NPC speak the specified concept. If the nearest NPC is currently in a scene, they will be taken out of it when they speak this concept."
+	input ForceTriggerResponseEventNoCancel(string) : "Makes an NPC speak the specified concept. If the nearest NPC is currently in a scene, they will resume it when they finish speaking the concept."
+]
 @PointClass base(CBaseEntity) iconsprite("editor/ai_relationship") sphere(radius) = ai_relationship : "This changes the relationship between any NPCs in terms of how they react to each other. This can be used to make turrets ignore the player or shoot something else."
 [
 	subject(target_name_or_class) : "Subject(s)" :  : "The targetname or classname of the NPCs whose disposition will change."
@@ -1763,16 +1812,10 @@
 	maxweight(float) : "Maximum Weight" : 1 : "How strongly this entity should apply the effect. This is a decimal percent, e.g. 0.45 = 45%."
 	fadeInDuration(float) : "Lookup Fade In Duration" : 0 : "How long this color correction should take to fade in."
 	fadeOutDuration(float) : "Lookup Fade out Duration" : 0 : "How long this color correction should take to fade out."
-	filename(string) : "Lookup Table Filename" :  : "Filepath to the .raw being used."
+	filename(string) : "Lookup Table Filename" :  : "Filepath to the .raw being used. Example: materials/correction/cc_finale4.raw."
 	exclusive(boolean) : "Exclusive" : 0 : "Makes all other color_correction entities be disabled if this one becomes active. This only applies when enabling and disabling correction entities (only one fog_volume can be active at a time, and there's no way to give one priority)."
 	input SetFadeInDuration(float) : "Sets Lookup Fade In Duration."
 	input SetFadeOutDuration(float) : "Sets Lookup Fade out Duration."
-]
-@SolidClass base(CBaseTrigger) color(255 203 11) = color_correction_volume : "When a player steps into this volume, they will have a color correction effect applied to their screen."
-[
-	filename(string) : "Lookup Table Filename" :  : "Filepath to the .raw being used. Example: materials/correction/cc_finale4.raw."
-	fadeDuration(float) : "Lookup Fade Duration" : 0 : "How long the CC takes to fade in and out."
-	maxweight(float) : "Maximum Weight" : 1 : "How strongly this entity should apply the effect. This is a decimal percent, e.g. 0.45 = 45%."
 ]
 @PointClass base(CBaseEntity,Parent,EnableDisable) sphere(minfalloff) sphere(maxfalloff) iconsprite("editor/color_correction") color(255 203 11) = env_ambient_light : "Adds color to darker areas of the screen while not affecting bright areas as much."
 [
@@ -2065,7 +2108,7 @@
 	input Enable(void) : "Turns the entity on."
 	input Disable(void) : "Turns the entity off."
 ]
-@PointClass base(CBaseEntity) iconsprite("editor/fog_controller") color(255 203 11) sphere(fogstart) sphere(fogend) = env_fog_controller : "Creates fog in the air. Multiple may exist in one map in order to change settings at any time. The 3D Skybox fog levels set by the sky_camera parameters should correspond to your env_fog_controller settings. If there's more than one controller in the map, the one a player listens to can be changed by sending the player entity a SetFogController input."
+@PointClass base(CBaseEntity,Angles) iconsprite("editor/fog_controller") color(255 203 11) sphere(fogstart) sphere(fogend) = env_fog_controller : "Creates fog in the air. Multiple may exist in one map in order to change settings at any time. The 3D Skybox fog levels set by the sky_camera parameters should correspond to your env_fog_controller settings. If there's more than one controller in the map, the one a player listens to can be changed by sending the player entity a SetFogController input."
 [
 	spawnflags(flags) =
 	[
@@ -2075,11 +2118,11 @@
 	fogstart(float) : "Fog Start" : 400 : "How far away from the viewer the fog should start."
 	fogend(float) : "Fog End" : 9500 : "How far away from the viewer the fog reaches Fog Max Density."
 	fogmaxdensity(float) : "Fog Max Density" : 1 : "Maximum density the fog may reach. Expressed as a decimal percent, so for 45% put 0.45."
-	farz(integer) : "Far Z Clip Plane" : -1 : "Anything beyond this distance in world units will not be rendered. This should be higher than Fog End. If this is used, Fog Max Density should be set to 1 otherwise far-away areas will look odd."
+	farz(integer) : "Far Z Clip Plane" : -1 : "Anything beyond this distance in world units will not be rendered. This should be higher than Fog End. Past the far Z, the skybox (and only the skybox) is rendered, so your fog color will probably need to match its color."
 	fogcolor(color255) : "Primary Fog Color" : "170 204 221" : "Fog Color."
 	fogcolor2(color255) : "Secondary Fog Color" : "170 204 221" : "Secondary Fog Color. If Fog Blend is disabled, this color will never appear."
 	fogblend(boolean) : "Fog Blend" : 0 : "Enables color blending between Primary Fog Color and Secondary Fog Color. When the viewer looks in the Primary Fog Direction, fog will appear as the Primary color. When looking away from the specified direction, fog appears as the Secondary color. If the camera is not pointed directly at or away from the direction, a blend of the two colors will result."
-	fogdir(vecline) : "Primary Fog Direction" : "1 0 0" : "Direction which the viewer camera is checked against to figure out the blend between the primary and secondary fog colors."
+	fogdir(vector) : "Primary Fog Direction" : "1 0 0" : "Direction which the viewer camera is checked against to figure out the blend between the primary and secondary fog colors."
 	use_angles(boolean) : "Use Angles for Fog Dir" : 0 : "Use Pitch Yaw Roll for the Fog Blend direction instead of Primary Fog Direction."
 	foglerptime(float) : "Interpolate time" : 5 : "Fade time for the StartFogTransition input."
 	input TurnOn(void) : "Turns the fog on."
@@ -2107,7 +2150,7 @@
 	]
 	input Use(void) : "Emits the effect. Once it's done, the entity is automatically removed from the map."
 ]
-@PointClass base(CBaseEntity) color(248 155 0) iconsprite("editor/env_global") = env_global : "Stores boolean info, even across rounds (logic_branch will reset). This also includes across maps."
+@PointClass base(CBaseEntity) color(248 155 0) iconsprite("editor/env_global") = env_global : "Stores boolean info, even across maps. These can control if a logic_auto fires its outputs."
 [
 	spawnflags(flags) =
 	[
@@ -2144,7 +2187,7 @@
 		0 : "None. Cheap performance."
 		1 : "Normal collision detection."
 	]
-	shootsound(sound) : "Shoot Sound" : "npc\turret\turret_fire_4x_01.wav" : "Gun sound to make."
+	shootsound(sound) : "Shoot Sound" : "npc/turret/turret_fire_4x_01.wav" : "Gun sound to make."
 	tracertype(choices) : "Show Tracer" : "Tracer" : "Should bullets be visible?" =
 	[
 		"Tracer" : "Yes"
@@ -2465,7 +2508,7 @@
 [
 	input RollPortalOutroCredits(void) : "Shows Portal 2's credit sequence (the portion of the ending sequence immediately after seeing the shed door shut). This does not play the song 'Want You Gone', but shows the lyrics for it both on-screen and in captions. Disconnects player when done."
 ]
-@PointClass base(CBaseAnimating,Reflection,Toggle) color(0 255 0) studio() = env_portal_laser : "Emits a Thermal Discouragement Beam."
+@PointClass base(CBaseAnimating,Toggle) color(0 255 0) studio() = env_portal_laser : "Emits a Thermal Discouragement Beam."
 [
 	model(studio) : "World Model" : "models/props/laser_emitter.mdl" : "A path to a .mdl."
 	StartState(boolean) : "Start off?" : 0 : "If Yes, laser emitter is off by default."
@@ -2689,24 +2732,37 @@
 		512 : "Directional" : 0
 	]
 	MaxDelay(string) : "Max Delay" : 0 : "The longest delay between sparks (in seconds). If this value is changed with AddOutput, the change will only take effect after the entity sparks again."
-	Magnitude(choices) : "Magnitude" : 1 : "The amount of the sparks." =
+	Magnitude(choices) : "Magnitude" : 1 : "The amount of the sparks. Any number may be entered here." =
 	[
-		1 : "Small"
-		2 : "Medium"
-		5 : "Large"
-		8 : "Huge"
+		1 : "Small (1)"
+		2 : "Medium (2)"
+		5 : "Large (5)"
+		8 : "Huge (8)"
 	]
-	TrailLength(choices) : "Spark Trail Length" : 1 : "Length of the spark trails." =
+	TrailLength(choices) : "Spark Trail Length" : 1 : "Length of the spark trails. Any number may be entered here." =
 	[
-		1 : "Short"
-		2 : "Medium"
-		3 : "Long"
+		1 : "Short (1)"
+		2 : "Medium (2)"
+		3 : "Long (3)"
 	]
 	input StartSpark(void) : "Start the spark effect."
 	input StopSpark(void) : "Stop the spark effect."
 	input ToggleSpark(void) : "Toggle the on/off state of the spark effect."
 	input SparkOnce(void) : "Spark once."
 	output OnSpark(void) : "Fired when the sparks emit."
+]
+@PointClass base(CBaseEntity,Toggle) iconsprite("editor/ambient_generic") color(0 255 255) = env_speaker : "It periodically tells NPCs to speak response concepts. It is used often to have an NPC nag the player about something. TODO: What is the purpose of using response contexts with this specific entity? Is the context passed on to targeted NPCs somehow?"
+[
+	spawnflags(flags) =
+	[
+		1 : "Start Silent" : 0
+	]
+	delaymin(float) : "Min Delay Between Announcements" :  : "Minimum time between announcements in seconds."
+	delaymax(float) : "Max Delay Between Announcements" :  : "Maximum time between announcements in seconds."
+	rulescript(string) : "Context rule script" :  : "The response rules script file to load. Example: scripts/talker/nags_canals.txt."
+	concept(string) : "Concept name" :  : "The concept to speak. Example: BoxcarNag."
+	input TurnOn(void) : "Starts random announcements."
+	input TurnOff(void) : "Stops random announcements."
 ]
 @PointClass base(CBaseEntity,Parent) color(28 146 214) = env_splash : "It creates a generic splash effect like the one seen when bullets fire into water."
 [
@@ -2885,6 +2941,16 @@
 		16384 : "Drown"
 	]
 ]
+@FilterClass base(CBaseFilter) iconsprite("editor/filter_class") sphere(filter_radius) sphere(filter_outer_radius) color(248 155 0) = filter_enemy : "It's a filter intended to check a potential enemy entity by a set of criteria. It can also be used as a proximity filter for any type of entity."
+[
+	spawnflags(flags) =
+	[
+		1 : "Don't lose target when new filter blocks it otherwise NPC forgets about current enemy if it fails new filter via SetEnemyFilter" : 0
+	]
+	filtername(target_name_or_class) : "Name/Classname" :  : "The classname or targetname to filter by. Entities that don't meet this criterion will always pass the filter, but ones that do will be tested further by other criteria before they can pass. If no string is given, all entities will have further criteria tested."
+	filter_radius(float) : "Radius" : 0 : "Distance the entity must be within to the origin of the detecting entity."
+	filter_outer_radius(float) : "Outer Radius" : 0 : "If detecting entity is a turret, once seen, enemies must move this far away to be forgotten about."
+]
 @FilterClass base(CBaseFilter) iconsprite("editor/filter_multiple") color(248 155 0) = filter_multi : "A filter that combines other filters."
 [
 	FilterType(choices) : "Logic Type" : 0 : "Boolean logic applied when testing the filters." =
@@ -2960,7 +3026,7 @@
 	movedir(angle) : "Move Direction (Pitch Yaw Roll)" : "0 0 0" : "Specifies the direction of motion to move when the button is used. Once the entity has moved so far that it's not occupying its original space anymore, it will stop moving."
 	lip(integer) : "Lip" : 0 : "The amount, in units, of the button to leave inside its original space when pressed. Negative values make the button move even farther. By default, the button will move in Move Direction until it no longer occupies the space it was originally in."
 ]
-@SolidClass base(CBaseEntity,Parent) color(216 5 136) color(255 0 255) = func_clip_vphysics : "It's a brush which is only solid to physics objects, like props and weapons. Hull-simulated objects (i.e. players, hostages, nades) can pass through."
+@SolidClass base(CBaseEntity,Parent) color(216 5 136) = func_clip_vphysics : "It's a brush which is only solid to physics objects, like props and weapons. Hull-simulated objects (i.e. players, hostages, nades) can pass through."
 [
 	filtername(filterclass) : "Filter Name" :  : "Filter to use to see if activator collides with this entity."
 	input Enable(void) : "Makes the entity active."
@@ -3059,7 +3125,7 @@
 	parm9(instance_parm) : "Parm" :  : "An instance parameter. The order they are defined in will have no effect. Put the $variable name in Variable. The Value is whatever type of value the parameter is. The Default is simply a default value for the variable if you don't define it in the func_instance."
 	parm10(instance_parm) : "Parm" :  : "An instance parameter. The order they are defined in will have no effect. Put the $variable name in Variable. The Value is whatever type of value the parameter is. The Default is simply a default value for the variable if you don't define it in the func_instance."
 ]
-@SolidClass base(CFuncBrush) color(255 203 11) = func_monitor : "It displays a real-time scene captured from a point_camera somewhere else in the world. For the entity to work, the surface(s) on which the camera view will be displayed must have a material with $basetexture _rt_Camera. Stock materials that work are dev\dev_combinemonitor* and dev\dev_tvmonitor*. Players are not rendered if they aren't visible to the viewing player after accounting for PVS, viewcone, and occlusion checks. Visual artifacts may appear if the camera can see a func_monitor."
+@SolidClass base(CFuncBrush) color(255 203 11) = func_monitor : "It displays a real-time scene captured from a point_camera somewhere else in the world. For the entity to work, the surface(s) on which the camera view will be displayed must have a material with $basetexture _rt_Camera. Stock materials that work are dev/dev_combinemonitor* and dev/dev_tvmonitor*. Players are not rendered if they aren't visible to the viewing player after accounting for PVS, viewcone, and occlusion checks. Visual artifacts may appear if the camera can see a func_monitor."
 [
 	target(target_destination) : "Camera name" :  : "The point_camera to render."
 	input SetCamera(target_destination) : "Changes Camera name."
@@ -3351,6 +3417,13 @@
 	output PressedAttack2(void) : "Fires when the player sends +attack2 (secondary attack)."
 	output UnpressedAttack2(void) : "Fires when the player sends -attack2."
 ]
+//Portal 2 only has one weapon entity and it stays with the player forever. The portal gun also has no ammo concept.
+@PointClass base(CBaseEntity) color(0 180 0) = game_weapon_manager : "Counts how many of an entity are in the map. If it finds too many entities of one kind, it will delete old ones. It's intended as an optimization."
+[
+	weaponname(string) : "Entity Classname" :  : "Classname of the entity to monitor."
+	maxpieces(integer) : "Max Allowed in Level" :  : "How many entities of the specified type may be in the map at once."
+	input SetMaxPieces(integer) : "Sets Max Allowed in Level."
+]
 @NPCClass base(Model,CBaseAnimating,Skin) = generic_actor : "An entity used for playing voicelines. Used for voices such as Glados."
 [
 ]
@@ -3395,7 +3468,7 @@
 	output OnHotPotatoCaught(void) : "Fires when a ball is caught or a new one spawned."
 	output OnHotPotatoReleased(void) : "Fires when a ball is grabbed from the spawner."
 ]
-@PointClass base(CBaseEntity) color(255 203 11) = info_camera_link : "It displays the view of a point_camera onto brushes or models. The view is saved to a texture called _rt_Camera, which must be specified as the $basetexture for the material that the view will appear on. An info_camera_link is used in the last Half-Life 2 map to create the view through the opening portal (effects/portalrift.mdl). Players are not rendered if they aren't visible to the viewing player after accounting for PVS, viewcone, and occlusion checks."
+@PointClass base(CBaseEntity) color(255 203 11) = info_camera_link : "It displays the view of a point_camera onto brushes or models. The view is saved to a texture called _rt_Camera, which must be specified as the $basetexture for the material that the view will appear on. An info_camera_link is used in the last Half-Life 2 map to create the view through the opening portal (effects/portalrift.mdl)."
 [
 	PointCamera(target_destination) : "Camera Name" :  : "point_camera which the view will be taken from."
 	input SetCamera(target_destination) : "Sets Camera Name."
@@ -3484,6 +3557,19 @@
 	uv1(vector) readonly : "Overlay Point 2 (Read-Only)" :  : "Position of a corner. Adjust using the overlay tool."
 	uv2(vector) readonly : "Overlay Point 3 (Read-Only)" :  : "Position of a corner. Adjust using the overlay tool."
 	uv3(vector) readonly : "Overlay Point 4 (Read-Only)" :  : "Position of a corner. Adjust using the overlay tool."
+]
+@PointClass sidelist(sides) sidelist(sides2) overlay_transition() color(255 203 11) = info_overlay_transition : "It puts a texture in the space where a brush/displacement touches water. (i.e. a transition from land to water) It can be used to show waves on a shore. The entity is very buggy. Sometimes bits and pieces of the shore effect will just not render. It may show as a solid color or just not at all. Sometimes using cut and paste in Hammer will bug the entity in some way."
+[
+	material(material) : "Material" :  : "Material to put over the transition between land and water."
+	sides(sidelist) : "Brush faces" :  : "Land faces to apply on."
+	sides2(sidelist) : "Water faces" :  : "Water faces to apply on."
+	Width1(float) : "Width Land" : 5 : "How far the texture goes onto land."
+	Width2(float) : "Width Water" : 5 : "How far the texture goes onto water."
+	LengthTexcoordStart(float) : "Texcoord Length Start" : 0 : "TODO: Description."
+	LengthTexcoordEnd(float) : "Texcoord Length End" : 1 : "TODO: Description."
+	WidthTexcoordStart(float) : "Texcoord Width Start" : 0 : "TODO: Description."
+	WidthTexcoordEnd(float) : "Texcoord Width End" : 1 : "TODO: Description."
+	DebugDraw(boolean) : "Show Debug" : 0 : "Shows debugging info about the positioning of the texture."
 ]
 @PointClass base(CBaseEntity,Angles) studio("models/editor/cone_helper.mdl") sphere(blob_spread_radius) = info_paint_sprayer : "Emits gel in a stream. To use gel, the map needs to have Paint in Map set to True in worldspawn."
 [
@@ -3643,12 +3729,13 @@
 		1 : "Transmit to clients in PVS - Tells the player's end where the entity is if the entity is in their Potentially Visible Set." : 0
 		2 : "Transmit to clients ALWAYS - Tells the client where the entity is, regardless of potentially visible status." : 0
 	]
-	model(studio) : "World Model" :  : "Does nothing. Meant only to serve as a reference for the proportions of something."
+	model(studio) : "Helper Model" :  : "Does nothing. Meant only to serve as a reference for the proportions of something."
 ]
 @PointClass base(CBaseEntity) decal() studio("models/editor/axis_helper_thick.mdl") color(255 203 11) = infodecal : "It adds a texture such as a sign, stain, or bullet hole onto any surface. Place them with Hammer's decal tool (Shift+D). The entity will apply the decal then remove itself if it does not have a targetname. If it does, it will wait for the Activate input. BUG: In Hammer, decals may look like they're applied to the brush a displacement came from. They will work fine in-game though, provided that they're close to the actual displacement face."
 [
 	texture(decal) : "Texture" :  : "The texture to apply."
 	LowPriority(boolean) : "Low Priority (can be replaced)" : 0 : "Sets if this decal can be deleted for performance reasons if the map has a lot of decals in it."
+	ApplyEntity(target_destination) : "Apply Entity" :  : "An optional entity to apply the decal to. If this is empty, the decal will locate the entity by tracing. This might be useful if the decal is close to multiple things and isn't applying how you want."
 	input Activate(void) : "Applies the decal, then removes the infodecal entity."
 ]
 @KeyFrameClass base(CRopeKeyframe) studio("models/editor/axis_helper_thick.mdl") animator() keyframe() color(255 203 11) = keyframe_rope : "Defines one end of a rope. The properties set in a rope entity will only affect the rope drawn between that entity and the one specified in that entity's Next KeyFrame field. Use Shift+Drag to create ropes quickly. Identical to move_rope."
@@ -3716,9 +3803,9 @@
 	input TurnOn(void) : "Turns the light on."
 	input TurnOff(void) : "Turns the light off."
 ]
-@PointClass base(CLight,Angles) iconsprite("editor/light_env") color(160 240 37) = light_environment : "It makes light come from skybox tool textures in the map in order to simulate sunlight. Only one can be used in a map. Multiple 'sunlights' can be made with light_directional. Unless the entity is given a targetname, it will remove itself upon spawning because the game no longer needs it for anything. Named lights are toggleable and can take inputs but do a simpler light calculation and lightmap pieces are limited to up to 2 toggled lights shining on them at once."
+@PointClass base(CLight,Angles) iconsprite("editor/light_env") color(160 240 37) = light_environment : "It makes light come from skybox tool textures in the map in order to simulate sunlight. Only one can be used in a map. Multiple 'sunlights' can be made with light_directional. Unless the entity is given a targetname, it will remove itself upon spawning because the game no longer needs it for anything. Named lights are toggleable and can take inputs but do a simpler light calculation and lightmap pieces are limited to up to 2 toggled lights shining on them at once. NOTE: The pitch value (whether from Pitch or Pitch Yaw Roll) is inverse of the regular one, so -90 is straight down. Also, the roll value means nothing."
 [
-	pitch(integer) : "Pitch" : -57 : "Overrides the pitch in Pitch Yaw Roll. VRAD ignores the regular one, so it must be specified. Note that this pitch is the negative of the regular one, so -90 is straight down. Both pitch values should be opposites."
+	pitch(integer) : "Pitch" : -57 : "If used, overrides the pitch in Pitch Yaw Roll. This is entirely useless."
 	_ambient(color255) : "Ambient" : "255 255 255 20" : "Color and intensity of the ambient light. Ambient light is added on all surfaces which have LOS to a skybox brush, without any regard for the sunlight's angle."
 	SunSpreadAngle(float) : "Sun Spread Angle" : 0 : "How much the angles of the light particles can vary to simulate a penumbra effect. The lightmap scale of the brushes which light falls on also determines how blurry the shadows look."
 ]
@@ -3760,7 +3847,7 @@
 @PointClass base(CLogicAutosave) iconsprite("editor/logic_autosave") color(0 255 0) = logic_autosave : "This entity tells the game to make a save state. It can also do 'dangerous' saves, which will only count as valid if the player has at least a certain amount of health after a certain number of seconds. Danger-saves can be used to almost completely prevent infinite death loops."
 [
 ]
-@PointClass base(CBaseEntity) iconsprite("editor/logic_branch") color(248 155 0) = logic_branch : "It stores a boolean (true/false, yes/no, 1/0) value. Use env_global to make the value persist across rounds."
+@PointClass base(CBaseEntity) iconsprite("editor/logic_branch") color(248 155 0) = logic_branch : "It stores a boolean (true/false, yes/no, 1/0) value. Use env_global to remember the value when on a different map."
 [
 	InitialValue(integer) : "Initial value" : 1 : "What the value should be set to when the entity spawns."
 	input SetValue(integer) : "Sets Initial value."
@@ -3994,7 +4081,7 @@
 	output OnEqual(void) : "Fires if all the values are equal."
 	output OnNotEqual(void) : "Fires if any values are not equal."
 ]
-@PointClass base(CBaseEntity) color(248 155 0) = logic_playerproxy : "It's used to relay I/O to and from the player. Most of the entity's functions are impossible to do in other ways."
+@PointClass base(CBaseEntity,DamageFilter) color(248 155 0) = logic_playerproxy : "It's used to relay I/O to and from the player. Most of the entity's functions are impossible to do in other ways."
 [
 	damagefilter(filterclass) : "Damage Filter Name" :  : "A filter_damage_type to apply to the player."
 	input SetDamageFilter(target_destination) : "Sets Damage Filter."
@@ -4220,7 +4307,7 @@
 	]
 	MoveSpeed(integer) readonly : "Speed (units per second)" : 1 : "Does not actually exist. Needs to be above 0 to show the rope preview in Hammer."
 ]
-@NPCClass base(CBaseEntity) iconsprite("editor/bullseye") size(-16 -16 -16, 16 16 16) = npc_bullseye : "A target for NPCs to shoot. Useful for making them shoot at anything which isn't another NPC. See ai_relationship. The center of a bullseye must not be directly on the surface of anything that could block LOS. NPCs will not find them unless they're in the air on all sides."
+@NPCClass base(CBaseEntity) iconsprite("editor/bullseye") size(-16 -16 -16, 16 16 16) = npc_bullseye : "A target for NPCs to shoot. Useful for making them shoot at anything which isn't another NPC. See ai_relationship. The center of a bullseye must not be directly on the surface of anything that could block LOS."
 [
 	spawnflags(flags) =
 	[
@@ -4233,6 +4320,26 @@
 	mindist(float) : "Minimum Distance" : 0 : "NPCs must be at least this far away from the bullseye before they acknowledge that it exists."
 	health(integer) : "Health" : 100 : "How much health the bullseye has before it 'dies'."
 	alwaystransmit(boolean) : "Always Transmit" : 0 : "Always transmit this entity to the client. TODO: Why?"
+]
+@NPCClass base(CBaseEntity,Parent,Angles) color(248 155 0) = npc_enemyfinder : "It looks for players or NPCs that it hates and fires outputs when it finds and loses them. Not too useful in Portal 2 but usable."
+[
+	spawnflags(flags) =
+	[
+		65536 : "Check Visibility - Enemies must be clearly visible to be found. Otherwise, the enemy finder sees though walls." : 1
+	]
+	StartOn(boolean) : "Start On" : 1 : "Self-explanatory."
+	FieldOfView(float) : "Field Of View" : 0 : "The enemy finder's cone of vision. 1.0 = straight ahead, 0.0 = +/- 90 degrees, -1.0 = all directions."
+	MinSearchDist(float) : "Min Search Dist" : 0 : "Enemies must be this far away to be 'spotted'. If 0, no minimum."
+	MaxSearchDist(float) : "Max Search Dist" : 1024 : "Enemies must be at least this close to be spotted. If 0, no maximum."
+	freepass_duration(float) : "Player pass duration" : 0 : "How long it takes the enemy finder to notice a target within it's area of vision. Targets who escape its sight before this time passes will never cause squad info to update or cause outputs to fire."
+	freepass_movetolerance(float) : "Player pass move tolerance" : 120 : "If an enemy is currently unnoticed, how far they can move from the spot they were initially unnoticed at before being noticed by moving too much."
+	freepass_refillrate(float) : "Player pass refill rate" : "0.5" : "How quickly enemies 'recover' peek time (duration) when they hide again. If duration is 5 and refill rate is a high number, enemies can peek indefinitely for four seconds at a time."
+	freepass_timetotrigger(float) : "Player pass issue time" : 0 : "If an enemy hides again for this long, their peek time recovers fully."
+	freepass_peektime(float) : "Player pass peek time" : 0 : "How long an enemy can be visible for before their peek time begins draining."
+	input TurnOn(void) : "Tells the finder to look for enemies."
+	input TurnOff(void) : "Tells the finder to stop looking for enemies."
+	output OnAcquireEnemies(void) : "Fires when the enemy finder acquires enemies."
+	output OnLostEnemies(void) : "Fires when the enemy finder no longer has any enemies in sight."
 ]
 @NPCClass base(Model,CBaseAnimating,Skin) studio("models/npcs/personality_sphere/personality_sphere.mdl") = npc_personality_core : "It's a personality sphere. Bug: Some inputs will not work unless the core is named @sphere. Not affected by gel."
 [
@@ -4283,6 +4390,7 @@
 		1 : "Debris"
 	]
 	UseSuperDamageScale(boolean) : "Use Super Damage" : 0 : "Makes bullets far more damaging."
+	enemyfilter(filterclass) : "Enemy Filter" :  : "A filter to use for selecting enemies."
 	input FireBullet(target_destination) : "Makes the turret fire a single shot at the specified entity."
 	input EnableGagging(void) : "Sets Turret is Gagged to Yes."
 	input DisableGagging(void) : "Sets Turret is Gagged to No."
@@ -4344,7 +4452,21 @@
 	alpha_percent(float) : "Alpha Percent" : 1 : "Controls how densely the gel is applied. Gel needs to have an alpha above 0.70 to be usable."
 	input Paint(void) : "Applies paint."
 ]
-@PointClass base(CBaseEntity,Parent) color(248 155 0) = path_track : "When multiple of these are put together, they define a path that some entities can follow. TIP: If the targetname and Next Stop Target keyvalues are set, the entity can be dragged while holding Shift to create the next node in the path while automatically updating those two keyvalues."
+@PointClass base(CBaseEntity,Angles,Parent) color(248 155 0) = path_corner : "When multiple of these are put together, they define a path that some entities can follow. TIP: If the targetname and Next Stop Target keyvalues are set, the entity can be dragged while holding Shift to create the next node in the path while automatically updating those two keyvalues."
+[
+	spawnflags(flags) =
+	[
+		1 : "Wait for retrigger - TODO: No effect?" : 0
+		2 : "Teleport to this path track - func_train will teleport to this spot instead of normal movement." : 0
+	]
+	target(target_destination) : "Next stop target" :  : "The next path_corner in the path."
+	wait(float) : "Wait here (secs)" :  : "How long the path follower should wait here before moving on. This is only acknowledged by func_guntarget, point_viewcontrol, and func_train."
+	speed(float) : "New Train Speed" : 0 : "If the path follower can have a variable speed, when it meets this entity, its speed will be set to this as long as it's not more than the entity's maximum speed if it has one."
+	input SetNextPathCorner(target_destination) : "Sets Next stop target."
+	input InPass(void) : "Fires OnPass. Normally the path follower entity sends this to the path node when it reaches that point."
+	output OnPass(void) : "Fires when an entity passes this node."
+]
+@PointClass base(CBaseEntity,Angles,Parent) color(248 155 0) = path_track : "When multiple of these are put together, they define a path that some entities can follow. TIP: If the targetname and Next Stop Target keyvalues are set, the entity can be dragged while holding Shift to create the next node in the path while automatically updating those two keyvalues."
 [
 	spawnflags(flags) =
 	[
@@ -4354,9 +4476,9 @@
 		16 : "Teleport to this path track - Train will teleport to this spot instead of normal movement." : 0
 		32768 : "Start on Branch - Sends trains to Branch Path by default." : 0
 	]
-	target(target_destination) : "Next Stop Target" :  : "The next path_track in the path."
-	altpath(target_destination) : "Branch Path" :  : "An alternative path_track to be the next node in the path. Useful for making branching paths. Must be enabled with EnableAlternatePath."
-	speed(float) : "New Train Speed" : 0 : "When a train meets this entity, its speed will be set to this. Cannot be higher than the train's Max Speed."
+	target(target_destination) : "Next Stop Target" :  : "The next path_track in the path. TIP: Some but not all path followers will acknowledge when this keyvalue is changed with AddOutput."
+	altpath(target_destination) : "Branch Path" :  : "An alternative path_track to be the next node in the path. Useful for making branching paths. Must be enabled with EnableAlternatePath. TIP: Some but not all path followers will acknowledge when this keyvalue is changed with AddOutput."
+	speed(float) : "New Train Speed" : 0 : "If the path follower can have a variable speed, when it meets this entity, its speed will be set to this as long as it's not more than the entity's maximum speed if it has one."
 	orientationtype(choices) : "Orientation Type" : 1 : "The way that the path follower faces as it moves through this path track." =
 	[
 		0 : "No change"
@@ -4401,9 +4523,9 @@
 	[
 		8 : "Change mass to keep stable attachment to world - TODO: Clarify" : 0
 	]
-	hingefriction(float) : "Friction" :  : "How stiff the hinge is."
+	hingefriction(float) : "Friction" : 0 : "How stiff the hinge is."
 	hingeaxis(vecline) : "Hinge Axis" :  : "The 'other' end of the rotation axis."
-	SystemLoadScale(float) : "Load Scale" :  : "'Scale of the load connected to this hinge (1=just the objects directly connected)' TODO: Clarify"
+	SystemLoadScale(float) : "Load Scale" : 1 : "'Scale of the load connected to this hinge (1=just the objects directly connected)' TODO: Clarify"
 	input SetAngularVelocity(float) : "Makes the hinge begin rotating this many degrees per second."
 	input SetHingeFriction(float) : "Sets Friction."
 ]
@@ -4548,6 +4670,17 @@
 ]
 @PointClass base(CPhysicsProp) studioprop() sphere(fademindist) sphere(fademaxdist) color(255 0 255) = physics_prop_statue : "Icy/Frozen physics prop. Slides around, floats in water."
 [
+]
+@PointClass base(CBaseEntity) color(0 255 0) = player_loadsaved : "Reloads the last save after fading the screen out."
+[
+	duration(float) : "Fade Duration" : 2 : "How long it should take for the Fade Color to fade in."
+	holdtime(float) : "Hold Fade" : 0 : "How long the fade should stay for."
+	loadtime(float) : "Reload delay" : 0 : "Once the Reload input is sent, how many to seconds to wait before reloading."
+	rendercolor(color255) : "Fade Color" : "0 0 0" : "Color to fade out to."
+	renderamt(integer) : "Fade Alpha" : 255 : "Strength of the color. Leave this at 255 to replace the player's view entirely."
+	input Reload(void) : "Fades the screen out and reloads."
+	input Color(color255) : "Sets Fade Color."
+	input Alpha(integer) : "Sets Fade Alpha."
 ]
 @PointClass base(CBaseEntity) color(0 255 255) = player_speedmod : "It changes the player's velocity (including falling speed) and can disable various things."
 [
@@ -5094,7 +5227,7 @@
 [
 	RespawnTime(float) : "Respawn Time" : 10 : "How long to wait before respawning."
 ]
-@PointClass base(CBaseEntity,Parent,Angles) studio("models/editor/axis_helper_thick.mdl") color(0 255 0) = prop_portal : "This entity is a portal. Shot from a weapon_portalgun. Portals should be placed facing the exact angle of their surfaces, or they may not open, or appear clipped. Portals should also be within a few units of their surface, otherwise movement may look odd, or they might not open at all. Portals also need enough valid space on their surface in order to open. Removing one through methods such as Kill may crash the game. Instead, use Fizzle or SetActivatedState 0 to remove portals."
+@PointClass base(CBaseEntity,Parent,Angles) studio("models/editor/axis_helper_thick.mdl") color(0 255 0) = prop_portal : "This entity is a portal. Shot from a weapon_portalgun. Portals should be placed facing the exact angle of their surfaces, or they may not open, or appear clipped. The yellow line in the 2D view and the blue line in the 3D view point in the direction the portal will face. Portals should also be within a few units of their surface, otherwise movement may look odd, or they might not open at all. Portals also need enough valid space on their surface in order to open. Removing one through methods such as Kill may crash the game. Instead, use Fizzle or SetActivatedState 0 to remove portals."
 [
 	LinkageGroupID(integer) : "Portal pair ID that it belongs to" : 0 : "Which pair of portals this portal belongs to. Singleplayer uses 0, ATLAS uses 1, and P-Body uses 2."
 	PortalTwo(choices) : "Portal Number" : 0 : "Which portal in a pair this one is." =
@@ -5364,7 +5497,7 @@
 	fogcolor(color255) : "Primary Fog Color" : "136 158 166" : "Fog Color."
 	fogcolor2(color255) : "Secondary Fog Color" : "255 255 255" : "Secondary Fog Color. If Fog Blend is disabled, this color will never appear."
 	fogblend(boolean) : "Fog Blend" : 0 : "Enables color blending between Primary Fog Color and Secondary Fog Color. When the viewer looks in the Primary Fog Direction, fog will appear as the Primary color. When looking away from the specified direction, fog appears as the Secondary color. If the camera is not pointed directly at or away from the direction, a blend of the two colors will result."
-	fogdir(vecline) : "Primary Fog Direction" : "1 0 0" : "An angle which the viewer camera is checked against to figure out the blend between the primary and secondary fog colors."
+	fogdir(vector) : "Primary Fog Direction" : "1 0 0" : "An angle which the viewer camera is checked against to figure out the blend between the primary and secondary fog colors."
 	use_angles(boolean) : "Use Angles for Fog Dir" : 0 : "Use Pitch Yaw Roll for the Fog Blend direction instead of Primary Fog Direction."
 ]
 @PointClass base(CBaseEntity) color(0 255 255) = skybox_swapper : "It precaches an alternate skybox material and swaps it with the current one on command by changing the sv_skyname convar."
@@ -5681,7 +5814,7 @@
 	[
 
 	]
-	StartingTeamNum(choices) : "Starting Team" : 0 : "Sets the Portal pair ID of the prop_portals the gun fires. Any number can be used if entered manually." =
+	StartingTeamNum(choices) : "Starting Team" : 0 : "Sets the Portal pair ID of the prop_portals the gun fires. Any number can be used if entered manually. Changing this with AddOutput will not affect the gun." =
 	[
 		0 : "Single Player"
 		1 : "ATLAS"
@@ -5723,4 +5856,72 @@
 	output OnUser2(void) : "Fires in response to the FireUser2 input."
 	output OnUser3(void) : "Fires in response to the FireUser3 input."
 	output OnUser4(void) : "Fires in response to the FireUser4 input."
+]
+
+//SE OBSOLETES
+@PointClass base(CBaseAnimating) color(255 232 79) iconsprite("editor/obsolete") = cycler : "OBSOLETE: You shouldn't use this entity, though it may appear in other people's maps. This entity was used in Half-Life for models, so replace it with a prop_ entity."
+[
+]
+@PointClass base(CBaseEntity) color(255 232 79) iconsprite("editor/obsolete") = env_dof_controller : "OBSOLETE: You shouldn't use this entity, though it may appear in other people's maps. This entity never works."
+[
+]
+@PointClass base(CBaseEntity) color(255 232 79) iconsprite("editor/obsolete") = env_lightrail_endpoint : "OBSOLETE: You shouldn't use this entity, though it may appear in other people's maps."
+[
+]
+@PointClass base(CBaseEntity) color(255 232 79) iconsprite("editor/obsolete") = env_portal_path_track : "OBSOLETE: You shouldn't use this entity, though it may appear in other people's maps. It's an unfinished variant of path_track which has a light beam going between the entities. In the final iteration of Portal, env_beam is used as the visual portion of the light beam."
+[
+]
+@PointClass base(CBaseEntity) color(255 232 79) iconsprite("editor/obsolete") = env_tilt : "OBSOLETE: You shouldn't use this entity, though it may appear in other people's maps. This entity never works."
+[
+]
+@SolidClass base(CBaseEntity,VisibleBrush) color(255 232 79) iconsprite("editor/obsolete") = func_conveyor : "OBSOLETE: You shouldn't use this entity, though it may appear in other people's maps. It's a conveyor belt that looks like trash. You should use a prop and a trigger_push instead. This entity is known to cause hitbox issues."
+[
+]
+@SolidClass base(CBaseEntity,VisibleBrush) color(255 232 79) iconsprite("editor/obsolete") = func_illusionary : "OBSOLETE: You shouldn't use this entity, though it may appear in other people's maps. This entity was used in Half-Life for non-solid brushes. Use func_brush instead."
+[
+]
+@SolidClass base(CBaseEntity,VisibleBrush) color(255 232 79) iconsprite("editor/obsolete") = func_lod : "OBSOLETE: You shouldn't use this entity, though it may appear in other people's maps. This entity used to be needed as an optimization which would fade brushes away when not near them. This is no longer useful as checking the distance from camera to brush, and rendering the brush translucently, is slower than drawing the brush opaquely as world/detail."
+[
+]
+@SolidClass base(CBaseEntity,VisibleBrush) color(255 232 79) iconsprite("editor/obsolete") = func_platrot : "OBSOLETE: You shouldn't use this entity, though it may appear in other people's maps. This entity was used in Half-Life for brushes that could rotate while moving up and down at the same time, so use func_tracktrain instead."
+[
+]
+@SolidClass base(CBaseEntity,VisibleBrush) color(255 232 79) iconsprite("editor/obsolete") = func_tanktrain : "OBSOLETE: You shouldn't use this entity, though it may appear in other people's maps. This entity is buggy. You should really use func_tracktrain instead."
+[
+]
+@SolidClass base(CBaseEntity,VisibleBrush) color(255 232 79) iconsprite("editor/obsolete") = func_trackautochange : "OBSOLETE: You shouldn't use this entity, though it may appear in other people's maps. This entity was used in Half-Life for platforms that carry a func_tracktrain to another track. You should use another func_tracktrain instead."
+[
+]
+@SolidClass base(CBaseEntity,VisibleBrush) color(255 232 79) iconsprite("editor/obsolete") = func_trackchange : "OBSOLETE: You shouldn't use this entity, though it may appear in other people's maps. This entity was used in Half-Life for platforms that carry a func_tracktrain to another track. You should use another func_tracktrain instead."
+[
+]
+@SolidClass base(CBaseEntity,VisibleBrush) color(255 232 79) iconsprite("editor/obsolete") = func_wall : "OBSOLETE: You shouldn't use this entity, though it may appear in other people's maps. This entity was basically Half-Life's version of func_brush. Use func_brush instead."
+[
+]
+@SolidClass base(CBaseEntity,VisibleBrush) color(255 232 79) iconsprite("editor/obsolete") = func_wall_toggle : "OBSOLETE: You shouldn't use this entity, though it may appear in other people's maps. This entity was basically Half-Life's version of func_brush. Use func_brush instead."
+[
+]
+@PointClass base(CBaseEntity) color(255 232 79) iconsprite("editor/obsolete") = game_gib_manager : "OBSOLETE: You shouldn't use this entity, though it may appear in other people's maps. This entity is a pointlessly excessive optimization technique. It limits how many gibs there can be on the map. Gibs almost always clean themselves up after a certain amount of time."
+[
+]
+@PointClass base(CBaseEntity) color(255 232 79) iconsprite("editor/obsolete") = game_player_team : "OBSOLETE: You shouldn't use this entity, though it may appear in other people's maps. This entity does not work."
+[
+]
+@PointClass base(CBaseEntity) color(255 232 79) iconsprite("editor/obsolete") = info_lighting_relative : "OBSOLETE: You shouldn't use this entity, though it may appear in other people's maps. It shifts the 'lighting origin' of a CBaseAnimating entity over so that the entity is lit as if it was in the position that the info_lighting_relative was in relative to the model entity when it had spawned/been sent SetLightingOriginHack. This entity is considered obsolete because the task can also be done with the regular lighting origin setting with an info_target parented to the desired entity."
+[
+]
+@PointClass base(CBaseEntity) color(255 232 79) iconsprite("editor/obsolete") = info_target_instructor_hint : "OBSOLETE: You shouldn't use this entity, though it may appear in other people's maps. This entity can be replaced with an info_target that always transmits to clients."
+[
+]
+@PointClass base(CBaseEntity) color(255 232 79) iconsprite("editor/obsolete") = info_teleport_destination : "OBSOLETE: You shouldn't use this entity, though it may appear in other people's maps. This entity used to be needed for trigger_teleport's destination. Use info_target."
+[
+]
+@PointClass base(CBaseEntity) color(255 232 79) iconsprite("editor/obsolete") = logic_achievement : "OBSOLETE: You shouldn't use this entity, though it may appear in other people's maps. This entity is used for achievements. You can't make your own achievements unless you get your mod on Steam."
+[
+]
+@PointClass base(CBaseEntity) color(255 232 79) iconsprite("editor/obsolete") = phys_torque : "OBSOLETE: You shouldn't use this entity, though it may appear in other people's maps. It spins things. Use phys_motor or phys_thruster instead, which offer more options for the same function."
+[
+]
+@PointClass base(CBaseEntity) color(255 232 79) iconsprite("editor/obsolete") = vehicle_viewcontroller : "OBSOLETE: You shouldn't use this entity, though it may appear in other people's maps. It's an entity used to control the player's view while giving them realistic motion. Use prop_vehicle_choreo_generic instead; it has more features."
+[
 ]
