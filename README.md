@@ -51,3 +51,6 @@ Original|Mine
 Original|Mine
 --|--
 "*A map placed entity which activates with long use.*" | "*It's an object that requires a player to continuously press +use on it to interact with it.*"
+
+# Legacy support entities
+Some entities (e.g. func_wall) that are meant to be replaced with other entities are included in these FGDs for basic legacy support. They are noted as obsolete and have the obsolete sprite, and are included in the "removed" counts above.
