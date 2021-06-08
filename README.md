@@ -8,8 +8,6 @@ Remember you can view all of the information in an FGD at any time by clicking t
 
 ![image](https://user-images.githubusercontent.com/39359267/120943126-a48cac80-c6f2-11eb-85bd-13a209c362a7.png)
 
-They aren't perfect yet. Open an issue and tell me about any problems with them.
-
 
 # What's changed?
 All of it... but to be more specific, here's the new and removed entities for each game (slightly out of date):
@@ -54,3 +52,6 @@ Original|Mine
 
 # Legacy support entities
 Some entities (e.g. func_wall) that are meant to be replaced with other entities are included in these FGDs for basic legacy support. They are noted as obsolete and have the obsolete sprite, and are included in the "removed" counts above.
+
+# Issues
+If you think I should change something, you can tell me that. Directly to me. On this website. It is easy.
