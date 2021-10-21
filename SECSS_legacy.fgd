@@ -1,0 +1,99 @@
+
+//This file is only for some less useful entities. You don't need to install this FGD, but can if you prefer using certain things.
+//To install this FGD:
+//1. Install SECSS.fgd.
+//2. Put this file in the same place as it.
+//3. Remove the "//" from the line that says "//@include "SECSS_legacy.fgd" " at the bottom of SECSS.fgd.
+//Submit queries here: https://github.com/Pinsplash/SEFGD Even if you just have a question, it may help me improve this FGD.
+//Wanna help me out? Search "TODO:" in this file.
+//Derivatives are allowed to be made and distributed.
+@PointClass base(Model,CBaseAnimating) color(255 203 11) studio() = cycler : "OBSOLETE: You shouldn't use this entity, though it may appear in other people's maps. This entity was used in Half-Life for models, so replace it with a prop_ entity."
+[
+]
+@SolidClass base(CBaseEntity,VisibleBrush) color(255 0 255) = func_conveyor : "OBSOLETE: You shouldn't use this entity, though it may appear in other people's maps. It's a conveyor belt that may look convincing when given a scrolling texture. You should use a prop and a trigger_push instead. This entity is known to cause hitbox issues."
+[
+	spawnflags(flags) =
+	[
+		1 : "No Push - Makes the conveyor not move things that touch it." : 0
+		2 : "Not Solid - Make the conveyor untouchable, therefore preventing it from moving anything." : 0
+	]
+	movedir(angle) : "Move Direction (Pitch Yaw Roll)" : "0 0 0" : "Direction in which things move when on the conveyor. Changing this with AddOutput is possible but tricky because this keyvalue becomes a normalized vector after spawning."
+	speed(float) : "Conveyor Speed" : 100 : "How fast to move things that are on the conveyor."
+	input ToggleDirection(void) : "Changes the direction the conveyor pushes in by switching Conveyor Speed between negative and positive."
+]
+@SolidClass base(CBaseEntity,VisibleBrush) color(255 203 11) = func_illusionary : "OBSOLETE: You shouldn't use this entity, though it may appear in other people's maps. This entity was used in Half-Life for non-solid brushes. Use func_brush instead."
+[
+]
+@SolidClass base(CBaseEntity,VisibleBrush) color(0 180 0) = func_lod : "OBSOLETE: You shouldn't use this entity, though it may appear in other people's maps. This entity used to be needed as an optimization which would fade brushes away when not near them. This is no longer useful as checking the distance from camera to brush, and rendering the brush translucently, is slower than drawing the brush opaquely as world/detail."
+[
+	DisappearDist(float) : "Disappear Distance" : 2000 : "Distance at which the brush starts to fade out."
+	Solid(choices) : "Solid" : 0 : "Set whether or not the brush should collide with other entities." =
+	[
+		0 : "Solid"
+		1 : "Nonsolid"
+	]
+]
+@SolidClass base(CBaseEntity,Origin,VisibleBrush) = func_platrot : "OBSOLETE: You shouldn't use this entity, though it may appear in other people's maps. This entity was used in Half-Life for brushes that could rotate while moving up and down at the same time, so use func_tracktrain instead."
+[
+	spawnflags(flags) =
+	[
+		64 : "X Axis - Makes the entity rotate on its X axis instead of Z. It will still move along the Z axis." : 0
+		128 : "Y Axis - Makes the entity rotate on its Y axis instead of Z. It will still move along the Z axis." : 0
+	]
+	speed(float) : "Speed" : 100 : "How fast to move up or down, in units per second. NOTE: The speed at which the entity spins is automatically set by this so that the entity will move and rotate for the exact same amount of time. (Originally named 'Speed of Rotation', misleading.)"
+	rotation(float) : "Spin amount" : 90 : "How much the brush should spin."
+]
+@SolidClass base(func_tracktrain) = func_tanktrain : "OBSOLETE: You shouldn't use this entity, though it may appear in other people's maps. This entity is buggy and doesn't do what it's supposed to do. You should really use func_tracktrain instead."
+[
+]
+@SolidClass base(func_platrot) = func_trackchange : "OBSOLETE: You shouldn't use this entity, though it may appear in other people's maps. This entity was used in Half-Life for platforms that carry a func_tracktrain to another track. You should use another func_tracktrain instead."
+[
+	height(integer) : "Travel Altitude" : 0 : "The vertical height above the track that the train moves. Negative values moves the train below."
+	spawnflags(flags) =
+	[
+		1: "Auto Activate train" : 0
+		2: "Relink track" : 0
+		8: "Start at Bottom" : 0
+		16: "Rotate Only" : 0
+		64: "X Axis" : 0
+		128: "Y Axis" : 0
+	]
+	train(target_destination) : "Train to Switch"			// NEEDHELP
+	toptrack(target_destination) : "Top Track"				// NEEDHELP
+	bottomtrack(target_destination) : "Bottom Track"		// NEEDHELP
+]
+@SolidClass base(func_trackchange) = func_trackautochange : "OBSOLETE: You shouldn't use this entity, though it may appear in other people's maps. This entity was used in Half-Life for platforms that carry a func_tracktrain to another track. You should use another func_tracktrain instead."
+[
+	input Trigger(void) : "Trigger the track change."
+]
+@SolidClass base(CBaseEntity,VisibleBrush) = func_wall : "OBSOLETE: You shouldn't use this entity, though it may appear in other people's maps. This entity was basically Half-Life's version of func_brush. Use func_brush instead."
+[
+]
+@SolidClass base(CBaseEntity,VisibleBrush) = func_wall_toggle : "OBSOLETE: You shouldn't use this entity, though it may appear in other people's maps. This entity was basically Half-Life's version of func_brush. Use func_brush instead."
+[
+	spawnflags(flags) =
+	[
+		1 : "Starts Invisible" : 0
+	]
+
+	// Inputs
+	input  Toggle(void) : "Toggle the brush on/off. When off, the brush will be non-solid and invisible."
+]
+@PointClass base(CBaseEntity) color(0 180 0) = game_gib_manager : "OBSOLETE: You shouldn't use this entity, though it may appear in other people's maps. This entity is a pointlessly excessive optimization technique. It limits how many gibs there can be on the map. Gibs almost always clean themselves up after a certain amount of time."
+[
+	maxpieces(integer) : "Max Gib Count" : -1 : "How many gibs there can be in the map at once. -1 means no limit."
+	allownewgibs(choices) : "Allow New Gibs To Spawn" : 1 : "If true, when the max gib count is reached, oldest gibs are removed as new gibs spawn. If false, new gibs will not be spawned once the gib limit is reached." =
+	[ 
+		0 : "No"
+		1 : "Yes"
+
+	]
+	input SetMaxPieces(integer) : "Sets Max Gib Count."
+]
+@PointClass base(CBaseEntity) studio("models/editor/playerstart.mdl") = info_teleport_destination : "OBSOLETE: You shouldn't use this entity, though it may appear in other people's maps. This entity used to be needed for trigger_teleport's destination. Use info_target."
+[
+]
+@PointClass base(CPhysForce) color(255 0 255) = phys_torque : "Spins an object. phys_motor and phys_thruster give the same function with more options."
+[
+	axis(vecline) : "Rotation Axis" :  : "Axis to rotate the object around."
+]
