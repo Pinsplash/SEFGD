@@ -11,10 +11,6 @@
 //Derivatives are allowed to be made and distributed.
 @include "SEHL_base.fgd"
 @mapsize(-16384, 16384)
-//SE BASE SPECIAL CLASSES
-
-//SE BASE CLASSES
-
 //SE ENTITIES
 @PointClass base(CAI_AllyManager) color(247 89 93) = ai_ally_manager : "It monitors the number and type of npc_citizen allies and responds accordingly. When this entity receives a Replenish input, it will count the number of allies and send outputs based on how many allies are needed to match this entity's keyvalues."
 [
@@ -178,7 +174,7 @@
 @PointClass base(HintNode) studio("models/editor/ground_node_hint.mdl") color(232 219 8) line(255 255 255, nodeid, TargetNode) = info_node_hint : "A navigation node for ground-based NPCs that includes some context information for NPCs that are interested in it. The hint might indicate a window that could be looked into, or an item of interest that could be commented on."
 [
 ]
-@PointClass base(CAI_DynamicLink) line(255 255 255, nodeid, StartNode, nodeid, EndNode) color(247 89 93) = info_node_link : "A manually defined, dynamic connection between two navigation nodes. This could be used to create or destroy a connection in the nodegraph because of some event in your map (a bridge being created/destroyed, etc)."
+@PointClass base(CAI_DynamicLink) line(255 255 255, nodeid, StartNode, nodeid, EndNode) color(247 89 93) size(16 16 16) = info_node_link : "A manually defined, dynamic connection between two navigation nodes. This could be used to create or destroy a connection in the nodegraph because of some event in your map (a bridge being created/destroyed, etc)."
 [
 ]
 @PointClass base(CAI_DynamicLinkController) wirebox(mins, maxs) color(247 89 93) = info_node_link_controller : "It controls all connections between navigation nodes that intersect a certain volume. This allows for mass enabling and disabling of node connections."
@@ -308,7 +304,12 @@
 ]
 @NPCClass base(CNPC_CombineS) studio("models/Combine_Soldier.mdl") = npc_combine_s : "Combine Soldiers."
 [
-	model(studio) : "Model" : "models/combine_soldier.mdl" : "Model to show."
+	model(choices) : "Model" : "models/combine_soldier.mdl" : "Model to show." =
+	[
+		"models/combine_soldier.mdl" : "Regular Soldier"
+		"models/combine_soldier_prisonguard.mdl" : "Nova Prospekt Soldier"
+		"models/combine_super_soldier.mdl" : "Elite Soldier"
+	]
 ]
 @NPCClass base(CNPC_CombineDropship) studio("models/combine_dropship.mdl") = npc_combinedropship : "Dropships fly to places to carry and dispense NPCs or other objects. This NPC uses path_tracks to navigate."
 [
@@ -340,9 +341,6 @@
 @NPCClass base(CAI_BaseNPC) studio("models/Zombie/fast.mdl") = npc_fastzombie : "Fast zombie."
 [
 ]
-@NPCClass base(CAI_BaseNPC) studio("models/Zombie/fast_torso.mdl") = npc_fastzombie_torso : "Fast zombie torso."
-[
-]
 @NPCClass base(CAI_BaseNPC) studio("models/lostcoast/fisherman/fisherman.mdl") = npc_fisherman : "The fisherman is a character who only appears in Half-Life 2: Lost Coast. He helps the player up the mountainside. His weapon is weapon_oldmanharpoon."
 [
 ]
@@ -352,7 +350,7 @@
 @NPCClass base(CAI_BaseNPC) studio("models/gman.mdl") = npc_gman : "G-man."
 [
 ]
-@PointClass base(CBaseAnimating) studio("models/weapons/w_bugbait.mdl") = npc_grenade_bugbait : "Bugbait projectile."
+@PointClass base(CBaseAnimating) studio("models/weapons/w_bugbait.mdl") = npc_grenade_bugbait : "Bugbait projectile. BUG: The bugbait model will not show in Hammer by default. The error model will appear instead. To fix the issue, delete the folder Half-Life 2/hl2/models. It contains a broken duplicate of this model, which Hammer fails to load."
 [
 ]
 @PointClass base(CBaseAnimating) studio("models/Weapons/w_grenade.mdl") = npc_grenade_frag : "Grenade projectile."
@@ -389,7 +387,13 @@
 @NPCClass base(CNPC_Launcher) studio("models/props_junk/trafficcone001a.mdl") = npc_launcher : "It's an NPC that makes rockets which either home in on targets or follow a set of path_tracks. The NPC has no enemies by default, so tell it what to hate with ai_relationship or the SetEnemyEntity input. Be sure to not confuse Path Corner Name with Target Path Corner. Bug: The homing code is bad. Homing rockets often take unnecessary detours, move in a jagged and/or looping path, and miss targets. When Valve used this entity in d3_c17_06b, they had it parented to a func_tank and kept Homing Strength to 0."
 [
 ]
+@NPCClass base(CNPCMaker) iconsprite("editor/npc_maker") color(248 155 0) = npc_maker : "It spawns NPCs. Inferior to npc_template_maker which does the same thing with more options given, though this is much quicker to set up."
+[
+]
 @NPCClass base(CNPC_Manhack) studio("models/manhack.mdl") = npc_manhack : "Manhack."
+[
+]
+@NPCClass base(CNPC_MetroPolice) studio("models/police.mdl") = npc_metropolice : "Metrocop."
 [
 ]
 @NPCClass base(CNPC_Monk) studio("models/Monk.mdl") = npc_monk : "Father Grigori."
@@ -496,17 +500,5 @@
 [
 ]
 @PointClass base(CBaseCombatWeapon) studio("models/weapons/w_suitcase_passenger.mdl") color(160 37 240) = weapon_citizensuitcase : "A holdable suitcase. Bug: Sometimes NPCs don't hold this weapon correctly. TODO: Why?"
-[
-]
-
-//SE OBSOLETES
-@PointClass base(CBaseEntity) color(255 232 79) iconsprite("editor/obsolete") = ai_citizen_response_system : "OBSOLETE: You shouldn't use this entity, though it may appear in other people's maps. It manages some aspects of citizens responding to events. It was replaced by ai_npc_eventresponsesystem."
-[
-	input ResponseVitalNPC(void) : "Fire the VitalNPC Died response."
-]
-@PointClass base(CBaseEntity) color(255 232 79) iconsprite("editor/obsolete") = ai_goal_operator : "OBSOLETE: You shouldn't use this entity, though it may appear in other people's maps. It's an entity similar to scripted_sequence but with less features. The entity is not present in HL2DM."
-[
-]
-@PointClass base(CBaseNPCMaker) color(255 232 79) iconsprite("editor/obsolete") = npc_maker : "OBSOLETE: You shouldn't use this entity, though it may appear in other people's maps. It's a less advanced version of npc_template_maker."
 [
 ]
