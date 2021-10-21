@@ -1,5 +1,5 @@
 
-//To install this FGD: 
+//To install this FGD:
 //1. Open Hammer for Half-Life 2: Deathmatch.
 //2. Click 'Tools'.
 //3. Click 'Options'.
@@ -13,10 +13,6 @@
 @include "SEHL_base.fgd"
 //@include "SEHL_HL2.fgd"
 @mapsize(-16384, 16384)
-//SE BASE SPECIAL CLASSES
-
-//SE BASE CLASSES
-
 //SE ENTITIES
 @FilterClass base(CBaseFilter) iconsprite("editor/filter_team") color(248 155 0) = filter_activator_team : "Filter that checks which team a player is on."
 [
@@ -206,5 +202,3 @@
 @PointClass base(CBaseCombatWeapon) studio("models/weapons/w_slam.mdl") color(160 37 240) = weapon_slam : "Selectable Lightweight Attack Munition."
 [
 ]
-
-//SE OBSOLETES
