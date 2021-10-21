@@ -5324,7 +5324,7 @@
 @PointClass base(CPropButton) studio("models/props_underground/underground_testchamber_button.mdl") color(0 255 0) = prop_under_button : "Old Aperture pedestal button."
 [
 ]
-@PointClass base(CPropFloorButton) studio("models/props_underground/underground_floor_button.mdl") color(0 255 0) = prop_floor_button : "Old Aperture standard floor button, can be activated by a player or prop_weighted_cube."
+@PointClass base(CPropFloorButton) studio("models/props_underground/underground_floor_button.mdl") color(0 255 0) = prop_under_floor_button : "Old Aperture standard floor button, can be activated by a player or prop_weighted_cube."
 [
 	output OnPressedBlue(void) : "Fires when ATLAS stands on the button or they're the activator of the PressIn input. Does not fire when they place an object on the button."
 	output OnPressedOrange(void) : "Fires when P-Body stands on the button or they're the activator of the PressIn input. Does not fire when they place an object on the button."
