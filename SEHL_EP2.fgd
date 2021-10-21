@@ -11,10 +11,6 @@
 //Derivatives are allowed to be made and distributed.
 @include "SEHL_base.fgd"
 @mapsize(-16384, 16384)
-//SE BASE SPECIAL CLASSES
-
-//SE BASE CLASSES
-
 //SE ENTITIES
 @PointClass base(CAI_AllyManager) color(247 89 93) = ai_ally_manager : "It monitors the number and type of npc_citizen allies and responds accordingly. When this entity receives a Replenish input, it will count the number of allies and send outputs based on how many allies are needed to match this entity's keyvalues."
 [
@@ -118,7 +114,7 @@
 @PointClass base(CCredits) color(255 203 11) = env_credits : "This entity is used to control the credits that roll at the start and end of the game. See scripts/credits.txt. This file holds the text that will appear."
 [
 ]
-@PointClass base(CBaseEntity) color(248 155 0) iconsprite("editor/env_global") = env_global : "Stores boolean info, even across maps and rounds. These can control if a logic_auto fires its outputs."
+@PointClass base(CBaseEntity) color(248 155 0) = env_global : "Stores boolean info, even across maps and rounds. These can control if a logic_auto fires its outputs."
 [
 	spawnflags(flags) =
 	[
@@ -251,7 +247,7 @@
 @PointClass base(HintNode) studio("models/editor/ground_node_hint.mdl") color(232 219 8) line(255 255 255, nodeid, TargetNode) = info_node_hint : "A navigation node for ground-based NPCs that includes some context information for NPCs that are interested in it. The hint might indicate a window that could be looked into, or an item of interest that could be commented on."
 [
 ]
-@PointClass base(CAI_DynamicLink) line(255 255 255, nodeid, StartNode, nodeid, EndNode) color(247 89 93) = info_node_link : "A manually defined, dynamic connection between two navigation nodes. This could be used to create or destroy a connection in the nodegraph because of some event in your map (a bridge being created/destroyed, etc)."
+@PointClass base(CAI_DynamicLink) line(255 255 255, nodeid, StartNode, nodeid, EndNode) color(247 89 93) size(16 16 16) = info_node_link : "A manually defined, dynamic connection between two navigation nodes. This could be used to create or destroy a connection in the nodegraph because of some event in your map (a bridge being created/destroyed, etc)."
 [
 ]
 @PointClass base(CAI_DynamicLinkController) wirebox(mins, maxs) color(247 89 93) = info_node_link_controller : "It controls all connections between navigation nodes that intersect a certain volume. This allows for mass enabling and disabling of node connections."
@@ -438,7 +434,12 @@
 	[
 		262144 : "Don't drop ar2 alt fire on death (Only done if player was the killer, non-elites never drop this)" : 0
 	]
-	model(studio) : "Model" : "models/combine_soldier.mdl" : "Model to show."
+	model(choices) : "Model" : "models/combine_soldier.mdl" : "Model to show." =
+	[
+		"models/combine_soldier.mdl" : "Regular Soldier"
+		"models/combine_soldier_prisonguard.mdl" : "Nova Prospekt Soldier"
+		"models/combine_super_soldier.mdl" : "Elite Soldier"
+	]
 	usemarch(choices) : "Walk Easy" : 0 : "Gives the soldier a more casual walking animation. Only intended for scripted use, and only works when walking straight forward!" =
 	[ 
 		0 : "No"
@@ -489,7 +490,7 @@
 @NPCClass base(CAI_BaseNPC) studio("models/gman.mdl") = npc_gman : "G-man."
 [
 ]
-@PointClass base(CBaseAnimating) studio("models/weapons/w_bugbait.mdl") = npc_grenade_bugbait : "Bugbait projectile."
+@PointClass base(CBaseAnimating) studio("models/weapons/w_bugbait.mdl") = npc_grenade_bugbait : "Bugbait projectile. BUG: The bugbait model will not show in Hammer by default. The error model will appear instead. To fix the issue, delete the folder Half-Life 2/hl2/models. It contains a broken duplicate of this model, which Hammer fails to load."
 [
 ]
 @PointClass base(CBaseAnimating) studio("models/Weapons/w_grenade.mdl") = npc_grenade_frag : "Grenade projectile."
@@ -547,7 +548,13 @@
 [
 	model(studio) : "Model" : "models/magnusson.mdl" : "Model to show."
 ]
+@NPCClass base(CNPCMaker) iconsprite("editor/npc_maker") color(248 155 0) = npc_maker : "It spawns NPCs. Inferior to npc_template_maker which does the same thing with more options given, though this is much quicker to set up."
+[
+]
 @NPCClass base(CNPC_Manhack) studio("models/manhack.mdl") = npc_manhack : "Manhack."
+[
+]
+@NPCClass base(CNPC_MetroPolice) studio("models/police.mdl") = npc_metropolice : "Metrocop."
 [
 ]
 @NPCClass base(CNPC_Monk) studio("models/Monk.mdl") = npc_monk : "Father Grigori."
@@ -768,16 +775,4 @@
 	output OnDetonate(void) : "Fires when the strider gets busted."
 	output OnShatter(void) : "Fires when the striderbuster breaks from hitting something that wasn't a strider."
 	output OnShotDown(void) : "Fires when the striderbuster gets broken by a hunter flechette."
-]
-
-//SE OBSOLETES
-@PointClass base(CBaseEntity) color(255 232 79) iconsprite("editor/obsolete") = ai_citizen_response_system : "OBSOLETE: You shouldn't use this entity, though it may appear in other people's maps. It manages some aspects of citizens responding to events. It was replaced by ai_npc_eventresponsesystem."
-[
-	input ResponseVitalNPC(void) : "Fire the VitalNPC Died response."
-]
-@PointClass base(CBaseEntity) color(255 232 79) iconsprite("editor/obsolete") = ai_goal_operator : "OBSOLETE: You shouldn't use this entity, though it may appear in other people's maps. It's an entity similar to scripted_sequence but with less features. The entity is not present in HL2DM."
-[
-]
-@PointClass base(CBaseNPCMaker) color(255 232 79) iconsprite("editor/obsolete") = npc_maker : "OBSOLETE: You shouldn't use this entity, though it may appear in other people's maps. It's a less advanced version of npc_template_maker."
-[
 ]
