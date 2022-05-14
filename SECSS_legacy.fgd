@@ -66,10 +66,10 @@
 [
 	input Trigger(void) : "Trigger the track change."
 ]
-@SolidClass base(CBaseEntity,VisibleBrush) = func_wall : "OBSOLETE: You shouldn't use this entity, though it may appear in other people's maps. This entity was basically Half-Life's version of func_brush. Use func_brush instead."
+@SolidClass base(CBaseEntity,VisibleBrush) = func_wall : "OBSOLETE: You shouldn't use this entity, though it may appear in other people's maps. This entity was basically Half-Life's version of func_brush. Fun fact: players can apply their sprays on this brush. If this behavior is not in the first place, use func_brush instead."
 [
 ]
-@SolidClass base(CBaseEntity,VisibleBrush) = func_wall_toggle : "OBSOLETE: You shouldn't use this entity, though it may appear in other people's maps. This entity was basically Half-Life's version of func_brush. Use func_brush instead."
+@SolidClass base(CBaseEntity,VisibleBrush) = func_wall_toggle : "OBSOLETE: You shouldn't use this entity, though it may appear in other people's maps. This entity was basically Half-Life's version of func_brush. Same as func_wall, but can be toggled on/off. When off, the brush will be non-solid and invisible. Its state will transfer to next rounds. Func_brush should be used instead."
 [
 	spawnflags(flags) =
 	[
