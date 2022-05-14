@@ -4243,7 +4243,7 @@
 @PointClass base(CWeaponCSBase) color(160 37 240) sphere(fademindist) sphere(fademaxdist) studio("models/weapons/w_pist_fiveseven.mdl") = weapon_fiveseven : "ES Five-Seven"
 [
 ]
-@PointClass base(CWeaponCSBase) color(160 37 240) sphere(fademindist) sphere(fademaxdist) studio("models/weapons/w_eq_flashbang.mdl") = weapon_flashbang : "Flashbang"
+@PointClass base(CWeaponCSBase) color(160 37 240) sphere(fademindist) sphere(fademaxdist) studio("models/weapons/w_eq_flashbang.mdl") = weapon_flashbang : "Flashbang. Classname of thrown flashband is flashbang_projectile."
 [
 ]
 @PointClass base(CWeaponCSBase) color(160 37 240) sphere(fademindist) sphere(fademaxdist) studio("models/weapons/w_snip_g3sg1.mdl") = weapon_g3sg1 : "D3/AU-1"
@@ -4255,7 +4255,7 @@
 @PointClass base(CWeaponCSBase) color(160 37 240) sphere(fademindist) sphere(fademaxdist) studio("models/weapons/w_pist_glock18.mdl") = weapon_glock : "9X19mm Sidearm"
 [
 ]
-@PointClass base(CWeaponCSBase) color(160 37 240) sphere(fademindist) sphere(fademaxdist) studio("models/weapons/w_eq_fraggrenade.mdl") = weapon_hegrenade : "High Explosive Grenade"
+@PointClass base(CWeaponCSBase) color(160 37 240) sphere(fademindist) sphere(fademaxdist) studio("models/weapons/w_eq_fraggrenade.mdl") = weapon_hegrenade : "High Explosive Grenade. Classname of thrown hegrenade is hegrenade_projectile."
 [
 ]
 @PointClass base(CWeaponCSBase) color(160 37 240) sphere(fademindist) sphere(fademaxdist) studio("models/weapons/w_knife_t.mdl") = weapon_knife : "Knife"
@@ -4291,7 +4291,7 @@
 @PointClass base(CWeaponCSBase) color(160 37 240) sphere(fademindist) sphere(fademaxdist) studio("models/weapons/w_rif_sg552.mdl") = weapon_sg552 : "Krieg 552"
 [
 ]
-@PointClass base(CWeaponCSBase) color(160 37 240) sphere(fademindist) sphere(fademaxdist) studio("models/weapons/w_eq_smokegrenade.mdl") = weapon_smokegrenade : "Smoke Grenade"
+@PointClass base(CWeaponCSBase) color(160 37 240) sphere(fademindist) sphere(fademaxdist) studio("models/weapons/w_eq_smokegrenade.mdl") = weapon_smokegrenade : "Smoke Grenade. Classname of thrown smokegrenade is smokegrenade_projectile."
 [
 ]
 @PointClass base(CWeaponCSBase) color(160 37 240) sphere(fademindist) sphere(fademaxdist) studio("models/weapons/w_smg_tmp.mdl") = weapon_tmp : "Schmidt Machine Pistol"
