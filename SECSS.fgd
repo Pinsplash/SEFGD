@@ -1116,7 +1116,7 @@
 		9 : "Slow strobe"
 		12 : "Underwater light mutation"
 	]
-	pattern(string) : "Custom Appearance" :  : "Sets a custom pattern. Pattern format is a string of characters, where a is total darkness, and z is fully bright. i.e. aaggnnttzz would be a steppy fade in from dark to light."
+	pattern(string) : "Custom Appearance" :  : "Sets a custom pattern. Pattern format is a string of characters, where a is total darkness, m is default and z is fully bright. i.e. aaggnnttzz would be a steppy fade in from dark to light."
 	defaultstyle(string) : "Default Style" :  : "TODO: Unknown."
 	input TurnOn(void) : "Turns the light on."
 	input TurnOff(void) : "Turns the light off."
@@ -1140,6 +1140,11 @@
 		1 : "Sharp"
 	]
 	overridescript(string) : "Override Parameters" :  : "A list of physics key/value pairs that are usually in a physics prop .qc file. (https://developer.valvesoftware.com/wiki/Prop_data) Format is 'key,value,key,value,etc'."
+	disableshadows(choices) : "Disable Shadows" : 0 : "Adds EF_NOSHADOW to this entity. (No _rt_shadows shadow cast.)" =
+	[
+		0 : "No"
+		1 : "Yes"
+	]
 	damagetoenablemotion(integer) : "Health Level to Override Motion" :  : "If specified, this object will start motion disabled. Once its health has dropped below this specified amount, it will enable motion."
 	forcetoenablemotion(float) : "Physics Impact Force to Override Motion" :  : "If specified, this object will start motion disabled. Any impact that imparts a force greater than this value on the physbox will enable motion."
 	health(integer) : "Strength" : 0 : "Number of points of damage to take before breaking. 0 means don't break."
