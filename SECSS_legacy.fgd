@@ -90,7 +90,7 @@
 	]
 	input SetMaxPieces(integer) : "Sets Max Gib Count."
 ]
-@PointClass base(CBaseEntity) studio("models/editor/playerstart.mdl") = info_teleport_destination : "OBSOLETE: You shouldn't use this entity, though it may appear in other people's maps. This entity used to be needed for trigger_teleport's destination. Use info_target."
+@PointClass base(CBaseEntity,Parent,Angles) studio("models/editor/playerstart.mdl") = info_teleport_destination : "OBSOLETE: You shouldn't use this entity, though it may appear in other people's maps. This entity used to be needed for trigger_teleport's destination. Use info_target."
 [
 ]
 @PointClass base(CPhysForce) color(255 0 255) = phys_torque : "Spins an object. phys_motor and phys_thruster give the same function with more options."

@@ -2493,10 +2493,10 @@
 	input Activate(void) : "Makes the occluder active. (De-render models obscured by it.)"
 	input Deactivate(void) : "Makes the occluder inactive."
 ]
-@SolidClass base(CPhysBox) color(255 0 255) = func_physbox : "A brush that's free to move around like a prop_physics and can collide with players."
+@SolidClass base(CPhysBox) color(255 0 255) = func_physbox : "A brush that's free to move around like a prop_physics."
 [
 ]
-@SolidClass base(CPhysBox) color(255 0 255) = func_physbox_multiplayer : "A brush that's free to move around like a prop_physics. The only difference if comparing with func_physbox is it cannot collide with players."
+@SolidClass base(CPhysBox) color(255 0 255) = func_physbox_multiplayer : "A brush that is identical to func_physbox, except it is not solid to players and the runtime collisions use a more bouncy method that avoids the prediction errors normal physics objects get."
 [
 ]
 @SolidClass base(CBaseEntity,Parent) color(0 127 127) = func_precipitation : "It creates precipitation effects inside its volume. Func_precipitations should not intersect with func_smokevolumes, as it can freeze the game. If precipitation is so dense that more than 32,000 vertices must be rendered at once, the game will crash. An active point_camera may cause precipitation to stop rendering. Precipitation may fall through very thin roofs."
@@ -2982,7 +2982,7 @@
 	Distance(float) : "Distance" : 300 : "Maximum distance from the origin to project the decal. The decal will not go through anything solid."
 	input Activate(void) : "Applies the decal."
 ]
-@PointClass base(CBaseEntity,Parent,Angles) iconsprite("editor/info_target") studioprop() = info_target : "It's a generic 'target'. Other entities can use it as a reference point for many different things."
+@PointClass base(CBaseEntity,Parent,Angles) iconsprite("editor/info_target") studioprop() = info_target : "It's a generic 'target'. Other entities can use it as a reference point for many different things. Note that this is a preserved entity, which means its properties will transfer to next rounds. It cannot be spawned using point_template and 'Kill'ing it removes it forever."
 [
 	spawnflags(flags) =
 	[
