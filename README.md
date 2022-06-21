@@ -1,3 +1,5 @@
+Notice: I am not currently working on this project anymore.
+
 This is a collection of brand new [FGD](https://developer.valvesoftware.com/wiki/FGD) files for Source engine games. FGD files tell Hammer what entities there are, and what settings, inputs, and outputs they have.
 
 Most of the information in these files was rewritten from scratch by me to be more accurate, comprehensive, and easier to follow. A lot of things I've written in them are confirmed by in-game testing and checking code. New entities, flags, keyvalues, inputs and outputs were found by referring to [dumpentityfactories](https://developer.valvesoftware.com/wiki/Dumpentityfactories), [code resources](https://github.com/ValveSoftware/source-sdk-2013/) in many places on the internet, [Source.Python](http://wiki.sourcepython.com/), and [SourceMod](https://www.sourcemod.net/about.php) [datamaps](https://drive.google.com/drive/folders/12x4noWQ3YFAyv-TDUPzOyh8cq1z1yOYU?usp=sharing). Many outdated settings have also been removed. I also added/redid material exclusion (less clutter in the texture browser) and new visgroup categories.
