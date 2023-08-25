@@ -77,7 +77,7 @@
 	]
 
 	// Inputs
-	input  Toggle(void) : "Toggle the brush on/off. When off, the brush will be non-solid and invisible."
+	input Toggle(void) : "Toggle the brush on/off. When off, the brush will be non-solid and invisible."
 ]
 @PointClass base(CBaseEntity) color(0 180 0) = game_gib_manager : "OBSOLETE: You shouldn't use this entity, though it may appear in other people's maps. This entity is a pointlessly excessive optimization technique. It limits how many gibs there can be on the map. Gibs almost always clean themselves up after a certain amount of time."
 [

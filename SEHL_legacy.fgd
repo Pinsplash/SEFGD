@@ -31,7 +31,6 @@
 	output OnMakeReady(void) : "Make the item ready to operate"
 	output OnBeginOperating(void) : "Fired when the NPC is ready to operate"
 	output OnFinished(void) : "The item is done"
-
 ]
 @PointClass base(Model,CAI_BaseNPC) color(255 203 11) studio() = cycler : "OBSOLETE: You shouldn't use this entity, though it may appear in other people's maps. This entity was used in Half-Life for models, so replace it with a prop_ entity."
 [
@@ -90,9 +89,9 @@
 		64: "X Axis" : 0
 		128: "Y Axis" : 0
 	]
-	train(target_destination) : "Train to Switch"			// NEEDHELP
-	toptrack(target_destination) : "Top Track"				// NEEDHELP
-	bottomtrack(target_destination) : "Bottom Track"		// NEEDHELP
+	train(target_destination) : "Train to Switch"			// TODO
+	toptrack(target_destination) : "Top Track"				// TODO
+	bottomtrack(target_destination) : "Bottom Track"		// TODO
 ]
 @SolidClass base(func_trackchange) = func_trackautochange : "OBSOLETE: You shouldn't use this entity, though it may appear in other people's maps. This entity was used in Half-Life for platforms that carry a func_tracktrain to another track. You should use another func_tracktrain instead."
 [
@@ -109,7 +108,7 @@
 	]
 
 	// Inputs
-	input  Toggle(void) : "Toggle the brush on/off. When off, the brush will be non-solid and invisible."
+	input Toggle(void) : "Toggle the brush on/off. When off, the brush will be non-solid and invisible."
 ]
 @PointClass base(CBaseEntity) color(0 180 0) = game_gib_manager : "OBSOLETE: You shouldn't use this entity, though it may appear in other people's maps. This entity is a pointlessly excessive optimization technique. It limits how many gibs there can be on the map. Gibs almost always clean themselves up after a certain amount of time."
 [
@@ -118,7 +117,6 @@
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	input SetMaxPieces(integer) : "Sets Max Gib Count."
 ]

@@ -430,7 +430,6 @@
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	input Enable(void) : "Makes the entity active."
 	input Disable(void) : "Makes the entity inactive."
@@ -559,7 +558,6 @@
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	MinAnimTime(float) : "Min Random Anim Time" :  : "Minimum time between random animations."
 	MaxAnimTime(float) : "Max Random Anim Time" :  : "Maximum time between random animations."
@@ -800,7 +798,6 @@
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	dmg(float) : "Blocking Damage" : 1 : "Amount of damage done to entities that block the movement of this door, per tick. Requires Force Closed to be set to Yes."
 	spawnpos(choices) : "Spawn Position" : 0 : "The door will spawn in this position. Does NOT change what positions are considered 'open' or 'closed'." =
@@ -812,13 +809,11 @@
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	ignoredebris(choices) : "Ignore Debris" : 0 : "Changes the door's collision group to COLLISION_GROUP_INTERACTIVE, which ignores debris objects. Not compatible with the Non-solid to Player spawnflag as it also sets a collision group." =
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	input Open(void) : "Opens door."
 	input Close(void) : "Closes door."
@@ -908,19 +903,16 @@
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	LagCompensate(choices) : "Lag Compensation" : 0 : "Make the entity be lag compensated. https://developer.valvesoftware.com/wiki/Lag_compensation Should be used very sparingly! TODO: Confirm this actually works." =
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	updatechildren(choices) : "Update children" :  : "While animating, updates touch-links for any children to this prop that are parented to an attachment point. This is sometimes needed to make triggers work correctly." =
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	glowstate(choices) : "Glow State" : 0 : "Props may have a glow around them. This sets when the glow will appear." =
 	[
@@ -968,7 +960,6 @@
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	input Open(void) : "If not already open, opens the door."
 	input OpenAwayFrom(target_destination) : "If not already open, opens the door away from the specified entity (to avoid hitting that entity)."
@@ -1056,7 +1047,6 @@
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	input Width(float) : "Sets the radius of the beam (i.e. 1 = 2 world units total thickness)."
 	input Noise(float) : "Sets how far away from the middle that the beam is allowed to deviate."
@@ -1176,13 +1166,11 @@
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	StartDisabled(choices) : "Start Disabled" : 0 : "Stay inactive until sent TurnOn." =
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	input TurnOn(void) : "Turns the emitter on."
 	input TurnOff(void) : "Turns the emitter off."
@@ -1208,7 +1196,6 @@
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	input Enable(void) : "Makes the entity visible. If Solidity is Toggle, the brush will become solid."
 	input Disable(void) : "Makes the entity invisible. If Solidity is Toggle, the brush will become non-solid."
@@ -1258,37 +1245,31 @@
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	precise(choices) : "Precise" : 0 : "Applies the PRECISE attribute." =
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	crouch(choices) : "Crouch" : 0 : "Applies the CROUCH attribute." =
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	stairs(choices) : "Stairs" : 0 : "Applies the STAIRS attribute." =
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	tank_only(choices) : "Tank Only" : 0 : "Applies the TANK_ONLY attribute." =
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	mob_only(choices) : "Mob Only" : 0 : "Applies the MOB_ONLY attribute." =
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	input ApplyNavAttributes(void) : "Applies (or removes) the attributes. Only necessary if the entity's settings were changed with AddOutput, there's another entity setting attributes on the same areas, or the entity has moved."
 ]
@@ -1590,7 +1571,6 @@
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	Width(float) : "Width (1-64)" : 2 : "Thickness of the rope in world units."
 	TextureScale(float) : "Texture Scale" : 1 : "Texture resolution. The default resolution is 4 texels per world unit. Larger values stretch the texture and smaller values scrunch it up."
@@ -1598,20 +1578,17 @@
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	Dangling(choices) : "Start Dangling" : 0 : "Tells the rope to have one end dangle freely in the air. Do not use this when hanging things on ropes!" =
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	RopeMaterial(material) : "Rope Material" : "cable/cable.vmt" : "Texture to use on the rope."
 	NoWind(choices) : "Disable Wind" : 0 : "Tells the rope to not be shaken by wind." =
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	input SetForce(vector) : "Instantly applies force to the rope. Format is three positive and/or negative numbers representing movement on the X, Y and Z axes."
 	input Break(void) : "Tells the rope to break."
@@ -1658,7 +1635,6 @@
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	damagetype(choices) : "Damage Type" : 0 : "What kind of damage to do." =
 	[
@@ -1680,7 +1656,6 @@
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	input SetDamage(float) : "Sets Damage."
 	output OnHurt(void) : "Fires when the trigger hurts something that is NOT a player."
@@ -1699,13 +1674,11 @@
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	allowghost(choices) : "Ghost players can trigger" : 0 : "Allows unspawned infected players in Versus mode to activate the trigger." =
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	output OnTrigger(void) : "Fires whenever a valid entity is inside the trigger (potentially continuously). The trigger will wait until Delay Before Reset is over before firing this output again."
 	output OnEntireTeamStartTouch(void) : "Fires when every member of the team specified in Entire Team Number is touching the trigger."
@@ -1838,7 +1811,6 @@
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	input SetFadeInDuration(float) : "Sets Lookup Fade In Duration."
 	input SetFadeOutDuration(float) : "Sets Lookup Fade out Duration."
@@ -2023,7 +1995,6 @@
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	input ForceSpawn(void) : "Spawns an instance of the template at this entity's origin and angles. See the ForceSpawn flags."
 	input ForceSpawnAtEntityOrigin(target_destination) : "Spawns an instance of the template at the specified entity's origin and angles."
@@ -2133,7 +2104,6 @@
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	fogstart(float) : "Fog Start" : 400 : "How far away from the viewer the fog should start."
 	fogend(float) : "Fog End" : 9500 : "How far away from the viewer the fog reaches Fog Max Density."
@@ -2145,14 +2115,12 @@
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	fogdir(vector) : "Primary Fog Direction" : "1 0 0" : "Direction which the viewer camera is checked against to figure out the blend between the primary and secondary fog colors."
 	use_angles(choices) : "Use Angles for Fog Dir" : 0 : "Use Pitch Yaw Roll for the Fog Blend direction instead of Primary Fog Direction." =
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	foglerptime(float) : "Interpolate time" : 5 : "Fade time for the StartFogTransition input."
 	input TurnOn(void) : "Turns the fog on."
@@ -2402,7 +2370,6 @@
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	hint_allow_nodraw_target(choices) : "Allow invisible target" : 1 : "Do we allow the hint to follow entities with nodraw set? TODO: Not referring to EF_NODRAW, so what IS it talking about? Also, why would you want to disallow this when you could consciously make the decision of where the hint points yourself?" =
 	[
@@ -2413,7 +2380,6 @@
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	input ShowHint(target_destination) : "Start showing this hint to the input's !activator. If an entity targetname is passed as the parameter, the hint is shown to that entity instead."
 	input EndHint(void) : "Stop showing the hint if it hasn't already timed out."
@@ -2513,7 +2479,6 @@
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	PSName(target_destination) : "Particle System Entity" :  : "Set this to the name of the env_smokestack that you want this light to affect."
 ]
@@ -2667,7 +2632,6 @@
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	shootmodel(studio) : "Model" :  : "Thing to shoot out."
 	shootsounds(choices) : "Material Sound" : -1 : "What sounds play when the gibs collide with things." =
@@ -2795,7 +2759,6 @@
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 ]
 @PointClass base(CBaseEntity,Parent,Angles,Toggle) studio("models/editor/cone_helper.mdl") color(255 203 11) = env_steam : "A jet of steam, or heat wave distortion."
@@ -2890,7 +2853,6 @@
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	WeaponType(choices) : "Weapon Type" : 1 : "Type of weapon for the effects." =
 	[
@@ -3041,7 +3003,6 @@
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 ]
 @SolidClass base(CBaseEntity,EnableDisable) color(255 203 11) = fog_volume : "It controls fog and other visual cinematic elements within its volume. Typically when Valve uses this entity, they have a master version of their FX entities (use the Master flag) which is used for the outdoors effects, then only create fog_volumes for indoors areas. The entity uses its bounding box to detect players, meaning the trigger will always be in a cuboid shape regardless of how the brush(es) look."
@@ -3104,7 +3065,6 @@
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	use_sub_string(string) : "Use Sub-String" :  : "Text that will appear under Use String."
 	input Enable(void) : "Makes the entity able to be interacted with."
@@ -3242,7 +3202,6 @@
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	input BlockNav(void) : "Starts blocking nav areas."
 	input UnblockNav(void) : "Stops blocking nav areas."
@@ -3773,7 +3732,6 @@
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 ]
 @PointClass base(CBaseEntity,Parent,Angles) studio("models/editor/cone_helper.mdl") line(255 255 255, targetname, cpoint1) line(255 255 255, targetname, cpoint2) line(255 255 255, targetname, cpoint3) line(255 255 255, targetname, cpoint4) line(255 255 255, targetname, cpoint5) line(255 255 255, targetname, cpoint6) line(255 255 255, targetname, cpoint7) line(255 255 255, targetname, cpoint8) line(255 255 255, targetname, cpoint9) line(255 255 255, targetname, cpoint10) line(255 255 255, targetname, cpoint11) line(255 255 255, targetname, cpoint12) line(255 255 255, targetname, cpoint13) line(255 255 255, targetname, cpoint14) line(255 255 255, targetname, cpoint15) line(255 255 255, targetname, cpoint16) line(255 255 255, targetname, cpoint17) line(255 255 255, targetname, cpoint18) line(255 255 255, targetname, cpoint19) line(255 255 255, targetname, cpoint20) line(255 255 255, targetname, cpoint21) line(255 255 255, targetname, cpoint22) line(255 255 255, targetname, cpoint23) line(255 255 255, targetname, cpoint24) line(255 255 255, targetname, cpoint25) line(255 255 255, targetname, cpoint26) line(255 255 255, targetname, cpoint27) line(255 255 255, targetname, cpoint28) line(255 255 255, targetname, cpoint29) line(255 255 255, targetname, cpoint30) line(255 255 255, targetname, cpoint31) line(255 255 255, targetname, cpoint32) line(255 255 255, targetname, cpoint33) line(255 255 255, targetname, cpoint34) line(255 255 255, targetname, cpoint35) line(255 255 255, targetname, cpoint36) line(255 255 255, targetname, cpoint37) line(255 255 255, targetname, cpoint38) line(255 255 255, targetname, cpoint39) line(255 255 255, targetname, cpoint40) line(255 255 255, targetname, cpoint41) line(255 255 255, targetname, cpoint42) line(255 255 255, targetname, cpoint43) line(255 255 255, targetname, cpoint44) line(255 255 255, targetname, cpoint45) line(255 255 255, targetname, cpoint46) line(255 255 255, targetname, cpoint47) line(255 255 255, targetname, cpoint48) line(255 255 255, targetname, cpoint49) line(255 255 255, targetname, cpoint50) line(255 255 255, targetname, cpoint51) line(255 255 255, targetname, cpoint52) line(255 255 255, targetname, cpoint53) line(255 255 255, targetname, cpoint54) line(255 255 255, targetname, cpoint55) line(255 255 255, targetname, cpoint56) line(255 255 255, targetname, cpoint57) line(255 255 255, targetname, cpoint58) line(255 255 255, targetname, cpoint59) line(255 255 255, targetname, cpoint60) line(255 255 255, targetname, cpoint61) line(255 255 255, targetname, cpoint62) line(255 255 255, targetname, cpoint63) color(255 203 11) = info_particle_system : "Creates and controls a particle system. https://developer.valvesoftware.com/wiki/Particle_System_Overview"
@@ -3783,7 +3741,6 @@
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	cpoint1(target_destination) : "Control Point 1" :  : "An entity which acts as a control point for the particle system. If any value is left blank all those following it will be ignored. Control point entities must exist on the client's end. This means that most invisible entities will not work. info_target is a good entity to use. TIP: Control point 0 is the origin of the info_particle_system itself."
 	cpoint1_parent(integer) : "Control Point 1's Parent" :  : "A control point entity which will act as a parent to this one."
@@ -3885,7 +3842,6 @@
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	input SetViewControl(target_destination) : "If a survivor is standing here, sets their view to a specified point_viewcontrol_survivor."
 ]
@@ -3911,7 +3867,6 @@
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	input SpawnZombie(void) : "Makes a zombie spawn."
 	input StartleZombie(string) : "If a witch was spawned here, this input makes it angry. Parameter is optional; specific survivor to attack."
@@ -3932,7 +3887,6 @@
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	ApplyEntity(target_destination) : "Apply Entity" :  : "An optional entity to apply the decal to. If this is empty, the decal will locate the entity by tracing. This might be useful if the decal is close to multiple things and isn't applying how you want."
 	input Activate(void) : "Applies the decal, then removes the infodecal entity."
@@ -3959,7 +3913,6 @@
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	_shadoworiginoffset(vector) : "Shadow cast offset" : "0 0 0" : "An offset from the light source which acts as the actual light source, for the purpose of _rt_shadows shadow angles. Useful for dealing with funny-looking shadows from lights close to the ground: Just move it up the Z axis."
 ]
@@ -4030,7 +3983,6 @@
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	_shadoworiginoffset(vector) : "Shadow cast offset" : "0 0 0" : "An offset from the light source which acts as the actual light source, for the purpose of _rt_shadows shadow angles. Useful for dealing with funny-looking shadows from lights close to the ground: Just move it up the Z axis."
 ]
@@ -4180,7 +4132,6 @@
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	input EnableCollisions(void) : "Enables collisions between the two entities."
 	input DisableCollisions(void) : "Disables collisions between the two entities."
@@ -4232,7 +4183,6 @@
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	IntegerValue(integer) : "Integer Value (optional)" : 0 : "A value to add to the list."
 	input InputValue(integer) : "Adds a value to the list of ones being compared."
@@ -4283,7 +4233,6 @@
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	LowerRandomBound(float) : "Minimum Random Interval" : 1 : "If using a random time, the minimum amount of time between timer intervals."
 	UpperRandomBound(float) : "Maximum Random Interval" : 2 : "If using a random time, the maximum amount of time between timer intervals."
@@ -4349,7 +4298,6 @@
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	input Add(float) : "Adds the parameter value onto the stored number."
 	input Subtract(float) : "Subtracts the parameter value from the stored number."
@@ -5007,7 +4955,6 @@
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	input Enable(void) : "Enables the car alarm functionality."
 	input Disable(void) : "Disables the car alarm functionality."
@@ -5110,7 +5057,6 @@
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	modelscale(float) readonly : "Model Scale" : 1 : "Must be kept at 1 to avoid crash."
 	input StartRagdollBoogie(void) : "Makes the ragdoll shake as if it was shocked."
@@ -5139,26 +5085,22 @@
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	lightingorigin(target_destination) : "Lighting Origin" :  : "An info_lighting from which to sample lighting and cubemaps."
 	disablevertexlighting(choices) : "Disable Vertex lighting" : 0 : "Makes the model be lit solely by the amount of light that hits the origin. This is a small but good optimization for props that are already evenly lit." =
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	disableselfshadowing(choices) : "Disable Self-Shadowing with vertex lighting" : 0 : "Prop will not cast shadows on itself when per-vertex lighting is calculated. Good for foliage and trees." =
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	ignorenormals(choices) : "Ignore surface normal for computing vertex lighting" : 0 : "Makes light ignore the angle it hits the side of the prop at. This allows for paper-thin props like grass to be lit evenly on both sides." =
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	renderamt(integer) : "Render FX/Transparency (0 - 255)" : 255 : "Transparency amount. 0 is invisible, 255 is fully visible."
 	rendercolor(color255) : "Render Color (R G B)" : "255 255 255" : "Color channel filter to add to this entity. Note: Requires the map to be compiled with RAD on."
@@ -5184,7 +5126,6 @@
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	input Color(color255) : "Sets Shadow Color."
 	input Direction(vector) : "Sets the shadow direction as a vector."
@@ -5200,7 +5141,6 @@
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	fogstart(float) : "Fog Start" : 200 : "How far away from the viewer the fog should start."
 	fogend(float) : "Fog End" : 25000 : "How far away from the viewer the fog reaches Fog Max Density."
@@ -5211,14 +5151,12 @@
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	fogdir(vector) : "Primary Fog Direction" : "1 0 0" : "An angle which the viewer camera is checked against to figure out the blend between the primary and secondary fog colors."
 	use_angles(choices) : "Use Angles for Fog Dir" : 0 : "Use Pitch Yaw Roll for the Fog Blend direction instead of Primary Fog Direction." =
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 ]
 @PointClass base(CBaseEntity) color(0 255 255) = skybox_swapper : "It precaches an alternate skybox material and swaps it with the current one on command by changing the sv_skyname convar."
@@ -5228,7 +5166,6 @@
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	clip_3D_skybox_near_to_world_far_offset(float) : "3D sky near plane offset" : 0 : "TODO: Description"
 	input Trigger(void) : "Changes the skybox to Skybox Material Name."
@@ -5278,7 +5215,6 @@
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	input FinaleEscapeVehicleReadyForSurvivors(void) : "Unlocks the escape vehicle navigation mesh areas (RESCUE_VEHICLE), and makes survivors speak out that the vehicle has arrived."
 	input FinaleEscapeForceSurvivorPositions(void) : "Teleports the survivors to a set of info_survivor_position entities. Used to make the survivors stand still on the escape vehicle or hide them."
@@ -5445,19 +5381,16 @@
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	upgradepack_incendiary(choices) : "Incendiary Ammo" : 1 : "Allows upgrade_ammo_incendiarys to spawn here." =
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	upgradepack_explosive(choices) : "Explosive Ammo" : 1 : "Allows upgrade_ammo_explosives to spawn here." =
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 ]
 @PointClass base(CBaseEntity,Parent,Angles) size(-4 -4 -4, 4 4 4) color(255 203 11) = vgui_screen : "A computer-like screen that shows one or more textures. TODO: Can a vgui_screens.txt be successfully packed into a map? If not, the entity is worthless for L4D2."
@@ -5548,85 +5481,71 @@
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	item2(choices) : "First aid kit" : 0 : "Allows a weapon_first_aid_kit_spawn to spawn here." =
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	item3(choices) : "Molotov Cocktail" : 1 : "Allows a weapon_molotov_spawn to spawn here." =
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	item4(choices) : "Pain Pills" : 1 : "Allows a weapon_pain_pills_spawn or weapon_first_aid_kit_spawn to spawn here." =
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	item5(choices) : "Pipe Bomb" : 1 : "Allows a weapon_pipe_bomb_spawn to spawn here." =
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	item6(choices) : "Oxygen Tank" : 0 : "Allows a prop_physics with the model models/props_equipment/oxygentank01.mdl to spawn here." =
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	item7(choices) : "Propane Tank" : 0 : "Allows a prop_physics with the model models/props_junk/propanecanister001a.mdl to spawn here." =
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	item8(choices) : "Gasoline Can" : 0 : "Allows a prop_physics with the model models/props_junk/gascan001a.mdl to spawn here." =
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	item11(choices) : "Adrenaline" : 1 : "Allows a weapon_adrenaline_spawn to spawn here." =
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	item12(choices) : "Defibrillator" : 0 : "Allows a weapon_defibrillator_spawn to spawn here." =
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	item13(choices) : "Boomer Bile" : 0 : "Allows a weapon_vomitjar_spawn to spawn here." =
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	item16(choices) : "Chainsaw" : 0 : "Allows a weapon_chainsaw_spawn to spawn here." =
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	item17(choices) : "Grenade Launcher" : 0 : "Allows a weapon_grenade_launcher_spawn to spawn here." =
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	item18(choices) : "M60 Machinegun" : 0 : "Allows a weapon_rifle_m60_spawn to spawn here." =
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	melee_weapon(string) : "Melee Weapon" :  : "If not empty, allows a weapon_melee_spawn to spawn here. The text entered should be a list of melee weapons that may spawn. Each weapon name should be separated with commas. If 'Any' is specified, any melee weapon may spawn here. (Example: crowbar,fireaxe,machete)"
 	weaponskin(integer) : "Item Skin" : -1 : "Some items have multiple versions of their textures, called skins. Set this to a number other than -1 to make the given item use that skin instead of the default."
@@ -5766,13 +5685,11 @@
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	no_cs_weapons(choices) : "No CS Weapons" : 0 : "Does not allow the entity to create any Counter-Strike weapons. (AWP, Scout, MP5, SG552)" =
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	model(studio) : "Helper Model" : "models/w_models/weapons/w_m60.mdl" : "A model to use in Hammer to help position the entity. Doesn't control the actual model of the melee weapon."
 ]
@@ -5795,7 +5712,6 @@
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	maxoccludeearea(float) : "Max occludee area" : 0 : "Prevents func_occluder testing for entities that take up more than X% of the screen."
 	minoccluderarea(float) : "Min occluder area" : 0 : "Prevents func_occluders from being used if they take up less than X% of the screen."

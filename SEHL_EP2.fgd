@@ -351,7 +351,6 @@
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	input DisallowInteraction(void) : "Disallows Alyx from trying to hack rollermines."
 	input AllowInteraction(void) : "Allows Alyx to hack rollermines."
@@ -444,7 +443,6 @@
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 ]
 @NPCClass base(CNPC_CombineDropship) studio("models/combine_dropship.mdl") = npc_combinedropship : "Dropships fly to places to carry and dispense NPCs or other objects. This NPC uses path_tracks to navigate."
@@ -693,7 +691,6 @@
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 ]
 @PointClass base(CPropVehicleDriveable) studio() = prop_vehicle_jeep : "Jalopy. This is also used for the buggy in HL2 but it's slightly different in Episodic."
@@ -704,7 +701,6 @@
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	input ShowHudHint(void) : "Shows the driver the HUD hints for the turbo and handbrake. The jeep automatically sends this to itself the first few times the player enters it."
 	input StartRemoveTauCannon(void) : "Moves the gun off the jeep. Meant to be immediately followed by FinishRemoveTauCannon."
@@ -768,7 +764,6 @@
 	[ 
 		0 : "No"
 		1 : "Yes"
-
 	]
 	input ConstraintBroken(void) : "Breaks the striderbuster. If it's currently on a strider, it won't have an explosion effect. Bug: If it's in the car's holder, it will give the explosion effect but not actually break."
 	output OnAttachToStrider(void) : "Fires when the striderbuster attaches to a strider."

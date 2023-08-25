@@ -3215,7 +3215,7 @@
 	output OnEqual(void) : "Fires if all the values are equal."
 	output OnNotEqual(void) : "Fires if any values are not equal."
 ]
-@PointClass base(CBaseEntity,EnableDisable,Toggle)iconsprite("editor/logic_relay") color(248 155 0) = logic_relay : "It fires outputs when told to, acting as a sort of middleman for IO. It's often used to organize map logic. It can be told to enable and disable itself, and cancel delayed inputs. The entity will prevent itself from firing while any delayed inputs are waiting to go through, meaning it has an optional cooldown on how often it can fire."
+@PointClass base(CBaseEntity,EnableDisable,Toggle) iconsprite("editor/logic_relay") color(248 155 0) = logic_relay : "It fires outputs when told to, acting as a sort of middleman for IO. It's often used to organize map logic. It can be told to enable and disable itself, and cancel delayed inputs. The entity will prevent itself from firing while any delayed inputs are waiting to go through, meaning it has an optional cooldown on how often it can fire."
 [
 	spawnflags(flags) =
 	[
